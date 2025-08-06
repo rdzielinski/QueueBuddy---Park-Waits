@@ -1,0 +1,1 @@
+CODE_SIGN_ENTITLEMENTS = QueueBuddy - Park Waits/QueueBuddy___Park_Waits.entitlements

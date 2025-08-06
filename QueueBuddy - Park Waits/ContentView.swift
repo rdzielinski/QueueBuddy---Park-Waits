@@ -1,61 +1,42 @@
-//
-//  ContentView.swift
-//  QueueBuddy - Park Waits
-//
-//  Created by Robby Dzielinski on 6/9/25.
-//
-
 import SwiftUI
-import SwiftData
+import CoreLocation
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+    @StateObject private var viewModel = WaitTimeViewModel()
+    @State private var selectedTab = 0
+    @State private var searchText = ""
+    @State private var myDayMapCenter: CLLocationCoordinate2D? = nil
 
     var body: some View {
-        NavigationSplitView {
-            List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
-                    }
-                }
-                .onDelete(perform: deleteItems)
-            }
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
-                    }
-                }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
+        TabView(selection: $selectedTab) {
+            HomeView(
+                searchText: $searchText,
+                selectedTab: $selectedTab,
+                myDayMapCenter: $myDayMapCenter
+            )
+            .tabItem { Label("Home", systemImage: "house.fill") }
+            .tag(0)
 
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
+            FavoritedAttractionsView(searchText: $searchText)
+                .tabItem { Label("Favorites", systemImage: "star.fill") }
+                .tag(1)
 
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
-            }
+            NotificationListView()
+                .tabItem { Label("Notifications", systemImage: "bell.badge.fill") }
+                .tag(2)
+
+            AIPlaygroundView()
+                .tabItem { Label("AI", systemImage: "sparkles") }
+                .tag(3)
+
+            MyDayMapView(centerOnCoordinate: $myDayMapCenter)
+                .tabItem { Label("My Day", systemImage: "map.fill") }
+                .tag(4)
+        }
+        .environmentObject(viewModel)
+        .onAppear {
+            Task { await viewModel.loadInitialData() }
         }
     }
 }
 
-#Preview {
-    ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
-}

@@ -3,15 +3,31 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 77;
+	objectVersion = 90;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		219ED46C2DFBBC9400E049F8 /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = 219ED46B2DFBBC9400E049F8 /* GoogleGenerativeAI */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		21C299C52E244380005B6ECA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 21D04F1B2DF7652C00526ECA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 21D04F222DF7652C00526ECA;
+			remoteInfo = "QueueBuddy - Park Waits";
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		21A476172E29C61C001B3DA9 /* QueueBuddy - Park Waits.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "QueueBuddy - Park Waits.xctestplan"; sourceTree = "<group>"; };
+		21C299C12E244380005B6ECA /* QueueBuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QueueBuddyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		21D04F232DF7652C00526ECA /* QueueBuddy - Park Waits.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QueueBuddy - Park Waits.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		21D04F302DF7652D00526ECA /* Exceptions for "QueueBuddy - Park Waits" folder in "QueueBuddy - Park Waits" target */ = {
+		21C299BC2E244249005B6ECA /* Exceptions for "QueueBuddy - Park Waits" folder in "QueueBuddy - Park Waits" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -21,10 +37,15 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		21C299C22E244380005B6ECA /* QueueBuddyTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = QueueBuddyTests;
+			sourceTree = "<group>";
+		};
 		21D04F252DF7652C00526ECA /* QueueBuddy - Park Waits */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				21D04F302DF7652D00526ECA /* Exceptions for "QueueBuddy - Park Waits" folder in "QueueBuddy - Park Waits" target */,
+				21C299BC2E244249005B6ECA /* Exceptions for "QueueBuddy - Park Waits" folder in "QueueBuddy - Park Waits" target */,
 			);
 			path = "QueueBuddy - Park Waits";
 			sourceTree = "<group>";
@@ -32,12 +53,16 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		21D04F202DF7652C00526ECA /* Frameworks */ = {
+		21C299BE2E244380005B6ECA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21D04F202DF7652C00526ECA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				219ED46C2DFBBC9400E049F8 /* GoogleGenerativeAI in Frameworks */,
+			);
 		};
 /* End PBXFrameworksBuildPhase section */
 
@@ -45,7 +70,9 @@
 		21D04F1A2DF7652C00526ECA = {
 			isa = PBXGroup;
 			children = (
+				21A476172E29C61C001B3DA9 /* QueueBuddy - Park Waits.xctestplan */,
 				21D04F252DF7652C00526ECA /* QueueBuddy - Park Waits */,
+				21C299C22E244380005B6ECA /* QueueBuddyTests */,
 				21D04F242DF7652C00526ECA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +81,7 @@
 			isa = PBXGroup;
 			children = (
 				21D04F232DF7652C00526ECA /* QueueBuddy - Park Waits.app */,
+				21C299C12E244380005B6ECA /* QueueBuddyTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,6 +89,27 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		21C299C02E244380005B6ECA /* QueueBuddyTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 21C299C72E244380005B6ECA /* Build configuration list for PBXNativeTarget "QueueBuddyTests" */;
+			buildPhases = (
+				21C299BD2E244380005B6ECA /* Sources */,
+				21C299BE2E244380005B6ECA /* Frameworks */,
+				21C299BF2E244380005B6ECA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				21C299C62E244380005B6ECA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				21C299C22E244380005B6ECA /* QueueBuddyTests */,
+			);
+			name = QueueBuddyTests;
+			productName = QueueBuddyTests;
+			productReference = 21C299C12E244380005B6ECA /* QueueBuddyTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		21D04F222DF7652C00526ECA /* QueueBuddy - Park Waits */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 21D04F312DF7652D00526ECA /* Build configuration list for PBXNativeTarget "QueueBuddy - Park Waits" */;
@@ -71,13 +120,12 @@
 			);
 			buildRules = (
 			);
-			dependencies = (
-			);
 			fileSystemSynchronizedGroups = (
 				21D04F252DF7652C00526ECA /* QueueBuddy - Park Waits */,
 			);
 			name = "QueueBuddy - Park Waits";
 			packageProductDependencies = (
+				219ED46B2DFBBC9400E049F8 /* GoogleGenerativeAI */,
 			);
 			productName = "QueueBuddy - Park Waits";
 			productReference = 21D04F232DF7652C00526ECA /* QueueBuddy - Park Waits.app */;
@@ -90,9 +138,13 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 1640;
-				LastUpgradeCheck = 1640;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
 				TargetAttributes = {
+					21C299C02E244380005B6ECA = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 21D04F222DF7652C00526ECA;
+					};
 					21D04F222DF7652C00526ECA = {
 						CreatedOnToolsVersion = 16.4;
 					};
@@ -107,54 +159,132 @@
 			);
 			mainGroup = 21D04F1A2DF7652C00526ECA;
 			minimizedProjectReferenceProxies = 1;
-			preferredProjectObjectVersion = 77;
+			packageReferences = (
+				219ED46A2DFBBC9400E049F8 /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
+			);
+			preferredProjectObjectVersion = 90;
 			productRefGroup = 21D04F242DF7652C00526ECA /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				21D04F222DF7652C00526ECA /* QueueBuddy - Park Waits */,
+				21C299C02E244380005B6ECA /* QueueBuddyTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		21D04F212DF7652C00526ECA /* Resources */ = {
+		21C299BF2E244380005B6ECA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21D04F212DF7652C00526ECA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		21D04F1F2DF7652C00526ECA /* Sources */ = {
+		21C299BD2E244380005B6ECA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
 			files = (
 			);
-			runOnlyForDeploymentPostprocessing = 0;
+		};
+		21D04F1F2DF7652C00526ECA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		21C299C62E244380005B6ECA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 21D04F222DF7652C00526ECA /* QueueBuddy - Park Waits */;
+			targetProxy = 21C299C52E244380005B6ECA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
-		21D04F322DF7652D00526ECA /* Debug */ = {
+		21C299C82E244380005B6ECA /* Debug configuration for PBXNativeTarget "QueueBuddyTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RV3V5935AF;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Dzielinski.QueueBuddyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QueueBuddy - Park Waits.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/QueueBuddy - Park Waits";
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Debug;
+		};
+		21C299C92E244380005B6ECA /* Release configuration for PBXNativeTarget "QueueBuddyTests" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RV3V5935AF;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Dzielinski.QueueBuddyTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/QueueBuddy - Park Waits.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/QueueBuddy - Park Waits";
+				XROS_DEPLOYMENT_TARGET = 26.0;
+			};
+			name = Release;
+		};
+		21D04F322DF7652D00526ECA /* Debug configuration for PBXNativeTarget "QueueBuddy - Park Waits" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "QueueBuddy - Park Waits/QueueBuddy___Park_Waits.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "QueueBuddy - Park Waits/QueueBuddy - Park Waits.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = RV3V5935AF;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "QueueBuddy - Park Waits/Info.plist";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "QueueBuddy - Park Waits";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app uses Health data to show your steps and distance walked in the park.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app uses Health data to show your steps and distance walked in the park.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to track your park visit and show your route on the map.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to track your park visit and show your route on the map.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -168,23 +298,33 @@
 			};
 			name = Debug;
 		};
-		21D04F332DF7652D00526ECA /* Release */ = {
+		21D04F332DF7652D00526ECA /* Release configuration for PBXNativeTarget "QueueBuddy - Park Waits" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "QueueBuddy - Park Waits/QueueBuddy___Park_Waits.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "QueueBuddy - Park Waits/QueueBuddy - Park Waits.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = RV3V5935AF;
+				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "QueueBuddy - Park Waits/Info.plist";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "QueueBuddy - Park Waits";
+				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app uses Health data to show your steps and distance walked in the park.";
+				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app uses Health data to show your steps and distance walked in the park.";
+				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to track your park visit and show your route on the map.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to track your park visit and show your route on the map.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -198,7 +338,7 @@
 			};
 			name = Release;
 		};
-		21D04F342DF7652D00526ECA /* Debug */ = {
+		21D04F342DF7652D00526ECA /* Debug configuration for PBXProject "QueueBuddy - Park Waits" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -257,12 +397,13 @@
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
 		};
-		21D04F352DF7652D00526ECA /* Release */ = {
+		21D04F352DF7652D00526ECA /* Release configuration for PBXProject "QueueBuddy - Park Waits" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -314,6 +455,7 @@
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -322,25 +464,50 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		21C299C72E244380005B6ECA /* Build configuration list for PBXNativeTarget "QueueBuddyTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21C299C82E244380005B6ECA /* Debug configuration for PBXNativeTarget "QueueBuddyTests" */,
+				21C299C92E244380005B6ECA /* Release configuration for PBXNativeTarget "QueueBuddyTests" */,
+			);
+			defaultConfigurationName = Release;
+		};
 		21D04F1E2DF7652C00526ECA /* Build configuration list for PBXProject "QueueBuddy - Park Waits" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				21D04F342DF7652D00526ECA /* Debug */,
-				21D04F352DF7652D00526ECA /* Release */,
+				21D04F342DF7652D00526ECA /* Debug configuration for PBXProject "QueueBuddy - Park Waits" */,
+				21D04F352DF7652D00526ECA /* Release configuration for PBXProject "QueueBuddy - Park Waits" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 		21D04F312DF7652D00526ECA /* Build configuration list for PBXNativeTarget "QueueBuddy - Park Waits" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				21D04F322DF7652D00526ECA /* Debug */,
-				21D04F332DF7652D00526ECA /* Release */,
+				21D04F322DF7652D00526ECA /* Debug configuration for PBXNativeTarget "QueueBuddy - Park Waits" */,
+				21D04F332DF7652D00526ECA /* Release configuration for PBXNativeTarget "QueueBuddy - Park Waits" */,
 			);
-			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		219ED46A2DFBBC9400E049F8 /* XCRemoteSwiftPackageReference "generative-ai-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/generative-ai-swift";
+			requirement = {
+				kind = exactVersion;
+				version = 0.5.6;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		219ED46B2DFBBC9400E049F8 /* GoogleGenerativeAI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 219ED46A2DFBBC9400E049F8 /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
+			productName = GoogleGenerativeAI;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 21D04F1B2DF7652C00526ECA /* Project object */;
 }
