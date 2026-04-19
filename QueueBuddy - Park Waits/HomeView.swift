@@ -405,6 +405,13 @@ struct HomeView: View {
         HStack(alignment: .center, spacing: 12) {
             RouteStripe(color: DB.accent(for: park.id), width: 14)
 
+            AttractionGlyph(
+                attractionId: attraction.id,
+                attractionType: attraction.type,
+                tint: DB.accent(for: park.id),
+                size: 26
+            )
+
             VStack(alignment: .leading, spacing: 3) {
                 Text(attraction.name)
                     .font(DB.heading(15, weight: .medium))

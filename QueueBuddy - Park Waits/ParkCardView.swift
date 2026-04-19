@@ -28,11 +28,8 @@ struct ParkCardView: View {
                 .padding(.vertical, 12)
                 .shadow(color: accent.opacity(0.6), radius: 8)
 
-            // Glyph
-            Image(systemName: DB.glyph(for: park.id))
-                .font(.system(size: 24, weight: .regular))
-                .foregroundStyle(accent)
-                .frame(width: 40, height: 40)
+            // Glyph — custom silhouette per park
+            ParkGlyph(parkId: park.id, tint: accent, size: 36)
 
             // Name + status line
             VStack(alignment: .leading, spacing: 4) {

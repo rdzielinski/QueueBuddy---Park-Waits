@@ -36,6 +36,13 @@ struct AttractionRowCardView: View {
                 RouteStripe(color: routeColor, width: 14)
             }
 
+            AttractionGlyph(
+                attractionId: attraction.id,
+                attractionType: attraction.type,
+                tint: routeColor ?? DB.amber,
+                size: 26
+            )
+
             VStack(alignment: .leading, spacing: 3) {
                 HStack(spacing: 6) {
                     if isHot {

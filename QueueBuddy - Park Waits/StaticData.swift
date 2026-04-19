@@ -402,12 +402,227 @@ struct StaticData {
         return seasonalKeywords.contains { lower.contains($0) }
     }
 
-    /// **THIS IS THE CORRECTED FUNCTION**
-    /// It takes the attraction type string (e.g., "meet") and returns a
-    /// valid SF Symbol name (e.g., "person.2.fill").
+    /// Preferred SF Symbol per specific attraction. When an ID appears here,
+    /// `symbol(for:)` returns its thematic symbol instead of the generic
+    /// type-based fallback. Attractions that aren't in this table fall back
+    /// to `getSFSymbol(for:)`.
+    static let attractionSymbolOverrides: [Int: String] = [
+        // ── Magic Kingdom ────────────────────────────────────────────
+        // Main Street
+        146:   "person.bust.fill",               // Meet Mickey
+        1188:  "car.rear.fill",                  // Main Street Vehicles
+        1189:  "tram.fill",                      // Railroad - MSU
+        // Adventureland
+        134:   "ferry.fill",                     // Jungle Cruise
+        137:   "sailboat.fill",                  // Pirates of the Caribbean
+        141:   "fan.oscillation.fill",           // Magic Carpets of Aladdin
+        334:   "bird.fill",                      // Tiki Room
+        355:   "tree.fill",                      // Swiss Family Treehouse
+        1184:  "map.fill",                       // A Pirate's Adventure
+        // Frontierland
+        130:   "mountain.2.fill",                // Big Thunder Mountain
+        465:   "sailboat",                       // Tom Sawyer Island
+        1179:  "tram.fill",                      // Railroad - Frontierland
+        1214:  "guitars.fill",                   // Country Bear Jamboree
+        13630: "drop.triangle.fill",             // Tiana's Bayou Adventure
+        // Liberty Square
+        140:   "house.lodge.fill",               // Haunted Mansion
+        356:   "building.columns.fill",          // Hall of Presidents
+        1187:  "ferry.fill",                     // Liberty Square Riverboat
+        // Fantasyland
+        126:   "airplane",                       // Barnstormer (junior coaster w/ plane theme)
+        127:   "fish.fill",                      // Under the Sea
+        128:   "book.closed.fill",               // Enchanted Tales with Belle
+        129:   "hammer.fill",                    // Seven Dwarfs Mine Train
+        132:   "bird",                           // Dumbo the Flying Elephant
+        133:   "globe.europe.africa.fill",       // it's a small world
+        135:   "cup.and.saucer.fill",            // Mad Tea Party
+        136:   "airplane.circle.fill",           // Peter Pan's Flight
+        142:   "teddybear.fill",                 // Winnie the Pooh
+        144:   "theatermasks.fill",              // Pete's Silly Sideshow (Daring)
+        145:   "theatermasks.fill",              // Pete's Silly Sideshow (Dashing)
+        147:   "fish",                           // Meet Ariel
+        161:   "figure.equestrian.sports",       // Prince Charming Carrousel
+        171:   "music.note",                     // Mickey's PhilharMagic
+        1181:  "tram.fill",                      // Railroad - Fantasyland
+        6699:  "crown.fill",                     // Princess Fairytale Hall (Tiana)
+        6700:  "crown.fill",                     // Princess Fairytale Hall (Cinderella)
+        13763: "crown.fill",                     // Cinderella Castle
+        13764: "drop.circle.fill",               // Casey Jr. Splash
+        // Tomorrowland
+        125:   "theatermasks.fill",              // Monsters Inc Laugh Floor
+        131:   "scope",                          // Buzz Lightyear
+        138:   "sparkles",                       // Space Mountain
+        143:   "car.side.fill",                  // Tomorrowland Speedway
+        248:   "airplane.circle.fill",           // Astro Orbiter
+        457:   "gearshape.2.fill",               // Carousel of Progress
+        1190:  "tram.fill",                      // TTA PeopleMover
+        11527: "bolt.fill",                      // TRON Lightcycle / Run
+
+        // ── EPCOT ────────────────────────────────────────────────────
+        159:   "globe",                          // Spaceship Earth (geodesic)
+        13627: "person.2.fill",                  // Meet Disney Pals at Mickey & Friends
+        13775: "cpu.fill",                       // Project Tomorrow
+        158:   "rocket.fill",                    // Mission: SPACE
+        160:   "car.2.fill",                     // Test Track
+        10916: "sparkles.rectangle.stack.fill",  // Guardians Cosmic Rewind
+        13774: "cpu",                            // Advanced Training Lab
+        151:   "paperplane.fill",                // Soarin' Around the World
+        152:   "tortoise.fill",                  // Turtle Talk with Crush
+        153:   "fish.fill",                      // The Seas with Nemo
+        155:   "lightbulb.fill",                 // Journey Into Imagination (Figment)
+        156:   "leaf.fill",                      // Living with the Land
+        2495:  "film.stack.fill",                // Pixar Short Film Festival
+        7323:  "globe.americas.fill",            // Awesome Planet
+        12387: "drop.fill",                      // Journey of Water, Moana
+        13770: "fish.circle.fill",               // Bruce's Shark World
+        13777: "paintpalette.fill",              // ImageWorks
+        13782: "fish",                           // SeaBase Aquarium
+        466:   "sailboat.fill",                  // Gran Fiesta Tour (Mexico)
+        829:   "film.fill",                      // Canada Far and Wide (Circle-Vision)
+        2679:  "snowflake",                      // Frozen Ever After
+        6701:  "snowflake.circle.fill",          // Meet Anna and Elsa
+        10914: "fork.knife",                     // Remy's Ratatouille Adventure
+        10915: "fork.knife",                     // Remy's SR
+        13767: "leaf.circle.fill",               // Whispering Willows (China)
+        13772: "photo.artframe",                 // Gallery of Arts and History
+        13773: "flag.fill",                      // American Heritage Gallery
+        13776: "building.2.fill",                // Stave Church (Norway)
+        13778: "pencil.and.scribble",            // Kidcot Fun Stops
+        13779: "film.circle.fill",               // Palais du Cinéma
+        13780: "paintbrush.fill",                // Mexico Folk Art
+        13781: "paintpalette",                   // Bijutsu-kan (Japan)
+
+        // ── Hollywood Studios ────────────────────────────────────────
+        6361:  "star.circle.fill",               // Mickey & Minnie's Runaway Railway
+        119:   "guitars.fill",                   // Rock 'n' Roller Coaster
+        10901: "guitars.fill",                   // Rock 'n' Roller Coaster SR
+        123:   "building.2.fill",                // Tower of Terror
+        1176:  "rose.fill",                      // Beauty and the Beast Live
+        120:   "airplane.departure",             // Star Tours
+        1174:  "snowflake",                      // For the First Time in Forever
+        6702:  "flame.fill",                     // Indiana Jones Stunt Spectacular
+        6703:  "snowflake",                      // Meet Olaf
+        7333:  "film.stack",                     // Vacation Fun
+        2478:  "star.fill",                      // Star Wars Launch Bay
+        2574:  "bolt.horizontal.fill",           // Launch Bay: Darth Vader
+        2577:  "figure.arms.open",               // Launch Bay: Chewbacca
+        2663:  "film.fill",                      // Star Wars Launch Bay Theater
+        5145:  "photo.stack.fill",               // Walt Disney Presents
+        6704:  "camera.fill",                    // Red Carpet Dreams
+        6705:  "circle.dashed",                  // Launch Bay: BB-8
+        12425: "eyeglasses",                     // Meet Edna Mode
+        12430: "fish",                           // Meet Ariel at WDP
+        117:   "scope",                          // Toy Story Mania!
+        5476:  "dog.fill",                       // Slinky Dog Dash
+        5477:  "circle.hexagongrid.fill",        // Alien Swirling Saucers
+        6368:  "airplane",                       // Millennium Falcon
+        10902: "airplane",                       // Millennium Falcon SR
+        6369:  "star.circle",                    // Rise of the Resistance
+        14531: "star.circle",                    // Rise of the Resistance SR
+
+        // ── Animal Kingdom ────────────────────────────────────────────
+        13808: "figure.hiking",                  // Wilderness Explorers
+        13812: "tree.circle.fill",               // Oasis Exhibits
+        116:   "hand.wave.fill",                 // Adventurers Outpost
+        12451: "sailboat.fill",                  // Meet Moana
+        13751: "tree.fill",                      // Tree of Life
+        13811: "figure.walk.motion",             // Discovery Island Trails
+        113:   "tortoise",                       // Kilimanjaro Safaris
+        651:   "leaf.arrow.circlepath",          // Gorilla Falls Trail
+        655:   "tram.fill",                      // Wildlife Express Train
+        657:   "crown",                          // Festival of the Lion King
+        6680:  "pencil.tip",                     // Animation Experience
+        13806: "pawprint.fill",                  // Conservation Station
+        13807: "pawprint",                       // Affection Section
+        110:   "mountain.2.fill",                // Expedition Everest
+        112:   "drop.fill",                      // Kali River Rapids
+        10921: "bird.fill",                      // Feathered Friends in Flight
+        14533: "mountain.2.fill",                // Everest SR
+        111:   "circle.square",                  // DINOSAUR (approx silhouette)
+        652:   "figure.play",                    // The Boneyard
+        10920: "fish.circle.fill",               // Finding Nemo
+        13809: "square.stack.3d.up.fill",        // Dino-Sue
+        4438:  "moon.stars",                     // Na'vi River Journey
+        4439:  "airplane.departure",             // Avatar Flight of Passage
+
+        // ── Universal Studios Florida ────────────────────────────────
+        6018:  "eye.circle.fill",                // Despicable Me Minion Mayhem
+        12107: "gearshape.arrow.triangle.2.circlepath", // Transformers
+        13605: "music.note.list",                // Rip Ride Rockit
+        6021:  "building.2.crop.circle.fill",    // Race Through New York
+        6022:  "pyramid.fill",                   // Revenge of the Mummy
+        6038:  "car.2.fill",                     // Fast & Furious
+        6000:  "cart.fill",                      // Escape from Gringotts
+        6016:  "tram.fill",                      // Hogwarts Express King's Cross
+        5984:  "scope",                          // Men In Black
+        6039:  "smiley.fill",                    // Simpsons Ride
+        13110: "fork.knife.circle.fill",         // Kang & Kodos
+        13111: "bicycle",                        // E.T. Adventure
+        6025:  "figure.run",                     // Bourne Stuntacular
+        6026:  "theatermasks.circle.fill",       // Horror Make-Up Show
+
+        // ── Islands of Adventure ─────────────────────────────────────
+        5985:  "circle.grid.cross.fill",         // Amazing Adventures of Spider-Man
+        5988:  "arrow.up.and.down.circle.fill",  // Doctor Doom's Fearfall
+        6003:  "tornado",                        // Storm Force Accelatron
+        6004:  "bolt.circle.fill",               // Incredible Hulk Coaster
+        5989:  "drop.fill",                      // Dudley Do-Right's Ripsaw Falls
+        5998:  "ferry",                          // Popeye & Bluto's Barges
+        6013:  "ferry.fill",                     // Me Ship The Olive
+        5994:  "drop.circle.fill",               // JP River Adventure
+        5999:  "bird.fill",                      // Pteranodon Flyers
+        6008:  "figure.climbing",                // Camp Jurassic
+        6012:  "building.2.fill",                // Discovery Center
+        6017:  "figure.arms.open",               // Skull Island (Kong)
+        8721:  "pawprint.fill",                  // VelociCoaster
+        13109: "pawprint.fill",                  // VelociCoaster SR
+        5991:  "bird",                           // Flight of the Hippogriff
+        5992:  "book.closed.fill",               // Forbidden Journey
+        6015:  "tram.fill",                      // Hogwarts Express Hogsmeade
+        6682:  "bicycle",                        // Hagrid's Motorbike Adventure
+        13098: "wand.and.stars",                 // Ollivanders
+        5986:  "figure.equestrian.sports",       // Caro-Seuss-el
+        5987:  "cat.circle.fill",                // Cat in the Hat
+        5997:  "fish.fill",                      // One Fish Two Fish
+        6001:  "tram.fill",                      // High in the Sky Seuss Trolley
+        6011:  "pawprint",                       // If I Ran The Zoo
+
+        // ── Epic Universe ────────────────────────────────────────────
+        14688: "sparkles",                       // Constellation Carousel
+        14690: "sparkle.magnifyingglass",        // Stardust Racers
+        14740: "sparkle.magnifyingglass",        // Stardust Racers SR
+        14692: "moon.stars.fill",                // Curse of the Werewolf
+        14694: "flame.fill",                     // Monsters Unchained
+        14698: "moon.stars.fill",                // Curse of the Werewolf SR
+        14685: "pawprint.fill",                  // Meet Toothless
+        14691: "drop.fill",                      // Fyre Drill
+        14693: "flame",                          // Dragon Racer's Rally
+        14695: "airplane",                       // Hiccup Wing Glider
+        14682: "target",                         // Bowser Jr. Challenge
+        14683: "steeringwheel",                  // Mario Kart
+        14684: "steeringwheel",                  // Mario Kart SR
+        14689: "leaf.fill",                      // Yoshi's Adventure
+        14686: "hammer.circle.fill",             // Mine-Cart Madness
+        14697: "hammer.circle.fill",             // Mine-Cart Madness SR
+        14687: "wand.and.stars.inverse",         // Battle at the Ministry
+        14696: "wand.and.stars.inverse",         // Battle at the Ministry SR
+    ]
+
+    /// Returns the best SF Symbol for an attraction: per-ID override if
+    /// present, otherwise the type-based fallback.
+    static func symbol(for attractionId: Int, type: String?) -> String {
+        if let override = attractionSymbolOverrides[attractionId] {
+            return override
+        }
+        return getSFSymbol(for: type)
+    }
+
+    /// Generic type-based fallback for attractions that don't have a
+    /// thematic override in `attractionSymbolOverrides`.
     static func getSFSymbol(for attractionType: String?) -> String {
         guard let type = attractionType?.lowercased() else { return "questionmark.circle.fill" }
-        
+
         switch type {
             case "coaster":
                 return "train.side.front.car"
@@ -424,7 +639,7 @@ struct StaticData {
             case "show":
                 return "theatermasks.fill"
             case "meet":
-                return "person.2.fill" // This is the fix for your "meet" error
+                return "person.2.fill"
             case "experience":
                 return "figure.walk"
             case "train":

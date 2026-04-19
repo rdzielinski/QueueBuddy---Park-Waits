@@ -181,11 +181,19 @@ struct AttractionDetailView: View {
                             .lineLimit(1)
                     }
                 }
-                Text(attraction.name)
-                    .font(DB.displayTitle(26))
-                    .foregroundStyle(DB.text)
-                    .tracking(-0.6)
-                    .lineLimit(3)
+                HStack(alignment: .top, spacing: 14) {
+                    AttractionGlyph(
+                        attractionId: attraction.id,
+                        attractionType: attraction.type,
+                        tint: accent,
+                        size: 48
+                    )
+                    Text(attraction.name)
+                        .font(DB.displayTitle(26))
+                        .foregroundStyle(DB.text)
+                        .tracking(-0.6)
+                        .lineLimit(3)
+                }
 
                 if !metaLine.isEmpty {
                     MonoLabel(text: metaLine, color: DB.muted, tracking: 1.5, size: 11)
