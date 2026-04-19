@@ -87,56 +87,298 @@ struct StaticData {
     }
     
     static let attractionToLandMapping: [Int: String] = [
-        // Magic Kingdom (6)
-        130: "Frontierland", 13630: "Frontierland", 128: "Frontierland",
-        140: "Adventureland", 134: "Adventureland", 125: "Adventureland", 141: "Adventureland",
-        137: "Liberty Square", 1214: "Liberty Square", 1187: "Liberty Square",
-        138: "Fantasyland", 136: "Fantasyland", 355: "Fantasyland", 13764: "Fantasyland", 133: "Fantasyland", 135: "Fantasyland", 132: "Fantasyland", 126: "Fantasyland", 1184: "Fantasyland", 13763: "Fantasyland", 145: "Fantasyland", 6699: "Fantasyland", 6700: "Fantasyland", 144: "Fantasyland",
-        129: "Tomorrowland", 11527: "Tomorrowland", 131: "Tomorrowland", 248: "Tomorrowland", 161: "Tomorrowland", 1188: "Tomorrowland", 334: "Tomorrowland", 356: "Tomorrowland", 171: "Tomorrowland",
-        1179: "Fantasyland", 1189: "Frontierland", 1190: "Main Street, U.S.A.", 147: "Main Street, U.S.A.", 457: "Main Street, U.S.A.", 465: "Frontierland",
-        
-        // Epcot (5)
-        160: "World Discovery", 10916: "World Discovery", 158: "World Discovery",
-        151: "World Nature", 13775: "World Nature", 156: "World Nature", 13779: "World Nature",
-        155: "World Celebration", 13770: "World Celebration",
-        13778: "World Showcase", 153: "World Showcase", 13781: "World Showcase", 159: "World Showcase", 7323: "World Showcase", 13777: "World Showcase", 13627: "World Showcase", 13773: "World Showcase",
-        
-        // Hollywood Studios (7)
-        123: "Sunset Boulevard", 14531: "Sunset Boulevard", 119: "Sunset Boulevard", 2663: "Sunset Boulevard",
-        6368: "Toy Story Land", 117: "Toy Story Land", 10901: "Toy Story Land", 5476: "Toy Story Land", 5477: "Toy Story Land",
-        6369: "Star Wars: Galaxy's Edge", 10902: "Star Wars: Galaxy's Edge",
-        120: "Echo Lake", 1174: "Echo Lake", 7333: "Echo Lake",
-        6361: "Hollywood Boulevard", 5145: "Grand Avenue", 118: "Animation Courtyard",
-        
-        // Animal Kingdom (8)
-        110: "Asia", 112: "Asia",
-        14533: "Pandora - The World of Avatar", 4438: "Pandora - The World of Avatar",
-        111: "DinoLand U.S.A.", 652: "DinoLand U.S.A.", 13809: "DinoLand U.S.A.",
-        651: "Africa", 657: "Africa", 655: "Africa", 13811: "Africa",
-        10921: "Discovery Island", 10920: "Discovery Island", 116: "Discovery Island",
-        
-        // Universal Studios Florida (65)
-        13605: "Production Central", 6018: "Production Central", 12107: "Production Central", 6021: "Production Central", 6022: "Production Central",
-        5984: "New York", 6039: "New York",
-        13110: "Springfield, U.S.A.", 13111: "Springfield, U.S.A.",
-        6000: "The Wizarding World of Harry Potter - Diagon Alley", 6016: "The Wizarding World of Harry Potter - Diagon Alley", 6015: "The Wizarding World of Harry Potter - Diagon Alley",
-        5990: "Woody Woodpecker's KidZone", 6014: "Woody Woodpecker's KidZone",
-        6038: "San Francisco",
-        6025: "Hollywood", 6026: "Hollywood",
-        
-        // Islands of Adventure (64)
-        5988: "Marvel Super Hero Island", 5985: "Marvel Super Hero Island", 5999: "Marvel Super Hero Island", 5986: "Marvel Super Hero Island",
-        13109: "The Wizarding World of Harry Potter - Hogsmeade", 5987: "The Wizarding World of Harry Potter - Hogsmeade", 8721: "The Wizarding World of Harry Potter - Hogsmeade", 6682: "The Wizarding World of Harry Potter - Hogsmeade", 5991: "The Wizarding World of Harry Potter - Hogsmeade",
-        90001: "Jurassic Park", 5997: "Jurassic Park", 6004: "Jurassic Park",
-        6008: "Seuss Landing", 6017: "Seuss Landing", 6012: "Seuss Landing", 6003: "Seuss Landing", 6001: "Seuss Landing",
-        5994: "Toon Lagoon", 6011: "Toon Lagoon",
-        
-        // Epic Universe (334)
-        14688: "Celestial Park", 14690: "Celestial Park", 14740: "Celestial Park",
-        14692: "Dark Universe", 14694: "Dark Universe", 14698: "Dark Universe",
-        14685: "How to Train Your Dragon - Isle of Berk", 14691: "How to Train Your Dragon - Isle of Berk", 14693: "How to Train Your Dragon - Isle of Berk", 14695: "How to Train Your Dragon - Isle of Berk",
-        14682: "Super Nintendo World", 14683: "Super Nintendo World", 14684: "Super Nintendo World", 14686: "Super Nintendo World - Donkey Kong Country", 14697: "Super Nintendo World - Donkey Kong Country", 14689: "Super Nintendo World",
-        14687: "The Wizarding World of Harry Potter - Ministry of Magic", 14696: "The Wizarding World of Harry Potter - Ministry of Magic"
+        // ───────────────────────────────────────────────────────────────
+        // MAGIC KINGDOM (parkId 6)
+        // ───────────────────────────────────────────────────────────────
+
+        // Main Street, U.S.A.
+        146:   "Main Street, U.S.A.",   // Meet Mickey at Town Square Theater
+        1188:  "Main Street, U.S.A.",   // Main Street Vehicles
+        1189:  "Main Street, U.S.A.",   // WDW Railroad - Main Street
+
+        // Adventureland
+        134:   "Adventureland",         // Jungle Cruise
+        137:   "Adventureland",         // Pirates of the Caribbean
+        141:   "Adventureland",         // The Magic Carpets of Aladdin
+        334:   "Adventureland",         // Walt Disney's Enchanted Tiki Room
+        355:   "Adventureland",         // Swiss Family Treehouse
+        1184:  "Adventureland",         // A Pirate's Adventure
+
+        // Frontierland
+        130:   "Frontierland",          // Big Thunder Mountain Railroad
+        465:   "Frontierland",          // Tom Sawyer Island
+        1179:  "Frontierland",          // WDW Railroad - Frontierland
+        1214:  "Frontierland",          // Country Bear Musical Jamboree
+        13630: "Frontierland",          // Tiana's Bayou Adventure
+
+        // Liberty Square
+        140:   "Liberty Square",        // Haunted Mansion
+        356:   "Liberty Square",        // The Hall of Presidents
+        1187:  "Liberty Square",        // Liberty Square Riverboat
+
+        // Fantasyland
+        126:   "Fantasyland",           // The Barnstormer
+        127:   "Fantasyland",           // Under the Sea - Journey of The Little Mermaid
+        128:   "Fantasyland",           // Enchanted Tales with Belle
+        129:   "Fantasyland",           // Seven Dwarfs Mine Train
+        132:   "Fantasyland",           // Dumbo the Flying Elephant
+        133:   "Fantasyland",           // "it's a small world"
+        135:   "Fantasyland",           // Mad Tea Party
+        136:   "Fantasyland",           // Peter Pan's Flight
+        142:   "Fantasyland",           // The Many Adventures of Winnie the Pooh
+        144:   "Fantasyland",           // Meet Daring Disney Pals at Pete's Silly Sideshow
+        145:   "Fantasyland",           // Meet Dashing Disney Pals at Pete's Silly Sideshow
+        147:   "Fantasyland",           // Meet Ariel at Her Grotto
+        161:   "Fantasyland",           // Prince Charming Regal Carrousel
+        171:   "Fantasyland",           // Mickey's PhilharMagic
+        1181:  "Fantasyland",           // WDW Railroad - Fantasyland
+        6699:  "Fantasyland",           // Meet Princess Tiana at Princess Fairytale Hall
+        6700:  "Fantasyland",           // Meet Cinderella at Princess Fairytale Hall
+        13763: "Fantasyland",           // Cinderella Castle
+        13764: "Fantasyland",           // Casey Jr. Splash 'N' Soak Station
+
+        // Tomorrowland
+        125:   "Tomorrowland",          // Monsters Inc. Laugh Floor
+        131:   "Tomorrowland",          // Buzz Lightyear's Space Ranger Spin
+        138:   "Tomorrowland",          // Space Mountain
+        143:   "Tomorrowland",          // Tomorrowland Speedway
+        248:   "Tomorrowland",          // Astro Orbiter
+        457:   "Tomorrowland",          // Walt Disney's Carousel of Progress
+        1190:  "Tomorrowland",          // Tomorrowland Transit Authority PeopleMover
+        11527: "Tomorrowland",          // TRON Lightcycle / Run
+
+        // ───────────────────────────────────────────────────────────────
+        // EPCOT (parkId 5)
+        // ───────────────────────────────────────────────────────────────
+
+        // World Celebration (central hub — Spaceship Earth, CommuniCore)
+        159:   "World Celebration",     // Spaceship Earth
+        13627: "World Celebration",     // Meet Beloved Disney Pals at Mickey & Friends
+        13775: "World Celebration",     // Project Tomorrow (SE post-show)
+
+        // World Discovery (east — future/thrill)
+        158:   "World Discovery",       // Mission: SPACE
+        160:   "World Discovery",       // Test Track
+        10916: "World Discovery",       // Guardians of the Galaxy: Cosmic Rewind
+        13774: "World Discovery",       // Advanced Training Lab (Mission: SPACE)
+
+        // World Nature (west — nature/Imagination/Land/Seas)
+        151:   "World Nature",          // Soarin' Around the World
+        152:   "World Nature",          // Turtle Talk With Crush
+        153:   "World Nature",          // The Seas with Nemo & Friends
+        155:   "World Nature",          // Journey Into Imagination With Figment
+        156:   "World Nature",          // Living with the Land
+        2495:  "World Nature",          // Disney and Pixar Short Film Festival (Imagination)
+        7323:  "World Nature",          // Awesome Planet (The Land)
+        12387: "World Nature",          // Journey of Water, Inspired by Moana
+        13770: "World Nature",          // Bruce's Shark World (Seas)
+        13777: "World Nature",          // ImageWorks - The "What If" Labs (Imagination)
+        13782: "World Nature",          // SeaBase Aquarium (Seas)
+
+        // World Showcase (pavilions)
+        466:   "World Showcase",        // Gran Fiesta Tour (Mexico)
+        829:   "World Showcase",        // Canada Far and Wide (Canada)
+        2679:  "World Showcase",        // Frozen Ever After (Norway)
+        6701:  "World Showcase",        // Meet Anna and Elsa at Royal Sommerhus (Norway)
+        10914: "World Showcase",        // Remy's Ratatouille Adventure (France)
+        10915: "World Showcase",        // Remy's Ratatouille Single Rider (France)
+        13767: "World Showcase",        // House of the Whispering Willows (China)
+        13772: "World Showcase",        // Gallery of Arts and History
+        13773: "World Showcase",        // American Heritage Gallery
+        13776: "World Showcase",        // Stave Church Gallery (Norway)
+        13778: "World Showcase",        // Kidcot Fun Stops
+        13779: "World Showcase",        // Palais du Cinéma (France)
+        13780: "World Showcase",        // Mexico Folk Art Gallery
+        13781: "World Showcase",        // Bijutsu-kan Gallery (Japan)
+
+        // ───────────────────────────────────────────────────────────────
+        // DISNEY'S HOLLYWOOD STUDIOS (parkId 7)
+        // ───────────────────────────────────────────────────────────────
+
+        // Hollywood Boulevard
+        6361:  "Hollywood Boulevard",   // Mickey & Minnie's Runaway Railway
+
+        // Sunset Boulevard
+        119:   "Sunset Boulevard",      // Rock 'n' Roller Coaster
+        123:   "Sunset Boulevard",      // Tower of Terror
+        1176:  "Sunset Boulevard",      // Beauty and the Beast – Live on Stage
+        10901: "Sunset Boulevard",      // Rock 'n' Roller Coaster Single Rider
+
+        // Echo Lake
+        120:   "Echo Lake",             // Star Tours
+        1174:  "Echo Lake",             // For the First Time in Forever (Hyperion)
+        6702:  "Echo Lake",             // Indiana Jones Epic Stunt Spectacular
+        6703:  "Echo Lake",             // Meet Olaf at Celebrity Spotlight
+        7333:  "Echo Lake",             // Vacation Fun
+
+        // Animation Courtyard
+        2478:  "Animation Courtyard",   // Star Wars Launch Bay
+        2574:  "Animation Courtyard",   // Launch Bay: Darth Vader
+        2577:  "Animation Courtyard",   // Launch Bay: Chewbacca
+        2663:  "Animation Courtyard",   // Star Wars Launch Bay Theater
+        5145:  "Animation Courtyard",   // Walt Disney Presents
+        6704:  "Animation Courtyard",   // Meet Disney Stars at Red Carpet Dreams
+        6705:  "Animation Courtyard",   // Launch Bay: BB-8
+        12425: "Animation Courtyard",   // Meet Edna Mode
+        12430: "Animation Courtyard",   // Meet Ariel at Walt Disney Presents
+
+        // Toy Story Land
+        117:   "Toy Story Land",        // Toy Story Mania!
+        5476:  "Toy Story Land",        // Slinky Dog Dash
+        5477:  "Toy Story Land",        // Alien Swirling Saucers
+
+        // Star Wars: Galaxy's Edge
+        6368:  "Star Wars: Galaxy's Edge",   // Millennium Falcon: Smugglers Run
+        6369:  "Star Wars: Galaxy's Edge",   // Rise of the Resistance
+        10902: "Star Wars: Galaxy's Edge",   // Millennium Falcon Single Rider
+        14531: "Star Wars: Galaxy's Edge",   // Rise of the Resistance Single Rider
+
+        // ───────────────────────────────────────────────────────────────
+        // ANIMAL KINGDOM (parkId 8)
+        // ───────────────────────────────────────────────────────────────
+
+        // The Oasis / park-wide
+        13808: "The Oasis",             // Wilderness Explorers
+        13812: "The Oasis",             // The Oasis Exhibits
+
+        // Discovery Island
+        116:   "Discovery Island",      // Meet Favorite Disney Pals at Adventurers Outpost
+        12451: "Discovery Island",      // Meet Moana at Character Landing
+        13751: "Discovery Island",      // Tree of Life
+        13811: "Discovery Island",      // Discovery Island Trails
+
+        // Africa
+        113:   "Africa",                // Kilimanjaro Safaris
+        651:   "Africa",                // Gorilla Falls Exploration Trail
+        655:   "Africa",                // Wildlife Express Train
+        657:   "Africa",                // Festival of the Lion King
+
+        // Rafiki's Planet Watch
+        6680:  "Rafiki's Planet Watch", // The Animation Experience
+        13806: "Rafiki's Planet Watch", // Conservation Station
+        13807: "Rafiki's Planet Watch", // Affection Section
+
+        // Asia
+        110:   "Asia",                  // Expedition Everest
+        112:   "Asia",                  // Kali River Rapids
+        10921: "Asia",                  // Feathered Friends in Flight (Caravan Stage)
+        14533: "Asia",                  // Expedition Everest Single Rider
+
+        // DinoLand U.S.A.
+        111:   "DinoLand U.S.A.",       // DINOSAUR
+        652:   "DinoLand U.S.A.",       // The Boneyard
+        10920: "DinoLand U.S.A.",       // Finding Nemo: The Big Blue
+        13809: "DinoLand U.S.A.",       // Dino-Sue
+
+        // Pandora - The World of Avatar
+        4438:  "Pandora - The World of Avatar",   // Na'vi River Journey
+        4439:  "Pandora - The World of Avatar",   // Avatar Flight of Passage
+
+        // ───────────────────────────────────────────────────────────────
+        // UNIVERSAL STUDIOS FLORIDA (parkId 65)
+        // ───────────────────────────────────────────────────────────────
+
+        // Production Central
+        6018:  "Production Central",    // Despicable Me Minion Mayhem
+        12107: "Production Central",    // Transformers: The Ride-3D
+        13605: "Production Central",    // Hollywood Rip Ride Rockit
+
+        // New York
+        6021:  "New York",              // Race Through New York Starring Jimmy Fallon
+        6022:  "New York",              // Revenge of the Mummy
+
+        // San Francisco
+        6038:  "San Francisco",         // Fast & Furious – Supercharged
+
+        // The Wizarding World of Harry Potter — Diagon Alley (includes London)
+        6000:  "The Wizarding World of Harry Potter - Diagon Alley", // Escape from Gringotts
+        6016:  "The Wizarding World of Harry Potter - Diagon Alley", // Hogwarts Express - King's Cross
+
+        // World Expo
+        5984:  "World Expo",            // MEN IN BLACK Alien Attack
+
+        // Springfield, U.S.A.
+        6039:  "Springfield, U.S.A.",   // The Simpsons Ride
+        13110: "Springfield, U.S.A.",   // Kang & Kodos' Twirl 'n' Hurl
+
+        // DreamWorks Land (formerly Woody Woodpecker's KidZone, rethemed 2024)
+        13111: "DreamWorks Land",       // E.T. Adventure
+
+        // Hollywood
+        6025:  "Hollywood",             // The Bourne Stuntacular
+        6026:  "Hollywood",             // Horror Make-Up Show
+
+        // ───────────────────────────────────────────────────────────────
+        // UNIVERSAL'S ISLANDS OF ADVENTURE (parkId 64)
+        // ───────────────────────────────────────────────────────────────
+
+        // Marvel Super Hero Island
+        5985:  "Marvel Super Hero Island",  // Amazing Adventures of Spider-Man
+        5988:  "Marvel Super Hero Island",  // Doctor Doom's Fearfall
+        6003:  "Marvel Super Hero Island",  // Storm Force Accelatron
+        6004:  "Marvel Super Hero Island",  // Incredible Hulk Coaster
+
+        // Toon Lagoon
+        5989:  "Toon Lagoon",               // Dudley Do-Right's Ripsaw Falls
+        5998:  "Toon Lagoon",               // Popeye & Bluto's Bilge-Rat Barges
+        6013:  "Toon Lagoon",               // Me Ship, The Olive
+
+        // Jurassic Park
+        5994:  "Jurassic Park",             // Jurassic Park River Adventure
+        5999:  "Jurassic Park",             // Pteranodon Flyers
+        6008:  "Jurassic Park",             // Camp Jurassic
+        6012:  "Jurassic Park",             // Jurassic Park Discovery Center
+        6017:  "Jurassic Park",             // Skull Island: Reign of Kong (sited on the Jurassic border)
+        8721:  "Jurassic Park",             // Jurassic World VelociCoaster
+        13109: "Jurassic Park",             // VelociCoaster Single Rider
+
+        // The Wizarding World of Harry Potter — Hogsmeade
+        5991:  "The Wizarding World of Harry Potter - Hogsmeade",   // Flight of the Hippogriff
+        5992:  "The Wizarding World of Harry Potter - Hogsmeade",   // Forbidden Journey
+        6015:  "The Wizarding World of Harry Potter - Hogsmeade",   // Hogwarts Express - Hogsmeade Station
+        6682:  "The Wizarding World of Harry Potter - Hogsmeade",   // Hagrid's Motorbike Adventure
+        13098: "The Wizarding World of Harry Potter - Hogsmeade",   // Ollivanders in Hogsmeade
+
+        // Seuss Landing
+        5986:  "Seuss Landing",             // Caro-Seuss-el
+        5987:  "Seuss Landing",             // The Cat in The Hat
+        5997:  "Seuss Landing",             // One Fish, Two Fish
+        6001:  "Seuss Landing",             // High in the Sky Seuss Trolley Train
+        6011:  "Seuss Landing",             // If I Ran The Zoo
+
+        // ───────────────────────────────────────────────────────────────
+        // UNIVERSAL EPIC UNIVERSE (parkId 334)
+        // ───────────────────────────────────────────────────────────────
+
+        // Celestial Park
+        14688: "Celestial Park",            // Constellation Carousel
+        14690: "Celestial Park",            // Stardust Racers
+        14740: "Celestial Park",            // Stardust Racers Single Rider
+
+        // Dark Universe
+        14692: "Dark Universe",             // Curse of the Werewolf
+        14694: "Dark Universe",             // Monsters Unchained
+        14698: "Dark Universe",             // Curse of the Werewolf Single Rider
+
+        // How to Train Your Dragon - Isle of Berk
+        14685: "How to Train Your Dragon - Isle of Berk",   // Meet Toothless
+        14691: "How to Train Your Dragon - Isle of Berk",   // Fyre Drill
+        14693: "How to Train Your Dragon - Isle of Berk",   // Dragon Racer's Rally
+        14695: "How to Train Your Dragon - Isle of Berk",   // Hiccup Wing Glider
+
+        // Super Nintendo World
+        14682: "Super Nintendo World",                      // Bowser Jr. Challenge
+        14683: "Super Nintendo World",                      // Mario Kart: Bowser's Challenge
+        14684: "Super Nintendo World",                      // Mario Kart Single Rider
+        14689: "Super Nintendo World",                      // Yoshi's Adventure
+
+        // Donkey Kong Country (sub-land of Super Nintendo World)
+        14686: "Super Nintendo World - Donkey Kong Country", // Mine-Cart Madness
+        14697: "Super Nintendo World - Donkey Kong Country", // Mine-Cart Madness Single Rider
+
+        // The Wizarding World of Harry Potter - Ministry of Magic
+        14687: "The Wizarding World of Harry Potter - Ministry of Magic", // Battle at the Ministry
+        14696: "The Wizarding World of Harry Potter - Ministry of Magic", // Battle at the Ministry SR
     ]
 
     /// Returns true if a land name looks seasonal (Halloween Horror Nights
