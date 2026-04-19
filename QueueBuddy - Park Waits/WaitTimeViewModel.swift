@@ -497,6 +497,8 @@ class WaitTimeViewModel: ObservableObject {
     private static let systemPrompt = """
     You are QueueBuddy, a friendly and concise theme park guide for Walt Disney World and Universal Orlando (including Epic Universe).
     Use the park context provided to answer with specifics: current wait times, weather, and any height or accessibility constraints you're told about.
+    The park context lists every ride under its correct land — treat that list as authoritative.
+    Do NOT infer a ride's land from its name. If the context says Mine-Cart Madness is in Super Nintendo World — Donkey Kong Country, that's where it is, even if the name sounds like something else.
     Prefer bullet lists when recommending multiple rides. Keep answers under 180 words unless the question needs a step-by-step plan.
     If a ride is closed or the park is likely closed today, say so and suggest alternatives.
     If you don't know something, say so honestly instead of guessing.
@@ -571,9 +573,19 @@ class WaitTimeViewModel: ObservableObject {
                 parts.append("Weather: \(Int(weather.temperature))°F, \(weather.description).")
             }
             if let attractions = attractionsByPark[park.id], !attractions.isEmpty {
-                let lines = attractions
-                    .sorted { $0.name < $1.name }
-                    .map { attraction -> String in
+                // Group by land so the AI sees each ride under its correct
+                // location — prevents hallucinated lands (e.g. putting
+                // Mine-Cart Madness in the Wizarding World because the
+                // name sounds mine-themed).
+                let byLand = Dictionary(grouping: attractions) { a in
+                    StaticData.attractionToLandMapping[a.id] ?? "Other"
+                }
+
+                var block = "Live attraction status (grouped by land — use these land assignments as ground truth):"
+                for landName in byLand.keys.sorted() {
+                    block += "\n\n" + landName.uppercased()
+                    let sorted = (byLand[landName] ?? []).sorted { $0.name < $1.name }
+                    for attraction in sorted {
                         let wait: String
                         if attraction.is_open == false {
                             wait = "Closed"
@@ -582,13 +594,14 @@ class WaitTimeViewModel: ObservableObject {
                         } else {
                             wait = "wait unknown"
                         }
+                        var line = "\n  - \(attraction.name): \(wait)"
                         if let minHeight = attraction.min_height_inches, minHeight > 0 {
-                            return "- \(attraction.name): \(wait) (min height \(minHeight)\")"
-                        } else {
-                            return "- \(attraction.name): \(wait)"
+                            line += " (min height \(minHeight)\")"
                         }
+                        block += line
                     }
-                parts.append("Live attraction status:\n" + lines.joined(separator: "\n"))
+                }
+                parts.append(block)
             }
         }
 
