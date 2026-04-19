@@ -6,10 +6,6 @@
 	objectVersion = 90;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		219ED46C2DFBBC9400E049F8 /* GoogleGenerativeAI in Frameworks */ = {isa = PBXBuildFile; productRef = 219ED46B2DFBBC9400E049F8 /* GoogleGenerativeAI */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		21C299C52E244380005B6ECA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -61,7 +57,6 @@
 		21D04F202DF7652C00526ECA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
-				219ED46C2DFBBC9400E049F8 /* GoogleGenerativeAI in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -124,9 +119,6 @@
 				21D04F252DF7652C00526ECA /* QueueBuddy - Park Waits */,
 			);
 			name = "QueueBuddy - Park Waits";
-			packageProductDependencies = (
-				219ED46B2DFBBC9400E049F8 /* GoogleGenerativeAI */,
-			);
 			productName = "QueueBuddy - Park Waits";
 			productReference = 21D04F232DF7652C00526ECA /* QueueBuddy - Park Waits.app */;
 			productType = "com.apple.product-type.application";
@@ -139,7 +131,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
 				LastSwiftUpdateCheck = 2600;
-				LastUpgradeCheck = 2600;
+				LastUpgradeCheck = 2610;
 				TargetAttributes = {
 					21C299C02E244380005B6ECA = {
 						CreatedOnToolsVersion = 26.0;
@@ -160,7 +152,6 @@
 			mainGroup = 21D04F1A2DF7652C00526ECA;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				219ED46A2DFBBC9400E049F8 /* XCRemoteSwiftPackageReference "generative-ai-swift" */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 21D04F242DF7652C00526ECA /* Products */;
@@ -214,6 +205,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = RV3V5935AF;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -239,6 +231,7 @@
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEAD_CODE_STRIPPING = YES;
 				DEVELOPMENT_TEAM = RV3V5935AF;
 				GENERATE_INFOPLIST_FILE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
@@ -263,7 +256,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = "QueueBuddy - Park Waits/QueueBuddy - Park Waits.entitlements";
+				CODE_SIGN_ENTITLEMENTS = "QueueBuddy - Park Waits/QueueBuddy - Park WaitsDebug.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = RV3V5935AF;
@@ -292,9 +285,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Dzielinski.QueueBuddy---Park-Waits";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 18.6;
 			};
 			name = Debug;
 		};
@@ -332,9 +328,12 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = "Dzielinski.QueueBuddy---Park-Waits";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "appletvos appletvsimulator iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = "1,2,3";
+				TVOS_DEPLOYMENT_TARGET = 18.6;
 			};
 			name = Release;
 		};
@@ -400,6 +399,7 @@
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				TVOS_DEPLOYMENT_TARGET = 15.6;
 			};
 			name = Debug;
 		};
@@ -457,6 +457,7 @@
 				SDKROOT = iphoneos;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				TVOS_DEPLOYMENT_TARGET = 15.6;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -489,25 +490,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		219ED46A2DFBBC9400E049F8 /* XCRemoteSwiftPackageReference "generative-ai-swift" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/google/generative-ai-swift";
-			requirement = {
-				kind = exactVersion;
-				version = 0.5.6;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		219ED46B2DFBBC9400E049F8 /* GoogleGenerativeAI */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 219ED46A2DFBBC9400E049F8 /* XCRemoteSwiftPackageReference "generative-ai-swift" */;
-			productName = GoogleGenerativeAI;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 21D04F1B2DF7652C00526ECA /* Project object */;
 }

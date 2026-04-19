@@ -46,22 +46,6 @@ struct LiveAttraction: Decodable {
     let is_open: Bool
 }
 
-// --- Gemini API Models ---
-// FIXED: Removed the 'private' keyword from these structs, making them accessible
-// to other files in the app, like ThemeParkAPI.swift.
-struct GeminiResponse: Decodable {
-    let candidates: [GeminiCandidate]
-}
-struct GeminiCandidate: Decodable {
-    let content: GeminiContent
-}
-struct GeminiContent: Decodable {
-    let parts: [GeminiPart]
-}
-struct GeminiPart: Decodable {
-    let text: String
-}
-
 // MARK: - App's Core Data Models
 struct Park: Identifiable, Hashable, Codable {
     let id: Int

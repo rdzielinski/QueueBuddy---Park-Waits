@@ -1,59 +1,71 @@
-// SplashScreenView.swift
-
 import SwiftUI
 import UIKit
 
 struct SplashScreenView: View {
-    @Binding var isActive: Bool // This binding communicates back to the RootView.
-    @State private var textOpacity: Double = 0
-    @State private var logoOpacity: Double = 0
-    
+    @Binding var isActive: Bool
+    @State private var titleOpacity: Double = 0
+    @State private var subtitleOpacity: Double = 0
+    @State private var flapValue: Int = 0
+
     var body: some View {
         ZStack {
-            Color(.systemBackground).ignoresSafeArea()
-                .ignoresSafeArea(.all, edges: .all)
-            GeometryReader { geometry in
-                ZStack {
-                    Image("AppLogo")
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .ignoresSafeArea()
-                        .opacity(logoOpacity)
+            DB.bg.ignoresSafeArea()
+
+            RadialGradient(
+                colors: [DB.amber.opacity(0.14), .clear],
+                center: .center,
+                startRadius: 10, endRadius: 360
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 24) {
+                HStack(spacing: 10) {
+                    RouteStripe(color: DB.amber, width: 30)
+                    Text("BOARDING")
+                        .font(DB.mono(11, weight: .bold))
+                        .tracking(3)
+                        .foregroundStyle(DB.amber)
                 }
-                .frame(width: geometry.size.width, height: geometry.size.height)
+
+                HStack(alignment: .firstTextBaseline, spacing: 2) {
+                    Text("QueueBuddy")
+                        .font(DB.displayTitle(40))
+                        .foregroundStyle(DB.text)
+                        .tracking(-1)
+                    Text(".")
+                        .font(DB.displayTitle(40))
+                        .foregroundStyle(DB.amber)
+                }
+                .opacity(titleOpacity)
+
+                FlapDigits(value: flapValue, size: 54, tone: DB.amber, label: "WAIT")
+                    .opacity(titleOpacity)
+
+                Text("Orlando theme parks · live waits")
+                    .font(DB.mono(11))
+                    .tracking(1.8)
+                    .foregroundStyle(DB.muted)
+                    .opacity(subtitleOpacity)
             }
-            VStack(spacing: 20) {
-                Text("QueueBuddy - Park Waits")
-                    .font(.largeTitle.bold())
-                    .foregroundColor(.white)
-                    .opacity(textOpacity)
-            }
-            .offset(y: UIScreen.main.bounds.height / 18)
         }
         .onAppear {
             Task {
-                // Animate the logo fading in.
-                withAnimation(.easeIn(duration: 1.0)) {
-                    logoOpacity = 1
+                withAnimation(.easeIn(duration: 0.6)) { titleOpacity = 1 }
+                // Ticker animation: flip through a few values to settle on 00
+                for value in stride(from: 75, through: 0, by: -15) {
+                    try? await Task.sleep(nanoseconds: 90_000_000)
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                        flapValue = value
+                    }
                 }
-                try? await Task.sleep(nanoseconds: 1_000_000_000) // Wait 1s for image fade in
-                
-                // Animate the text fading in.
-                withAnimation(.easeIn(duration: 1.0)) {
-                    textOpacity = 1
-                }
-                
-                try? await Task.sleep(nanoseconds: 1_050_000_000) // Wait 1.05s for text animation + small delay
-                
-                // Trigger light haptic feedback
-                let generator = UIImpactFeedbackGenerator(style: .light)
-                generator.impactOccurred()
-                
-                try? await Task.sleep(nanoseconds: 2_000_000_000) // 2s display time
-                
-                // Animate the transition to the main app.
+                withAnimation(.easeIn(duration: 0.5)) { subtitleOpacity = 1 }
+
+                #if os(iOS)
+                UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                #endif
+
+                try? await Task.sleep(nanoseconds: 900_000_000)
                 withAnimation(.easeOut(duration: 0.5)) {
-                    // This tells the RootView to switch to the main app content.
                     isActive = false
                 }
             }

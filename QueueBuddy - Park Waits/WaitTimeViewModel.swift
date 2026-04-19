@@ -3,14 +3,13 @@ import SwiftUI
 import Combine
 import BackgroundTasks
 import UserNotifications
-import GoogleGenerativeAI
 import CoreLocation
 
 @MainActor
 class WaitTimeViewModel: ObservableObject {
 
     // MARK: - Published Properties
-    
+
     @Published var resortGroups: [ResortGroup] = []
     @Published var attractionsByPark: [Int: [Attraction]] = [:]
     @Published var attractionsByParkGroupedByLand: [Int: [LandDisplayGroup]] = [:]
@@ -32,23 +31,27 @@ class WaitTimeViewModel: ObservableObject {
     @Published var elapsed: TimeInterval = 0
     @Published var recordedWaitTimes: [Int: [TimeInterval]] = [:]
     @Published var errorMessage: String?
-    @Published var aiConversation: [String] = []
-    @Published var myDayMapCenter: CLLocationCoordinate2D?
+    @Published var aiConversation: [AIMessage] = []
+    /// Drives chrome accents (tab bar, system tint) based on whichever park
+    /// the user is currently viewing. Nil when no park is focused.
+    @Published var activeParkId: Int? = nil
+
+    struct AIMessage: Identifiable, Hashable {
+        enum Speaker { case user, ai }
+        let id = UUID()
+        let speaker: Speaker
+        let text: String
+    }
 
     // MARK: - Private Properties
-    
+
     static let backgroundAppRefreshTaskId = "Dzielinski.QueueBuddy---Park-Waits.apprefresh"
     static let backgroundDataRefreshTaskId = "Dzielinski.QueueBuddy---Park-Waits.datarefresh"
     private var timerTask: Task<Void, Error>?
     private let api = ThemeParkAPI.shared
-    private let attractionDetails: [Int: (name: String, parkId: Int, type: String?, description: String?, minHeight: Int?, lat: Double?, lon: Double?)]
-
-    // Gemini AI SDK
-    private let geminiModel: GenerativeModel
+    private let aiClient = ClaudeAIClient.shared
 
     init() {
-        self.attractionDetails = StaticData.getAttractionDetails()
-        self.geminiModel = GenerativeModel(name: "gemini-1.5-flash", apiKey: "AIzaSyB6LFww5x83PhVkFYccEBD42hWaSgNHczo")
         loadFavorites()
         loadNotificationPreferences()
         requestNotificationAuthorization()
@@ -57,7 +60,12 @@ class WaitTimeViewModel: ObservableObject {
     // MARK: - Notification Authorization
 
     private func requestNotificationAuthorization() {
-        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge]) { granted, error in
+        #if os(tvOS)
+        let options: UNAuthorizationOptions = [.badge]
+        #else
+        let options: UNAuthorizationOptions = [.alert, .sound, .badge]
+        #endif
+        UNUserNotificationCenter.current().requestAuthorization(options: options) { granted, error in
             if let error = error {
                 print("Notification authorization error: \(error)")
             }
@@ -70,7 +78,7 @@ class WaitTimeViewModel: ObservableObject {
     }
 
     // MARK: - Computed Properties
-    
+
     var globalSearchResults: [Attraction] {
         let allAttractions = attractionsByPark.values.flatMap { $0 }
         let searchedAttractions = allAttractions.filter { searchTerm.isEmpty || $0.name.localizedCaseInsensitiveContains(searchTerm) }
@@ -107,26 +115,158 @@ class WaitTimeViewModel: ObservableObject {
                 self.processAndStoreAttractions(staticAttractions, for: park.id, isUpdating: false)
             }
 
-            // Fetch live data one park at a time, with a delay to avoid rate limiting.
-            for group in groups {
-                for park in group.parks {
-                    do {
-                        let liveAttractions = try await self.api.fetchWaitTimes(for: park.id)
-                        self.processAndStoreAttractions(liveAttractions, for: park.id, isUpdating: true)
-                        // Add a small delay to avoid rate limiting (0.5 seconds)
-                        try await Task.sleep(nanoseconds: 500_000_000)
-                    } catch {
-                        print("Error fetching for park \(park.id): \(error)")
+            // Fetch live data for all parks concurrently. Much faster than the
+            // old serial-with-sleep loop, and resilient to the enclosing Task
+            // being cancelled mid-refresh (we detect it and skip the
+            // not-yet-started work rather than printing CancellationError for
+            // every remaining park).
+            let allParks = groups.flatMap { $0.parks }
+            let apiRef = api
+            let results: [(Int, [Attraction])] = await withTaskGroup(of: (Int, [Attraction])?.self) { group in
+                for park in allParks {
+                    group.addTask {
+                        if Task.isCancelled { return nil }
+                        do {
+                            let attractions = try await apiRef.fetchWaitTimes(for: park.id)
+                            return (park.id, attractions)
+                        } catch is CancellationError {
+                            return nil
+                        } catch {
+                            print("Error fetching for park \(park.id): \(error)")
+                            return nil
+                        }
+                    }
+                }
+                var collected: [(Int, [Attraction])] = []
+                for await result in group {
+                    if let result { collected.append(result) }
+                }
+                return collected
+            }
+
+            for (parkId, liveAttractions) in results {
+                processAndStoreAttractions(liveAttractions, for: parkId, isUpdating: true)
+                for attraction in liveAttractions where attraction.is_open == true {
+                    if let wait = attraction.wait_time {
+                        WaitHistoryStore.shared.record(attractionId: attraction.id, minutes: wait)
                     }
                 }
             }
+
+            if !results.isEmpty {
+                NetworkMonitor.shared.markSuccessfulSync()
+                updateSharedCache()
+            }
+
             // After loading, check for notification triggers
             await checkAndSendAttractionNotifications()
+        } catch is CancellationError {
+            // Refresh was cancelled (user navigated away). Not an error.
         } catch {
             print("❌ ERROR during initial data load: \(error.localizedDescription)")
             self.errorMessage = "Failed to load park data. Please check your internet connection and try again."
         }
         isLoading = false
+    }
+
+    /// Refresh live waits for a single park. Safe to call from pull-to-refresh
+    /// inside ParkDetailView without triggering the global fetch loop.
+    func refreshPark(_ park: Park) async {
+        do {
+            let liveAttractions = try await api.fetchWaitTimes(for: park.id)
+            processAndStoreAttractions(liveAttractions, for: park.id, isUpdating: true)
+        } catch is CancellationError {
+            // Ignore — user left the view.
+        } catch {
+            print("Error refreshing park \(park.id): \(error.localizedDescription)")
+        }
+    }
+
+    private func recordHistory(_ attractions: [Attraction]) {
+        for attraction in attractions where attraction.is_open == true {
+            if let wait = attraction.wait_time {
+                WaitHistoryStore.shared.record(attractionId: attraction.id, minutes: wait)
+            }
+        }
+    }
+
+    /// Snapshot the current state into the shared cache so the widget,
+    /// watch, App Intents, and Live Activity can read it without a network.
+    func updateSharedCache() {
+        let parks = resortGroups.flatMap { $0.parks }
+        let snapshots: [WaitCacheStore.CachedPark] = parks.map { park in
+            let attractions = (attractionsByPark[park.id] ?? [])
+                .sorted { $0.name < $1.name }
+                .map {
+                    WaitCacheStore.CachedAttraction(
+                        id: $0.id,
+                        name: $0.name,
+                        waitMinutes: $0.wait_time,
+                        isOpen: $0.is_open ?? true,
+                        minHeightInches: $0.min_height_inches
+                    )
+                }
+            let openCount = attractions.filter { $0.isOpen }.count
+            let validWaits = attractions.compactMap { $0.waitMinutes }
+            let avg = validWaits.isEmpty ? nil : validWaits.reduce(0, +) / validWaits.count
+            let accent = DB.accentHexValue(for: park.id)
+            return WaitCacheStore.CachedPark(
+                id: park.id,
+                name: park.name,
+                accentHex: accent,
+                openCount: openCount,
+                totalCount: attractions.count,
+                avgWait: avg,
+                attractions: attractions
+            )
+        }
+        WaitCacheStore.save(parks: snapshots)
+    }
+
+    /// Refresh live waits for every park without resetting their attraction
+    /// lists first. Meant for pull-to-refresh on aggregate views like
+    /// Favorites — won't wipe already-loaded data if a fetch fails.
+    func refreshAllWaits() async {
+        let allParks = resortGroups.flatMap { $0.parks }
+        guard !allParks.isEmpty else {
+            await loadInitialData()
+            return
+        }
+
+        let apiRef = api
+        let results: [(Int, [Attraction])] = await withTaskGroup(of: (Int, [Attraction])?.self) { group in
+            for park in allParks {
+                group.addTask {
+                    if Task.isCancelled { return nil }
+                    do {
+                        let attractions = try await apiRef.fetchWaitTimes(for: park.id)
+                        return (park.id, attractions)
+                    } catch is CancellationError {
+                        return nil
+                    } catch {
+                        print("Error refreshing park \(park.id): \(error.localizedDescription)")
+                        return nil
+                    }
+                }
+            }
+            var collected: [(Int, [Attraction])] = []
+            for await result in group {
+                if let result { collected.append(result) }
+            }
+            return collected
+        }
+
+        for (parkId, liveAttractions) in results {
+            processAndStoreAttractions(liveAttractions, for: parkId, isUpdating: true)
+            recordHistory(liveAttractions)
+        }
+
+        if !results.isEmpty {
+            NetworkMonitor.shared.markSuccessfulSync()
+            updateSharedCache()
+        }
+
+        await checkAndSendAttractionNotifications()
     }
 
     private func processAndStoreAttractions(_ attractions: [Attraction], for parkId: Int, isUpdating: Bool) {
@@ -164,6 +304,8 @@ class WaitTimeViewModel: ObservableObject {
                let wait = attraction.wait_time,
                attraction.is_open == true,
                wait <= preference.thresholdMinutes {
+
+                #if !os(tvOS)
                 let content = UNMutableNotificationContent()
                 content.title = "QueueBuddy Alert"
                 content.body = "\(attraction.name) is now at \(wait) min wait or less!"
@@ -179,6 +321,7 @@ class WaitTimeViewModel: ObservableObject {
                 } catch {
                     print("Failed to schedule notification: \(error)")
                 }
+                #endif
             }
         }
     }
@@ -243,7 +386,7 @@ class WaitTimeViewModel: ObservableObject {
         resetTimer()
         isTiming = true
         timingEntityId = entity.id
-        
+
         timerTask = Task {
             while !Task.isCancelled {
                 try await Task.sleep(for: .milliseconds(100))
@@ -270,26 +413,26 @@ class WaitTimeViewModel: ObservableObject {
         timingEntityId = nil
         elapsed = 0
     }
-    
+
     func formatTimeInterval(_ interval: TimeInterval) -> String {
         let minutes = Int(interval) / 60
         let seconds = Int(interval) % 60
         return String(format: "%02d:%02d", minutes, seconds)
     }
-    
+
     func waitTimes(forEntityId id: Int) -> [TimeInterval] {
         return recordedWaitTimes[id, default: []]
     }
 
     // MARK: - Manual Wait Time
-    
+
     func addWaitTime(_ seconds: Double, forEntityId id: Int) {
         let minutes = Int(seconds / 60)
         print("✅ Manually adding a wait time of \(minutes) minutes for entity ID: \(id).")
     }
-    
+
     // MARK: - Favorites
-    
+
     func isFavorited(attractionId: Int) -> Bool {
         favoriteAttractionIds.contains(attractionId)
     }
@@ -302,7 +445,7 @@ class WaitTimeViewModel: ObservableObject {
         }
         saveFavorites()
     }
-    
+
     private func saveFavorites() {
         if let data = try? JSONEncoder().encode(favoriteAttractionIds) {
             UserDefaults.standard.set(data, forKey: "favorites")
@@ -316,9 +459,9 @@ class WaitTimeViewModel: ObservableObject {
             }
         }
     }
-    
+
     // MARK: - Notifications
-    
+
     func isNotificationSet(for attractionId: Int) -> Bool {
         notificationPreferences.contains { $0.id == attractionId }
     }
@@ -334,7 +477,7 @@ class WaitTimeViewModel: ObservableObject {
         notificationPreferences.removeAll { $0.id == attractionId }
         saveNotificationPreferences()
     }
-    
+
     private func saveNotificationPreferences() {
         if let data = try? JSONEncoder().encode(notificationPreferences) {
             UserDefaults.standard.set(data, forKey: "notifications")
@@ -348,8 +491,17 @@ class WaitTimeViewModel: ObservableObject {
             }
         }
     }
-    
-    // MARK: - AI Conversation (Gemini SDK, Context-Aware, Weather in Imperial)
+
+    // MARK: - AI Conversation (Claude API)
+
+    private static let systemPrompt = """
+    You are QueueBuddy, a friendly and concise theme park guide for Walt Disney World and Universal Orlando (including Epic Universe).
+    Use the park context provided to answer with specifics: current wait times, weather, and any height or accessibility constraints you're told about.
+    Prefer bullet lists when recommending multiple rides. Keep answers under 180 words unless the question needs a step-by-step plan.
+    If a ride is closed or the park is likely closed today, say so and suggest alternatives.
+    If you don't know something, say so honestly instead of guessing.
+    """
+
     func fetchAIResponse(
         for query: String,
         parkContext: Park?,
@@ -357,6 +509,9 @@ class WaitTimeViewModel: ObservableObject {
         likes: [String]? = nil,
         dislikes: [String]? = nil
     ) async {
+        let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedQuery.isEmpty else { return }
+
         isAILoading = true
         aiError = nil
 
@@ -364,52 +519,85 @@ class WaitTimeViewModel: ObservableObject {
             await fetchWeather(for: park)
         }
 
-        aiConversation.append("User: \(query)")
+        let contextBlock = buildContextBlock(
+            park: parkContext,
+            childHeight: childHeight,
+            likes: likes,
+            dislikes: dislikes
+        )
 
-        var prompt = "You are QueueBuddy, a helpful, friendly, and concise theme park assistant. You are having a conversation with the user. Remember what the user has said so far and use all the data provided below. If you don't know, say so honestly.\n\n"
-        prompt += aiConversation.joined(separator: "\n") + "\n"
-
-        if let park = parkContext {
-            prompt += "\nCurrent Park: \(park.name)"
+        // History must already exclude the brand-new user turn — we'll pass
+        // the fresh message separately so the client can append it cleanly.
+        let history = aiConversation.map { msg in
+            ClaudeAIClient.Turn(
+                role: msg.speaker == .user ? .user : .assistant,
+                text: msg.text
+            )
         }
 
-        if let park = parkContext, let weather = weatherByPark[park.id] {
-            prompt += "\nCurrent Weather: \(Int(weather.temperature))°F, \(weather.description.capitalized)."
-        }
-
-        if let park = parkContext, let attractions = attractionsByPark[park.id], !attractions.isEmpty {
-            prompt += "\n\nCurrent Attraction Wait Times:\n"
-            for attraction in attractions.sorted(by: { $0.name < $1.name }) {
-                let wait = attraction.is_open == true ? "\(attraction.wait_time ?? 0) min" : "Closed"
-                prompt += "- \(attraction.name): \(wait)\n"
-            }
-        }
-
-        if let height = childHeight {
-            prompt += "\nChild Height: \(height) inches."
-        }
-
-        if let likes = likes, !likes.isEmpty {
-            prompt += "\nUser Likes: \(likes.joined(separator: ", "))."
-        }
-        if let dislikes = dislikes, !dislikes.isEmpty {
-            prompt += "\nUser Dislikes: \(dislikes.joined(separator: ", "))."
-        }
-
-        prompt += "\n\nIf the user asks for recommendations, consider the weather, wait times, height requirements, and their likes/dislikes. If the user asks for a specific wait time or weather, answer directly. If you don't have enough info, ask a clarifying question or say so. Be logical, reason step by step, and remember the conversation context."
+        aiConversation.append(AIMessage(speaker: .user, text: trimmedQuery))
 
         do {
-            let response = try await geminiModel.generateContent(prompt)
-            if let text = response.text {
-                aiConversation.append("AI: \(text)")
-                self.aiResponse = text
-            } else {
-                self.aiError = "No response text from Gemini."
-            }
+            let reply = try await aiClient.complete(
+                systemPrompt: Self.systemPrompt,
+                contextBlock: contextBlock,
+                history: history,
+                userMessage: trimmedQuery
+            )
+            aiConversation.append(AIMessage(speaker: .ai, text: reply))
+            aiResponse = reply
+        } catch let error as ClaudeAIClient.ClaudeError {
+            aiError = error.errorDescription
         } catch {
-            self.aiError = "Failed to get a response from the AI assistant. \(error.localizedDescription)"
+            aiError = "Failed to get a response. \(error.localizedDescription)"
         }
         isAILoading = false
+    }
+
+    private func buildContextBlock(
+        park: Park?,
+        childHeight: Int?,
+        likes: [String]?,
+        dislikes: [String]?
+    ) -> String? {
+        var parts: [String] = []
+
+        if let park {
+            parts.append("Park: \(park.name)")
+            if isParkLikelyClosed(parkId: park.id) {
+                parts.append("Note: this park appears to be closed or nearly closed right now.")
+            }
+            if let weather = weatherByPark[park.id] {
+                parts.append("Weather: \(Int(weather.temperature))°F, \(weather.description).")
+            }
+            if let attractions = attractionsByPark[park.id], !attractions.isEmpty {
+                let lines = attractions
+                    .sorted { $0.name < $1.name }
+                    .map { attraction -> String in
+                        let wait: String
+                        if attraction.is_open == false {
+                            wait = "Closed"
+                        } else if let time = attraction.wait_time {
+                            wait = time == 0 ? "walk-on" : "\(time) min"
+                        } else {
+                            wait = "wait unknown"
+                        }
+                        if let minHeight = attraction.min_height_inches, minHeight > 0 {
+                            return "- \(attraction.name): \(wait) (min height \(minHeight)\")"
+                        } else {
+                            return "- \(attraction.name): \(wait)"
+                        }
+                    }
+                parts.append("Live attraction status:\n" + lines.joined(separator: "\n"))
+            }
+        }
+
+        if let childHeight { parts.append("Traveling child height: \(childHeight) inches.") }
+        if let likes, !likes.isEmpty { parts.append("User likes: \(likes.joined(separator: ", ")).") }
+        if let dislikes, !dislikes.isEmpty { parts.append("User dislikes: \(dislikes.joined(separator: ", ")).") }
+
+        guard !parts.isEmpty else { return nil }
+        return "[Current Context]\n" + parts.joined(separator: "\n\n")
     }
 
     func resetAIConversation() {
@@ -417,16 +605,16 @@ class WaitTimeViewModel: ObservableObject {
         aiResponse = ""
         aiError = nil
     }
-    
+
     // MARK: - Color Logic
-    
+
     static func statusColor(status: String?, waitTime: Int?, isOpen: Bool?) -> Color {
         guard isOpen ?? true else { return .gray }
         if let status = status?.lowercased(), status == "closed" || status == "down" {
             return .red
         }
         guard let wait = waitTime else { return .purple }
-        
+
         switch wait {
         case 0...19: return .green
         case 20...45: return .orange
@@ -434,7 +622,6 @@ class WaitTimeViewModel: ObservableObject {
         }
     }
 }
-import Foundation
 
 extension WaitTimeViewModel {
     /// Returns true if the park is likely closed (most attractions are closed or down).

@@ -3,14 +3,13 @@ import CoreLocation
 
 struct HomeView: View {
     @EnvironmentObject var viewModel: WaitTimeViewModel
+    @StateObject private var network = NetworkMonitor.shared
+    @StateObject private var location = LocationManager.shared
     @Binding var searchText: String
     @Binding var selectedTab: Int
-    @Binding var myDayMapCenter: CLLocationCoordinate2D?
     @AppStorage("userDisplayName") private var userDisplayName: String = ""
-    @State private var animateGradient = false
     @State private var showOnboarding = false
-
-    private let columns = [GridItem(.adaptive(minimum: 180), spacing: 20)]
+    @State private var autoOpenedParkId: Int? = nil
 
     private var filteredParks: [Park] {
         if searchText.isEmpty {
@@ -31,116 +30,316 @@ struct HomeView: View {
                     grouped[groupName, default: []].append(park)
                 }
             }
-            return grouped.map { ResortGroup(name: $0.key, parks: $0.value) }
+            return grouped
+                .sorted { $0.key < $1.key }
+                .map { ResortGroup(name: $0.key, parks: $0.value) }
         }
+    }
+
+    /// Attraction with the longest live wait across all parks.
+    private var hottestAttraction: (attraction: Attraction, park: Park)? {
+        let all = viewModel.attractionsByPark
+        var best: (Attraction, Park)?
+        var bestWait = -1
+        for (parkId, attractions) in all {
+            guard let park = viewModel.resortGroups.flatMap({ $0.parks }).first(where: { $0.id == parkId }) else { continue }
+            for a in attractions where a.is_open == true {
+                if let w = a.wait_time, w > bestWait {
+                    bestWait = w
+                    best = (a, park)
+                }
+            }
+        }
+        return best
+    }
+
+    private var headerSubtitle: String {
+        let df = DateFormatter()
+        df.dateFormat = "EEE · MMM d"
+        let dateStr = df.string(from: Date()).uppercased()
+        return dateStr
     }
 
     var body: some View {
         NavigationStack {
             ZStack {
-                LinearGradient(
-                    gradient: Gradient(colors: [
-                        Color.purple.opacity(0.10),
-                        Color.blue.opacity(0.08),
-                        Color.green.opacity(0.07),
-                        Color.yellow.opacity(0.06),
-                        Color.orange.opacity(0.06),
-                        Color.pink.opacity(0.07),
-                        Color(.systemBackground)
-                    ]),
-                    startPoint: animateGradient ? .topLeading : .bottomTrailing,
-                    endPoint: animateGradient ? .bottomTrailing : .topLeading
-                )
-                .ignoresSafeArea()
-                .hueRotation(.degrees(animateGradient ? 20 : 0))
-                .animation(.easeInOut(duration: 6).repeatForever(autoreverses: true), value: animateGradient)
-                .onAppear { animateGradient = true }
+                DB.bg.ignoresSafeArea()
 
-                VStack(spacing: 0) {
-                    HStack {
-                        Text("Good \(greetingTime()), \(userDisplayName.isEmpty ? "friend" : userDisplayName)! 👋")
-                            .font(.title2.bold())
-                            .foregroundColor(.primary)
-                        Spacer()
-                    }
-                    .padding(.horizontal)
-                    .padding(.top, 12)
-
-                    SearchBar(text: $searchText, placeholder: "Search attractions")
-                        .padding(.horizontal)
-                        .padding(.top, 4)
-
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 32) {
-                            ForEach(groupedResortGroups) { group in
-                                VStack(alignment: .leading, spacing: 12) {
-                                    HStack(spacing: 8) {
-                                        Image(systemName: group.name.contains("Disney") ? "sparkles" : "flame.fill")
-                                            .foregroundColor(group.name.contains("Disney") ? .purple : .orange)
-                                            .font(.title2)
-                                        Text(group.name)
-                                            .font(.title.bold())
-                                            .foregroundColor(.primary)
-                                    }
-                                    .padding(.horizontal)
-                                    .padding(.top, 8)
-
-                                    LazyVGrid(columns: columns, spacing: 20) {
-                                        ForEach(group.parks) { park in
-                                            NavigationLink(value: park) {
-                                                ParkCardView(park: park)
-                                                    .environmentObject(viewModel)
-                                            }
-                                            .buttonStyle(.plain)
-                                        }
-                                    }
-                                    .padding(.horizontal)
-                                }
-                            }
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        // Title
+                        header
+                        if !network.isOnline {
+                            OfflineBanner(lastSyncText: network.lastSyncText)
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 12)
                         }
-                        .padding(.vertical, 24)
+                        if let error = viewModel.errorMessage {
+                            ErrorBanner(message: error)
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 12)
+                        }
+                        if let here = location.nearestPark, location.isInsidePark {
+                            youAreHereBanner(for: here)
+                                .padding(.horizontal, 16)
+                                .padding(.bottom, 12)
+                        }
+                        hottestHero
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 18)
+                        terminalSearch
+                            .padding(.horizontal, 16)
+                            .padding(.bottom, 22)
+
+                        ForEach(groupedResortGroups) { group in
+                            resortSection(group: group)
+                                .padding(.bottom, 22)
+                        }
+
+                        Color.clear.frame(height: 120) // tab bar spacer
                     }
                 }
-                .navigationTitle("Theme Parks")
-                .overlay {
-                    if viewModel.isLoading {
-                        ProgressView("Loading Parks...")
-                            .progressViewStyle(.circular)
-                            .padding()
-                            .background(.ultraThinMaterial)
-                            .cornerRadius(16)
-                            .shadow(radius: 10)
-                    }
+                .refreshable {
+                    await viewModel.refreshAllWaits()
                 }
-                .navigationDestination(for: Park.self) { park in
-                    ParkDetailView(
-                        park: park,
-                        selectedTab: $selectedTab,
-                        myDayMapCenter: $myDayMapCenter
-                    )
+
+                if viewModel.isLoading && viewModel.resortGroups.isEmpty {
+                    loadingOverlay
                 }
-                .navigationDestination(for: Attraction.self) { attraction in
-                    AttractionDetailView(attraction: attraction)
+            }
+            .toolbar(.hidden, for: .navigationBar)
+            .navigationDestination(for: Park.self) { park in
+                ParkDetailView(park: park)
+            }
+            .navigationDestination(for: Attraction.self) { attraction in
+                AttractionDetailView(attraction: attraction)
+            }
+            .task { [viewModel] in
+                guard viewModel.resortGroups.isEmpty else { return }
+                await viewModel.loadInitialData()
+            }
+            .onChange(of: searchText) { _, newValue in
+                if viewModel.searchTerm != newValue {
+                    viewModel.searchTerm = newValue
                 }
-                .task { [viewModel] in
-                    guard viewModel.resortGroups.isEmpty else { return }
-                    await viewModel.loadInitialData()
-                }
-                .onChange(of: searchText) { newValue in
-                    if viewModel.searchTerm != newValue {
-                        viewModel.searchTerm = newValue
-                    }
-                }
-                .sheet(isPresented: $showOnboarding) {
-                    OnboardingView(userDisplayName: $userDisplayName, isPresented: $showOnboarding)
-                }
+            }
+            .sheet(isPresented: $showOnboarding) {
+                OnboardingView(userDisplayName: $userDisplayName, isPresented: $showOnboarding)
             }
         }
         .onAppear {
             if userDisplayName.isEmpty {
                 showOnboarding = true
             }
+            location.requestNearestPark()
         }
+    }
+
+    // MARK: - Sections
+
+    private func youAreHereBanner(for park: Park) -> some View {
+        NavigationLink(value: park) {
+            HStack(spacing: 10) {
+                Circle()
+                    .fill(DB.accent(for: park.id))
+                    .frame(width: 6, height: 6)
+                    .shadow(color: DB.accent(for: park.id), radius: 4)
+                MonoLabel(text: "YOU'RE AT", color: DB.muted, tracking: 1.8, size: 10)
+                Text(park.name)
+                    .font(DB.heading(14, weight: .semibold))
+                    .foregroundStyle(DB.text)
+                Spacer()
+                Text("OPEN →").tracking(1.5)
+                    .font(DB.mono(11, weight: .semibold))
+                    .foregroundStyle(DB.accent(for: park.id))
+            }
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .background(
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(DB.accent(for: park.id).opacity(0.12))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(DB.accent(for: park.id).opacity(0.35), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            MonoLabel(text: headerSubtitle + " · ALL SYSTEMS LIVE", color: DB.muted)
+            HStack(alignment: .firstTextBaseline, spacing: 2) {
+                Text("Parks")
+                    .font(DB.displayTitle(38))
+                    .foregroundStyle(DB.text)
+                    .tracking(-0.8)
+                Text(".")
+                    .font(DB.displayTitle(38))
+                    .foregroundStyle(DB.amber)
+            }
+            if !userDisplayName.isEmpty {
+                Text("Good \(greetingTime()), \(userDisplayName).")
+                    .font(DB.mono(12))
+                    .tracking(1.2)
+                    .foregroundStyle(DB.muted)
+                    .padding(.top, 2)
+            }
+        }
+        .padding(.horizontal, 20)
+        .padding(.top, 8)
+        .padding(.bottom, 18)
+    }
+
+    private var hottestHero: some View {
+        ZStack(alignment: .topLeading) {
+            RoundedRectangle(cornerRadius: 24, style: .continuous)
+                .fill(
+                    LinearGradient(
+                        colors: [DB.card2, DB.card],
+                        startPoint: .topLeading, endPoint: .bottomTrailing
+                    )
+                )
+                .overlay(
+                    RoundedRectangle(cornerRadius: 24, style: .continuous)
+                        .stroke(DB.amber.opacity(0.25), lineWidth: 1)
+                )
+                .overlay(
+                    RadialGradient(
+                        colors: [DB.amber.opacity(0.09), .clear],
+                        center: .topTrailing,
+                        startRadius: 0, endRadius: 220
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 24, style: .continuous))
+                )
+
+            VStack(alignment: .leading, spacing: 8) {
+                MonoLabel(text: "▲ HOTTEST RIGHT NOW", color: DB.amber, tracking: 2, size: 11)
+
+                if let hot = hottestAttraction, let wait = hot.attraction.wait_time {
+                    Text(hot.attraction.name)
+                        .font(DB.heading(22, weight: .semibold))
+                        .foregroundStyle(DB.text)
+                        .tracking(-0.4)
+                        .lineLimit(2)
+
+                    MonoLabel(text: hot.park.name, color: DB.muted, tracking: 1.5, size: 11)
+                        .padding(.bottom, 6)
+
+                    HStack(alignment: .bottom) {
+                        FlapDigits(
+                            value: wait,
+                            size: 52,
+                            tone: DB.waitTone(for: wait),
+                            label: "MIN"
+                        )
+                        Spacer()
+                        NavigationLink(value: hot.attraction) {
+                            HStack(spacing: 4) {
+                                Text("VIEW").tracking(1.5)
+                                Text("→")
+                            }
+                            .font(DB.mono(11, weight: .semibold))
+                            .foregroundStyle(DB.text)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 8)
+                            .background(
+                                Capsule().fill(Color.white.opacity(0.06))
+                                    .overlay(Capsule().stroke(Color.white.opacity(0.1), lineWidth: 1))
+                            )
+                        }
+                        .buttonStyle(.plain)
+                    }
+                } else {
+                    Text("Waits aren't in yet")
+                        .font(DB.heading(20, weight: .semibold))
+                        .foregroundStyle(DB.text)
+                    MonoLabel(text: "Pull to refresh · SYNCING...", color: DB.muted)
+                        .padding(.top, 4)
+                }
+            }
+            .padding(18)
+        }
+    }
+
+    private var terminalSearch: some View {
+        HStack(spacing: 10) {
+            Text(">")
+                .font(DB.mono(14, weight: .bold))
+                .foregroundStyle(DB.amber)
+            TextField(
+                "",
+                text: $searchText,
+                prompt: Text("search attractions…")
+                    .foregroundStyle(DB.muted)
+                    .font(DB.mono(14))
+            )
+            .font(DB.mono(14))
+            .foregroundStyle(DB.text)
+            .tint(DB.amber)
+            .autocorrectionDisabled(true)
+            if !searchText.isEmpty {
+                Button { searchText = "" } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(DB.muted)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 14)
+        .padding(.vertical, 12)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(DB.card)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .stroke(Color.white.opacity(0.06), lineWidth: 1)
+                )
+        )
+    }
+
+    private func resortSection(group: ResortGroup) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                MonoLabel(text: "/ \(group.name)", color: DB.muted, tracking: 2, size: 12)
+                Spacer()
+                MonoLabel(
+                    text: "\(group.parks.reduce(0) { $0 + viewModel.operatingAttractionCount(for: $1.id) }) OPEN",
+                    color: DB.dim, tracking: 1.5, size: 11
+                )
+            }
+            .padding(.horizontal, 20)
+
+            VStack(spacing: 10) {
+                ForEach(group.parks) { park in
+                    NavigationLink(value: park) {
+                        ParkCardView(park: park)
+                            .environmentObject(viewModel)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            .padding(.horizontal, 16)
+        }
+    }
+
+    private var loadingOverlay: some View {
+        VStack(spacing: 14) {
+            MonoLabel(text: "● SYNCING LIVE DATA", color: DB.amber)
+            ProgressView()
+                .progressViewStyle(.circular)
+                .tint(DB.amber)
+        }
+        .padding(24)
+        .background(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .fill(DB.card)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 20, style: .continuous)
+                        .stroke(DB.line, lineWidth: 1)
+                )
+        )
     }
 
     private func greetingTime() -> String {

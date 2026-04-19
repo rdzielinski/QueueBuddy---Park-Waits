@@ -6,6 +6,7 @@ import SwiftUI
 // by the system when your app is running.
 class NotificationDelegate: NSObject, ObservableObject, UNUserNotificationCenterDelegate {
 
+#if !os(tvOS)
     // This function is called when a notification arrives while the app is in the foreground.
     // By default, notifications don't show up if the app is open. This code tells
     // the system to go ahead and show it as a banner and play a sound.
@@ -28,4 +29,5 @@ class NotificationDelegate: NSObject, ObservableObject, UNUserNotificationCenter
         
         completionHandler()
     }
+#endif
 }
