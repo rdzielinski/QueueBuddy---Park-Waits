@@ -28,7 +28,15 @@ struct ParkDetailView: View {
             "Use Lightning Lane Multi Pass for Space Mountain and Big Thunder to save an hour.",
             "Grab a Dole Whip in Adventureland — the stand by Swiss Family Treehouse moves faster than the Pineapple Lanai.",
             "Catch Country Bear Musical Jamboree in Frontierland — the 2024 reboot is a fresh take worth seeing.",
-            "If you see Villains Land construction walls near Frontierland — that's for the 2027 expansion."
+            "If you see Villains Land construction walls near Frontierland — that's for the 2027 expansion.",
+            "PeopleMover is the easiest reset in the park — 10 min, AC-cooled, almost never a wait.",
+            "Carousel of Progress is fully air-conditioned and a quiet 21-minute break midday.",
+            "Pirates of the Caribbean and Haunted Mansion drop hardest right at open and during fireworks.",
+            "Mickey's PhilharMagic is the best rainy-day pick — short wait, big show.",
+            "Be Our Guest is signature-only now; book at the 60-day mark or skip it.",
+            "Liberty Tree Tavern's all-you-care-to-eat Thanksgiving plate is the sleeper meal of the park.",
+            "Watch fireworks from the Tomorrowland walkway by Astro Orbiter — clearer view, fewer crowds than the hub.",
+            "Walt Disney World Railroad reopened in 2023 — full loop is 20 min and a fast way to swap lands."
         ],
         5: [
             "Test Track's 2025 retro redesign reopened last summer — morning is the only time the line is short.",
@@ -36,7 +44,15 @@ struct ParkDetailView: View {
             "World Showcase opens at 11 AM — do Future World rides first, then grab lunch in Mexico or Japan.",
             "Remy's Ratatouille Adventure has a single rider line right next to standby — use it.",
             "The Journey of Water walk-through in front of The Seas is great in late afternoon heat.",
-            "Best fireworks spot for Luminous is the Japan or Italy pavilion waterfront."
+            "Best fireworks spot for Luminous is the Japan or Italy pavilion waterfront.",
+            "Frozen Ever After in Norway is World Showcase's longest wait — hit it the second the showcase opens.",
+            "Mission: SPACE Orange spins; Green is the family version. Don't pick wrong by accident.",
+            "Living with the Land is a quiet 14-minute boat ride and the best midday AC break in Future World.",
+            "Soarin' is most comfortable from row 1 — row 3 can be queasy for some riders.",
+            "Festival kiosks rotate by season — Food & Wine (Aug-Nov) is the busiest by a wide margin.",
+            "Connections Cafe has the best Future World seating for a long sit — quieter than Sunshine Seasons.",
+            "The Imagination! pavilion is dated, but Figment merch and the ride remain a cult favorite.",
+            "Ride Spaceship Earth in the last 30 min of the day — it's almost always a walk-on."
         ],
         7: [
             "Rise of the Resistance rope drops as low as 30 minutes if you're at the turnstile by 30 min before open.",
@@ -44,7 +60,15 @@ struct ParkDetailView: View {
             "Grab a Ronto Wrap at Ronto Roasters in Galaxy's Edge — best quick service in the park.",
             "Tower of Terror and Rock 'n' Roller Coaster both have single rider — use it for Rock 'n' Roller Coaster.",
             "The new Fantasmic! returned in 2023 — arrive 45 min early for a center seat.",
-            "Muppet*Vision 3D closed June 2025; that plot is slated to become the Monsters Inc. land."
+            "Muppet*Vision 3D closed June 2025; that plot is slated to become the Monsters Inc. land.",
+            "Tower of Terror randomizes its drop sequence — every ride feels different.",
+            "Star Tours randomizes its destination, so re-rides aren't repeats.",
+            "Smugglers Run lets you pick your role at the console; pilot has the best view.",
+            "Toy Story Mania is rarely longer than 25 min after 7 PM — save it for the evening.",
+            "Indiana Jones Stunt Spectacular still runs daily; sit in the back rows for shade.",
+            "Sci-Fi Dine-In is the most uniquely themed table service in the park — book at 60 days out.",
+            "Walt Disney Presents has rare quiet AC seating and a small interactive walk-through.",
+            "Beauty and the Beast Sing-Along (Theater of the Stars) is a hidden morning show worth catching."
         ],
         8: [
             "Flight of Passage still has the longest wait in the park — rope drop or ride after 9 PM.",
@@ -52,21 +76,47 @@ struct ParkDetailView: View {
             "Kilimanjaro Safaris pays off most at park open and at dusk when animals are active.",
             "DinoLand is closing in phases — catch DINOSAUR before it's gone for the Tropical Americas retheme.",
             "Rivers of Light ended, but Festival of the Lion King is still the showstopper — arrive 20 min early.",
-            "Refill water bottles at the station near Expedition Everest — it's the quickest fill in the park."
+            "Refill water bottles at the station near Expedition Everest — it's the quickest fill in the park.",
+            "Expedition Everest typically drops below 30 min after 4 PM — wait it out instead of riding at open.",
+            "Maharajah Jungle Trek is best early — animals retreat to shade once the sun's high.",
+            "Pandora at night is unmissable — bioluminescent walkways come alive ~30 min after sunset.",
+            "Discovery Island Trails are usually empty and have authentic peacock encounters.",
+            "Tiffins on Discovery Island is the best signature dining at AK — book early.",
+            "Festival of the Lion King's first show of the day is least crowded.",
+            "Park closes earlier than other Disney parks — plan dinner offsite or at Disney Springs.",
+            "Tree of Life animal carvings are scattered along Discovery Island — bring a flashlight at dusk."
         ],
         64: [
             "Hagrid's Magical Creatures Motorbike Adventure is shortest first thing or during the nighttime show.",
             "VelociCoaster single rider moves fast and usually saves 40+ minutes at peak.",
             "Incredible Hulk's single rider is reliably shorter than standby on busy days.",
             "Jurassic Park River Adventure is the best afternoon cool-down — you will get soaked.",
-            "Cast a spell with your interactive wand in Hogsmeade — the Dervish and Banges scene is often empty."
+            "Cast a spell with your interactive wand in Hogsmeade — the Dervish and Banges scene is often empty.",
+            "Hogwarts Express is one-way only — you need a Park-to-Park ticket for both directions.",
+            "Forbidden Journey is one of the most under-appreciated dark rides in Orlando — ride at least once.",
+            "Skull Island: Reign of Kong has elaborate queue theming — go even if the ride itself is just OK.",
+            "Bluto's Bilge-Rat Barges is the wetter water ride at IOA — bring a poncho or extra clothes.",
+            "Cat in the Hat in Seuss Landing is a quick AC break and a great toddler pick.",
+            "Storm Force Accelatron rarely has a wait; solid spinner for kids near Hulk.",
+            "Doctor Doom's Fearfall is often a walk-on after dinner — the drop tower most people skip.",
+            "Three Broomsticks shepherd's pie is the best Wizarding World quick service meal.",
+            "Hogsmeade gets festive in winter — check for the holiday show projection on the castle."
         ],
         65: [
             "Diagon Alley is magical after dark — save it for the evening and catch the dragon's fire.",
             "Gringotts and the Mummy both have single rider lines that move quickly.",
             "The Mega Movie Parade runs most afternoons — check the Universal app for today's showtime.",
             "Ollivanders in Diagon Alley can have a 30-40 min wait; the Hogsmeade one is usually shorter.",
-            "Butterbeer ice cream at Florean Fortescue's is better than the frozen Butterbeer — don't @ me."
+            "Butterbeer ice cream at Florean Fortescue's is better than the frozen Butterbeer — don't @ me.",
+            "E.T. Adventure is the park's last original opening-day ride — short wait and a strong nostalgia hit.",
+            "The Bourne Stuntacular is a 30-min indoor show that's a perfect midday cooldown.",
+            "King's Cross photo op has zero wait first thing in the morning — go before Diagon opens.",
+            "Animal Actors on Location is a relaxing seated show and a guaranteed AC break.",
+            "Knockturn Alley has hidden interactive wand spots — most guests miss them entirely.",
+            "Fast & Furious: Supercharged is widely considered the weakest queue payoff — skip if pressed for time.",
+            "Florean Fortescue's gets a line for ice cream by 1 PM — go before noon.",
+            "Revenge of the Mummy is rarely over 30 min after 5 PM — let the morning crowd thin out.",
+            "Race Through New York Starring Jimmy Fallon's queue room has a working barbershop quartet."
         ],
         334: [
             "Stardust Racers in Celestial Park is the headliner — rope drop or hit it after 9 PM.",
@@ -74,7 +124,15 @@ struct ParkDetailView: View {
             "Mine-Cart Madness in Donkey Kong Country has a single rider queue that's often a 10-min wait.",
             "Super Nintendo World is busiest 12-5 — swap for Dark Universe or Isle of Berk midday.",
             "Curse of the Werewolf is a hybrid coaster/dark ride — single rider line saves 30+ minutes.",
-            "The Celestial Park nighttime fountain show is a hidden gem — grab a spot 20 min early."
+            "The Celestial Park nighttime fountain show is a hidden gem — grab a spot 20 min early.",
+            "The Battle at the Ministry queue uses an elevator system — the queue itself is part of the show.",
+            "Power-Up Bands at Super Nintendo World are sold separately and required for interactive elements.",
+            "Dragon Racer's Rally is dual-track; the right side has sharper banking than the left.",
+            "Yoshi's Adventure is family-friendly with great views down into Bowser's Castle.",
+            "Mario Kart's AR queue is best experienced wearing a Power-Up Band — without one you miss half the layer.",
+            "Stella Nova in Celestial Park rotates lighting at night — different colors each hour.",
+            "The Untrainable Dragon show in Isle of Berk is the strongest dedicated stage show in Orlando right now.",
+            "Atlantic — the table service in Celestial Park — is the best signature dining at Epic Universe."
         ]
     ]
 
