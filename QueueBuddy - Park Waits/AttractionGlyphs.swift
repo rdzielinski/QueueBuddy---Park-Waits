@@ -387,29 +387,49 @@ struct AttractionGlyph: View {
 
 // ── Park glyph view ─────────────────────────────────────────────────
 
-/// Park-level silhouette. Castles, spheres, trees — park icons that read
-/// as the park, not generic SF Symbols.
+/// Park-level silhouette. Renders the per-park icon asset from the catalog,
+/// falling back to a SwiftUI shape if no asset exists for that park id.
 struct ParkGlyph: View {
     let parkId: Int
     var tint: Color
     var size: CGFloat = 40
 
     var body: some View {
-        shape
-            .fill(tint)
-            .frame(width: size, height: size)
-            .accessibilityHidden(true)
+        Group {
+            if let assetName = Self.assetName(for: parkId) {
+                Image(assetName)
+                    .resizable()
+                    .scaledToFit()
+            } else {
+                shape.fill(tint)
+            }
+        }
+        .frame(width: size, height: size)
+        .accessibilityHidden(true)
+    }
+
+    private static func assetName(for parkId: Int) -> String? {
+        switch parkId {
+        case 6:   return "ParkIcon-MagicKingdom"
+        case 5:   return "ParkIcon-Epcot"
+        case 7:   return "ParkIcon-HollywoodStudios"
+        case 8:   return "ParkIcon-AnimalKingdom"
+        case 64:  return "ParkIcon-IOA"
+        case 65:  return "ParkIcon-USF"
+        case 334: return "ParkIcon-EpicUniverse"
+        default:  return nil
+        }
     }
 
     private var shape: AnyShape {
         switch parkId {
-        case 6:   return AnyShape(CastleShape())             // Magic Kingdom
-        case 5:   return AnyShape(GeodesicSphereShape())     // EPCOT — Spaceship Earth
-        case 7:   return AnyShape(TowerShape())              // Hollywood Studios
-        case 8:   return AnyShape(TreeCanopyShape())         // Animal Kingdom
-        case 64:  return AnyShape(CastleShape())             // IOA — Hogwarts Castle stand-in
-        case 65:  return AnyShape(GeodesicSphereShape())     // USF — Universal globe
-        case 334: return AnyShape(PortalShape())             // Epic Universe
+        case 6:   return AnyShape(CastleShape())
+        case 5:   return AnyShape(GeodesicSphereShape())
+        case 7:   return AnyShape(TowerShape())
+        case 8:   return AnyShape(TreeCanopyShape())
+        case 64:  return AnyShape(CastleShape())
+        case 65:  return AnyShape(GeodesicSphereShape())
+        case 334: return AnyShape(PortalShape())
         default:  return AnyShape(GeodesicSphereShape())
         }
     }
