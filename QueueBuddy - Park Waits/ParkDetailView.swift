@@ -249,6 +249,7 @@ struct ParkDetailView: View {
                 async let waits: Void = viewModel.refreshPark(park)
                 _ = await (weather, waits)
             }
+            .simultaneousGesture(backSwipeGesture)
         }
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
@@ -350,19 +351,53 @@ struct ParkDetailView: View {
                     .lineLimit(2)
                     .padding(.bottom, 8)
 
-                StatusStrip(
-                    openCount: viewModel.operatingAttractionCount(for: park.id),
-                    total: viewModel.attractionsByPark[park.id]?.count ?? 0,
-                    updatedText: freshestUpdateText
-                )
+                ViewThatFits(in: .horizontal) {
+                    statusStrip(horizontal: true)
+                    statusStrip(horizontal: false)
+                }
 
-                HStack(spacing: 10) {
-                    weatherCard
-                    tipCard
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 10) {
+                        weatherCard
+                        tipCard
+                    }
+                    VStack(spacing: 10) {
+                        weatherCard
+                        tipCard
+                    }
                 }
                 .padding(.top, 14)
             }
             .padding(18)
+        }
+    }
+
+    @ViewBuilder
+    private func statusStrip(horizontal: Bool) -> some View {
+        if horizontal {
+            StatusStrip(
+                openCount: viewModel.operatingAttractionCount(for: park.id),
+                total: viewModel.attractionsByPark[park.id]?.count ?? 0,
+                updatedText: freshestUpdateText
+            )
+        } else {
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(DB.green)
+                        .frame(width: 6, height: 6)
+                        .shadow(color: DB.green, radius: 3)
+                    Text("LIVE").tracking(1.5)
+                    Text("·").foregroundStyle(DB.dim)
+                    Text("\(viewModel.operatingAttractionCount(for: park.id))/\(viewModel.attractionsByPark[park.id]?.count ?? 0) OPEN")
+                        .tracking(1.5)
+                }
+                Text("UPD \(freshestUpdateText)")
+                    .tracking(1.5)
+                    .foregroundStyle(DB.muted)
+            }
+            .font(DB.mono(11, weight: .regular))
+            .foregroundStyle(DB.muted)
         }
     }
 
@@ -424,7 +459,12 @@ struct ParkDetailView: View {
     private var tipCard: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
-                MonoLabel(text: "● TIP OF THE HOUR", color: DB.amber, tracking: 1.5, size: 10)
+                Text("● TIP OF THE HOUR")
+                    .font(DB.mono(10))
+                    .tracking(1.2)
+                    .foregroundStyle(DB.amber)
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.7)
                 Spacer()
                 Button {
                     tipIndex += 1
@@ -454,6 +494,17 @@ struct ParkDetailView: View {
                         .stroke(Color.white.opacity(0.05), lineWidth: 1)
                 )
         )
+    }
+
+    private var backSwipeGesture: some Gesture {
+        DragGesture(minimumDistance: 20, coordinateSpace: .local)
+            .onEnded { value in
+                guard value.startLocation.x < 32 else { return }
+                guard value.translation.width > 90 else { return }
+                guard abs(value.translation.height) < 80 else { return }
+                triggerHaptic()
+                dismiss()
+            }
     }
 
     private func recommendationsBlock(_ recs: [Attraction]) -> some View {
@@ -518,37 +569,20 @@ struct ParkDetailView: View {
             Button {
                 toggleLand(group.name)
             } label: {
-                HStack(spacing: 10) {
-                    Circle()
-                        .fill(color)
-                        .frame(width: 6, height: 6)
-                        .shadow(color: color, radius: 4)
-                    Text(group.name.uppercased())
-                        .font(DB.mono(12))
-                        .tracking(2)
-                        .foregroundStyle(DB.text)
-                        .lineLimit(1)
-                        .truncationMode(.tail)
-                    if isSeasonal {
-                        Text("SEASONAL")
-                            .font(DB.mono(9, weight: .bold))
-                            .tracking(1.5)
-                            .foregroundStyle(DB.amber)
-                            .padding(.horizontal, 6)
-                            .padding(.vertical, 2)
-                            .background(
-                                Capsule().fill(DB.amber.opacity(0.12))
-                            )
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 10) {
+                        landHeaderTitle(group.name, color: color, isSeasonal: isSeasonal)
+                        Spacer()
+                        landHeaderTrailing(expanded: expanded, count: filtered.count)
                     }
-                    Spacer()
-                    Text("\(filtered.count)")
-                        .font(DB.mono(11))
-                        .foregroundStyle(DB.dim)
-                    Image(systemName: "chevron.right")
-                        .font(.caption.weight(.semibold))
-                        .rotationEffect(.degrees(expanded ? 90 : 0))
-                        .animation(.easeInOut(duration: 0.15), value: expanded)
-                        .foregroundStyle(DB.dim)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        landHeaderTitle(group.name, color: color, isSeasonal: isSeasonal)
+                        HStack(spacing: 8) {
+                            Spacer()
+                            landHeaderTrailing(expanded: expanded, count: filtered.count)
+                        }
+                    }
                 }
                 .contentShape(Rectangle())
             }
@@ -605,6 +639,47 @@ struct ParkDetailView: View {
                 )
                 .padding(.horizontal, 16)
             }
+        }
+    }
+
+    @ViewBuilder
+    private func landHeaderTitle(_ name: String, color: Color, isSeasonal: Bool) -> some View {
+        HStack(spacing: 10) {
+            Circle()
+                .fill(color)
+                .frame(width: 6, height: 6)
+                .shadow(color: color, radius: 4)
+            Text(name.uppercased())
+                .font(DB.mono(12))
+                .tracking(2)
+                .foregroundStyle(DB.text)
+                .lineLimit(1)
+                .minimumScaleFactor(0.72)
+                .truncationMode(.tail)
+            if isSeasonal {
+                Text("SEASONAL")
+                    .font(DB.mono(9, weight: .bold))
+                    .tracking(1.5)
+                    .foregroundStyle(DB.amber)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 2)
+                    .background(
+                        Capsule().fill(DB.amber.opacity(0.12))
+                    )
+            }
+        }
+    }
+
+    private func landHeaderTrailing(expanded: Bool, count: Int) -> some View {
+        HStack(spacing: 8) {
+            Text("\(count)")
+                .font(DB.mono(11))
+                .foregroundStyle(DB.dim)
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .rotationEffect(.degrees(expanded ? 90 : 0))
+                .animation(.easeInOut(duration: 0.15), value: expanded)
+                .foregroundStyle(DB.dim)
         }
     }
 
