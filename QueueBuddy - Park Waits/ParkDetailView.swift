@@ -94,6 +94,7 @@ struct ParkDetailView: View {
         let open = attractions.filter { $0.is_open == true }
         return Array(open
             .filter { ($0.wait_time ?? 1000) < 30 }
+            .filter { !$0.name.localizedCaseInsensitiveContains("single rider") }
             .sorted { ($0.wait_time ?? Int.max) < ($1.wait_time ?? Int.max) }
             .prefix(3))
     }
