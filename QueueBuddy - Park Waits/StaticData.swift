@@ -27,6 +27,29 @@ struct StaticData {
          65: (28.4743, -81.4678),
          334: (28.4603, -81.4803)
      ]
+
+    /// Typical year-round operating hours per park (open/close in 24h local time).
+    /// These are sensible defaults; live park hours would require an API integration.
+    static let parkHours: [Int: (openHour: Int, closeHour: Int)] = [
+        5:   (9, 21),   // EPCOT — 9 AM to 9 PM
+        6:   (9, 22),   // Magic Kingdom — 9 AM to 10 PM
+        7:   (9, 21),   // Hollywood Studios — 9 AM to 9 PM
+        8:   (8, 19),   // Animal Kingdom — 8 AM to 7 PM
+        64:  (9, 21),   // Islands of Adventure — 9 AM to 9 PM
+        65:  (9, 21),   // Universal Studios Florida — 9 AM to 9 PM
+        334: (9, 22)    // Epic Universe — 9 AM to 10 PM
+    ]
+
+    /// Best-guess indoor classification by attraction type. Used to bias
+    /// recommendations toward shaded/AC rides on hot days.
+    static func isLikelyIndoor(type: String?) -> Bool {
+        switch (type ?? "").lowercased() {
+        case "darkride", "simulator", "show", "theater", "3dfilm", "film", "stage":
+            return true
+        default:
+            return false
+        }
+    }
     static func buildResortGroups() -> [ResortGroup] {
         let sortedResortNames = resortGroupData.keys.sorted()
         return sortedResortNames.map { resortName in

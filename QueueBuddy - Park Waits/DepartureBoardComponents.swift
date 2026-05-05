@@ -366,6 +366,37 @@ struct Sparkline: View {
     }
 }
 
+// MARK: - MiniSparkline
+// Tiny line-only sparkline for inline use in row cards.
+
+struct MiniSparkline: View {
+    let samples: [WaitHistoryStore.Sample]
+    let tone: Color
+
+    var body: some View {
+        GeometryReader { proxy in
+            let width = proxy.size.width
+            let height = proxy.size.height
+            let values = samples.map { CGFloat($0.minutes) }
+            let maxVal = max(values.max() ?? 60, 20)
+            let range = max(maxVal, 1)
+            let pts = values.enumerated().map { idx, v -> CGPoint in
+                let x = values.count <= 1 ? width : (CGFloat(idx) / CGFloat(values.count - 1)) * width
+                let y = height - (v / range) * height
+                return CGPoint(x: x, y: y)
+            }
+
+            Path { p in
+                guard let first = pts.first else { return }
+                p.move(to: first)
+                for point in pts.dropFirst() { p.addLine(to: point) }
+            }
+            .stroke(tone.opacity(0.85), style: StrokeStyle(lineWidth: 1.2, lineCap: .round, lineJoin: .round))
+        }
+        .accessibilityHidden(true)
+    }
+}
+
 // MARK: - ErrorBanner
 
 struct ErrorBanner: View {

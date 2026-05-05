@@ -30,6 +30,15 @@ struct AttractionRowCardView: View {
         return wait >= 60
     }
 
+    private var sparklineSamples: [WaitHistoryStore.Sample] {
+        WaitHistoryStore.shared.history(for: attraction.id)
+    }
+
+    private var sparklineTone: Color {
+        guard !isClosed else { return DB.muted }
+        return DB.waitTone(for: attraction.wait_time)
+    }
+
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             if let routeColor {
@@ -66,6 +75,11 @@ struct AttractionRowCardView: View {
             }
 
             Spacer(minLength: 8)
+
+            if sparklineSamples.count >= 3 {
+                MiniSparkline(samples: sparklineSamples, tone: sparklineTone)
+                    .frame(width: 44, height: 18)
+            }
 
             WaitChip(
                 wait: attraction.wait_time,

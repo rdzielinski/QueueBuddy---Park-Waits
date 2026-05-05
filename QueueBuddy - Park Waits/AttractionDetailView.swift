@@ -19,6 +19,7 @@ struct AttractionDetailView: View {
     let attraction: Attraction
 
     @State private var activeSheet: ActiveSheet? = nil
+    @State private var inLineActivityRunning: Bool = false
 
     private var parkId: Int? {
         viewModel.attractionsByPark.first(where: { $0.value.contains(where: { $0.id == attraction.id }) })?.key
@@ -70,6 +71,9 @@ struct AttractionDetailView: View {
                         .padding(.horizontal, 16)
 
                     trendingBlock
+                        .padding(.horizontal, 16)
+
+                    inLineToggle
                         .padding(.horizontal, 16)
 
                     reportWaitPrompt
@@ -383,6 +387,82 @@ struct AttractionDetailView: View {
                     )
             }
         }
+    }
+
+    @ViewBuilder
+    private var inLineToggle: some View {
+        Button {
+            triggerHaptic(.medium)
+            toggleInLineActivity()
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    MonoLabel(
+                        text: inLineActivityRunning ? "TRACKING ON LOCK SCREEN" : "TRACK ON LOCK SCREEN",
+                        color: inLineActivityRunning ? accent : DB.muted,
+                        tracking: 1.5,
+                        size: 10
+                    )
+                    Text(inLineActivityRunning
+                         ? "Tap to stop the Live Activity"
+                         : "Pin this ride's wait while you're in line")
+                        .font(.system(size: 14))
+                        .foregroundStyle(DB.text)
+                }
+                Spacer()
+                Image(systemName: inLineActivityRunning ? "stop.circle.fill" : "person.2.fill")
+                    .font(.system(size: 16))
+                    .foregroundStyle(inLineActivityRunning ? DB.red : accent)
+                    .padding(.horizontal, 14)
+                    .padding(.vertical, 8)
+                    .background(Capsule().fill(Color.white.opacity(0.06)))
+            }
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                    .fill(Color.white.opacity(0.04))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .stroke(inLineActivityRunning ? accent.opacity(0.5) : Color.white.opacity(0.1), lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+        .onAppear { syncInLineActivityState() }
+        .onChange(of: attraction.wait_time) { _, _ in
+            #if canImport(ActivityKit)
+            if #available(iOS 16.2, *), inLineActivityRunning {
+                InLineActivityController.update(attractionId: attraction.id, currentWait: attraction.wait_time)
+            }
+            #endif
+        }
+    }
+
+    private func syncInLineActivityState() {
+        #if canImport(ActivityKit)
+        if #available(iOS 16.2, *) {
+            inLineActivityRunning = InLineActivityController.isRunning(for: attraction.id)
+        }
+        #endif
+    }
+
+    private func toggleInLineActivity() {
+        #if canImport(ActivityKit)
+        if #available(iOS 16.2, *) {
+            if inLineActivityRunning {
+                InLineActivityController.stop()
+                inLineActivityRunning = false
+            } else {
+                InLineActivityController.start(
+                    attractionId: attraction.id,
+                    attractionName: attraction.name,
+                    parkAccentHex: parkId.map { DB.accentHexValue(for: $0) } ?? 0xFFB547,
+                    currentWait: attraction.wait_time
+                )
+                inLineActivityRunning = true
+            }
+        }
+        #endif
     }
 
     private var reportWaitPrompt: some View {

@@ -147,14 +147,28 @@ struct ParkDetailView: View {
         return tips[tipIndex % tips.count]
     }
 
+    /// Bias recommendations toward indoor rides when it's hot out.
+    private var isHotOutside: Bool {
+        guard let temp = viewModel.weatherByPark[park.id]?.temperature else { return false }
+        return temp >= 88
+    }
+
     private func personalizedRecommendations() -> [Attraction] {
         guard let attractions = viewModel.attractionsByPark[park.id] else { return [] }
         let open = attractions.filter { $0.is_open == true }
-        return Array(open
+        let candidates = open
             .filter { ($0.wait_time ?? 1000) < 30 }
             .filter { !$0.name.localizedCaseInsensitiveContains("single rider") }
-            .sorted { ($0.wait_time ?? Int.max) < ($1.wait_time ?? Int.max) }
-            .prefix(3))
+        let hot = isHotOutside
+        let sorted = candidates.sorted { a, b in
+            if hot {
+                let aIndoor = StaticData.isLikelyIndoor(type: a.type) ? 0 : 1
+                let bIndoor = StaticData.isLikelyIndoor(type: b.type) ? 0 : 1
+                if aIndoor != bIndoor { return aIndoor < bIndoor }
+            }
+            return (a.wait_time ?? Int.max) < (b.wait_time ?? Int.max)
+        }
+        return Array(sorted.prefix(3))
     }
 
     private func isLandExpanded(_ landName: String) -> Bool {
@@ -443,8 +457,11 @@ struct ParkDetailView: View {
     }
 
     private func recommendationsBlock(_ recs: [Attraction]) -> some View {
-        VStack(alignment: .leading, spacing: 10) {
-            MonoLabel(text: "→ NEXT DEPARTURES · FOR YOU", color: DB.muted)
+        let label = isHotOutside
+            ? "→ NEXT DEPARTURES · COOL & INDOOR"
+            : "→ NEXT DEPARTURES · FOR YOU"
+        return VStack(alignment: .leading, spacing: 10) {
+            MonoLabel(text: label, color: isHotOutside ? DB.amber : DB.muted)
                 .padding(.horizontal, 20)
 
             VStack(spacing: 0) {

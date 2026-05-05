@@ -19,6 +19,31 @@ struct ParkCardView: View {
 
     private var isClosed: Bool { viewModel.isParkLikelyClosed(parkId: park.id) }
 
+    private var hoursLine: String? {
+        guard let hours = StaticData.parkHours[park.id] else { return nil }
+        let now = Date()
+        let cal = Calendar.current
+        let currentHour = cal.component(.hour, from: now)
+        let currentMin = cal.component(.minute, from: now)
+        let nowMinutes = currentHour * 60 + currentMin
+        let openMinutes = hours.openHour * 60
+        let closeMinutes = hours.closeHour * 60
+
+        func formatHour(_ h: Int) -> String {
+            let twelve = ((h % 12) == 0) ? 12 : (h % 12)
+            let suffix = h >= 12 && h < 24 ? "PM" : "AM"
+            return "\(twelve) \(suffix)"
+        }
+
+        if nowMinutes < openMinutes {
+            return "OPENS \(formatHour(hours.openHour))"
+        } else if nowMinutes < closeMinutes {
+            return "OPEN UNTIL \(formatHour(hours.closeHour))"
+        } else {
+            return "CLOSED FOR THE DAY"
+        }
+    }
+
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             // Route stripe
@@ -65,6 +90,13 @@ struct ParkCardView: View {
                     }
                     .font(DB.mono(11))
                     .tracking(1.2)
+                }
+
+                if let hoursLine, !isClosed {
+                    Text(hoursLine)
+                        .font(DB.mono(10))
+                        .tracking(1.2)
+                        .foregroundStyle(DB.dim)
                 }
             }
 
