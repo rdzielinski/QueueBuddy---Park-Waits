@@ -6,7 +6,197 @@
 	objectVersion = 90;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		21700EE32FAA6A78008A52FC /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21700EA12FAA6988008A52FC /* WidgetKit.framework */; };
+		21700EE42FAA6A78008A52FC /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21700EA32FAA6989008A52FC /* SwiftUI.framework */; };
+		21700EF32FAA6A79008A52FC /* QueueBuddyWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 21700EE22FAA6A78008A52FC /* QueueBuddyWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		21700FBF2FAB6AD2008A52FC /* magic_kingdom_r3_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F932FAB6AD2008A52FC /* magic_kingdom_r3_c5.png */; };
+		21700FC02FAB6AD2008A52FC /* universal_studios_florida_r1_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FB22FAB6AD2008A52FC /* universal_studios_florida_r1_c5.png */; };
+		21700FC12FAB6AD2008A52FC /* magic_kingdom_r5_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F9C2FAB6AD2008A52FC /* magic_kingdom_r5_c5.png */; };
+		21700FC22FAB6AD2008A52FC /* hollywood_studios_r5_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F6C2FAB6AD2008A52FC /* hollywood_studios_r5_c3.png */; };
+		21700FC32FAB6AD2008A52FC /* epcot_r1_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F242FAB6AD2008A52FC /* epcot_r1_c5.png */; };
+		21700FC42FAB6AD2008A52FC /* hollywood_studios_r3_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F622FAB6AD2008A52FC /* hollywood_studios_r3_c3.png */; };
+		21700FC52FAB6AD2008A52FC /* animal_kingdom_r2_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F0B2FAB6AD2008A52FC /* animal_kingdom_r2_c1.png */; };
+		21700FC62FAB6AD2008A52FC /* hollywood_studios_r4_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F662FAB6AD2008A52FC /* hollywood_studios_r4_c2.png */; };
+		21700FC72FAB6AD2008A52FC /* epic_universe_r1_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F422FAB6AD2008A52FC /* epic_universe_r1_c2.png */; };
+		21700FC82FAB6AD2008A52FC /* epic_universe_r3_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F4E2FAB6AD2008A52FC /* epic_universe_r3_c1.png */; };
+		21700FC92FAB6AD2008A52FC /* animal_kingdom_r1_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F062FAB6AD2008A52FC /* animal_kingdom_r1_c1.png */; };
+		21700FCA2FAB6AD2008A52FC /* universal_studios_florida_r2_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FB62FAB6AD2008A52FC /* universal_studios_florida_r2_c4.png */; };
+		21700FCB2FAB6AD2008A52FC /* animal_kingdom_r4_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F152FAB6AD2008A52FC /* animal_kingdom_r4_c1.png */; };
+		21700FCC2FAB6AD2008A52FC /* epcot_r3_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F2D2FAB6AD2008A52FC /* epcot_r3_c2.png */; };
+		21700FCD2FAB6AD2008A52FC /* islands_of_adventure_r2_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F792FAB6AD2008A52FC /* islands_of_adventure_r2_c3.png */; };
+		21700FCE2FAB6AD2008A52FC /* animal_kingdom_r2_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F0F2FAB6AD2008A52FC /* animal_kingdom_r2_c5.png */; };
+		21700FCF2FAB6AD2008A52FC /* magic_kingdom_r7_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FA62FAB6AD2008A52FC /* magic_kingdom_r7_c4.png */; };
+		21700FD02FAB6AD2008A52FC /* epic_universe_r3_c7.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F542FAB6AD2008A52FC /* epic_universe_r3_c7.png */; };
+		21700FD12FAB6AD2008A52FC /* animal_kingdom_r3_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F112FAB6AD2008A52FC /* animal_kingdom_r3_c2.png */; };
+		21700FD22FAB6AD2008A52FC /* epcot_r6_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F3D2FAB6AD2008A52FC /* epcot_r6_c5.png */; };
+		21700FD32FAB6AD2008A52FC /* islands_of_adventure_r2_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F7A2FAB6AD2008A52FC /* islands_of_adventure_r2_c4.png */; };
+		21700FD42FAB6AD2008A52FC /* islands_of_adventure_r3_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F822FAB6AD2008A52FC /* islands_of_adventure_r3_c5.png */; };
+		21700FD52FAB6AD2008A52FC /* magic_kingdom_r8_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FA82FAB6AD2008A52FC /* magic_kingdom_r8_c1.png */; };
+		21700FD62FAB6AD2008A52FC /* epic_universe_r3_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F522FAB6AD2008A52FC /* epic_universe_r3_c5.png */; };
+		21700FD72FAB6AD2008A52FC /* magic_kingdom_r8_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FA92FAB6AD2008A52FC /* magic_kingdom_r8_c2.png */; };
+		21700FD82FAB6AD2008A52FC /* hollywood_studios_r1_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F592FAB6AD2008A52FC /* hollywood_studios_r1_c4.png */; };
+		21700FD92FAB6AD2008A52FC /* hollywood_studios_r2_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F5D2FAB6AD2008A52FC /* hollywood_studios_r2_c3.png */; };
+		21700FDA2FAB6AD2008A52FC /* epic_universe_r2_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F4B2FAB6AD2008A52FC /* epic_universe_r2_c5.png */; };
+		21700FDB2FAB6AD2008A52FC /* magic_kingdom_r2_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F8E2FAB6AD2008A52FC /* magic_kingdom_r2_c5.png */; };
+		21700FDC2FAB6AD2008A52FC /* hollywood_studios_r4_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F652FAB6AD2008A52FC /* hollywood_studios_r4_c1.png */; };
+		21700FDD2FAB6AD2008A52FC /* hollywood_studios_r1_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F582FAB6AD2008A52FC /* hollywood_studios_r1_c3.png */; };
+		21700FDE2FAB6AD2008A52FC /* universal_studios_florida_r3_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FB82FAB6AD2008A52FC /* universal_studios_florida_r3_c1.png */; };
+		21700FDF2FAB6AD2008A52FC /* universal_studios_florida_r3_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FBB2FAB6AD2008A52FC /* universal_studios_florida_r3_c4.png */; };
+		21700FE02FAB6AD2008A52FC /* epcot_r5_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F332FAB6AD2008A52FC /* epcot_r5_c2.png */; };
+		21700FE12FAB6AD2008A52FC /* animal_kingdom_r3_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F142FAB6AD2008A52FC /* animal_kingdom_r3_c5.png */; };
+		21700FE22FAB6AD2008A52FC /* hollywood_studios_r1_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F5A2FAB6AD2008A52FC /* hollywood_studios_r1_c5.png */; };
+		21700FE32FAB6AD2008A52FC /* animal_kingdom_r1_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F0A2FAB6AD2008A52FC /* animal_kingdom_r1_c5.png */; };
+		21700FE42FAB6AD2008A52FC /* magic_kingdom_r2_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F8B2FAB6AD2008A52FC /* magic_kingdom_r2_c2.png */; };
+		21700FE52FAB6AD2008A52FC /* islands_of_adventure_r3_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F812FAB6AD2008A52FC /* islands_of_adventure_r3_c4.png */; };
+		21700FE62FAB6AD2008A52FC /* epic_universe_r3_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F512FAB6AD2008A52FC /* epic_universe_r3_c4.png */; };
+		21700FE72FAB6AD2008A52FC /* magic_kingdom_r5_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F9A2FAB6AD2008A52FC /* magic_kingdom_r5_c3.png */; };
+		21700FE82FAB6AD2008A52FC /* animal_kingdom_r5_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F1B2FAB6AD2008A52FC /* animal_kingdom_r5_c2.png */; };
+		21700FE92FAB6AD2008A52FC /* hollywood_studios_r5_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F6E2FAB6AD2008A52FC /* hollywood_studios_r5_c5.png */; };
+		21700FEA2FAB6AD2008A52FC /* epic_universe_r1_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F412FAB6AD2008A52FC /* epic_universe_r1_c1.png */; };
+		21700FEB2FAB6AD2008A52FC /* animal_kingdom_r5_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F1D2FAB6AD2008A52FC /* animal_kingdom_r5_c4.png */; };
+		21700FEC2FAB6AD2008A52FC /* epcot_r3_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F2C2FAB6AD2008A52FC /* epcot_r3_c1.png */; };
+		21700FED2FAB6AD2008A52FC /* epcot_r6_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F392FAB6AD2008A52FC /* epcot_r6_c1.png */; };
+		21700FEE2FAB6AD2008A52FC /* animal_kingdom_r3_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F132FAB6AD2008A52FC /* animal_kingdom_r3_c4.png */; };
+		21700FEF2FAB6AD2008A52FC /* hollywood_studios_r3_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F612FAB6AD2008A52FC /* hollywood_studios_r3_c2.png */; };
+		21700FF02FAB6AD2008A52FC /* epic_universe_r2_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F472FAB6AD2008A52FC /* epic_universe_r2_c1.png */; };
+		21700FF12FAB6AD2008A52FC /* magic_kingdom_r2_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F8A2FAB6AD2008A52FC /* magic_kingdom_r2_c1.png */; };
+		21700FF22FAB6AD2008A52FC /* epcot_r6_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F3E2FAB6AD2008A52FC /* epcot_r6_c6.png */; };
+		21700FF32FAB6AD2008A52FC /* magic_kingdom_r3_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F922FAB6AD2008A52FC /* magic_kingdom_r3_c4.png */; };
+		21700FF42FAB6AD2008A52FC /* epcot_r6_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F3C2FAB6AD2008A52FC /* epcot_r6_c4.png */; };
+		21700FF52FAB6AD2008A52FC /* hollywood_studios_r4_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F682FAB6AD2008A52FC /* hollywood_studios_r4_c4.png */; };
+		21700FF62FAB6AD2008A52FC /* animal_kingdom_r3_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F122FAB6AD2008A52FC /* animal_kingdom_r3_c3.png */; };
+		21700FF72FAB6AD2008A52FC /* hollywood_studios_r2_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F5C2FAB6AD2008A52FC /* hollywood_studios_r2_c2.png */; };
+		21700FF82FAB6AD2008A52FC /* islands_of_adventure_r1_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F702FAB6AD2008A52FC /* islands_of_adventure_r1_c1.png */; };
+		21700FF92FAB6AD2008A52FC /* epcot_r2_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F282FAB6AD2008A52FC /* epcot_r2_c3.png */; };
+		21700FFA2FAB6AD2008A52FC /* magic_kingdom_r7_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FA52FAB6AD2008A52FC /* magic_kingdom_r7_c3.png */; };
+		21700FFB2FAB6AD2008A52FC /* epcot_r5_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F322FAB6AD2008A52FC /* epcot_r5_c1.png */; };
+		21700FFC2FAB6AD2008A52FC /* islands_of_adventure_r1_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F722FAB6AD2008A52FC /* islands_of_adventure_r1_c3.png */; };
+		21700FFD2FAB6AD2008A52FC /* magic_kingdom_r3_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F902FAB6AD2008A52FC /* magic_kingdom_r3_c2.png */; };
+		21700FFE2FAB6AD2008A52FC /* epic_universe_r2_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F4A2FAB6AD2008A52FC /* epic_universe_r2_c4.png */; };
+		21700FFF2FAB6AD2008A52FC /* magic_kingdom_r4_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F962FAB6AD2008A52FC /* magic_kingdom_r4_c3.png */; };
+		217010002FAB6AD2008A52FC /* universal_studios_florida_r1_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FAE2FAB6AD2008A52FC /* universal_studios_florida_r1_c1.png */; };
+		217010012FAB6AD2008A52FC /* magic_kingdom_r5_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F9B2FAB6AD2008A52FC /* magic_kingdom_r5_c4.png */; };
+		217010022FAB6AD2008A52FC /* epic_universe_r3_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F502FAB6AD2008A52FC /* epic_universe_r3_c3.png */; };
+		217010032FAB6AD2008A52FC /* animal_kingdom_r2_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F0D2FAB6AD2008A52FC /* animal_kingdom_r2_c3.png */; };
+		217010042FAB6AD2008A52FC /* universal_studios_florida_r3_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FBA2FAB6AD2008A52FC /* universal_studios_florida_r3_c3.png */; };
+		217010052FAB6AD2008A52FC /* magic_kingdom_r6_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FA12FAB6AD2008A52FC /* magic_kingdom_r6_c5.png */; };
+		217010062FAB6AD2008A52FC /* epcot_r5_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F352FAB6AD2008A52FC /* epcot_r5_c4.png */; };
+		217010072FAB6AD2008A52FC /* magic_kingdom_r6_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FA02FAB6AD2008A52FC /* magic_kingdom_r6_c4.png */; };
+		217010082FAB6AD2008A52FC /* magic_kingdom_r4_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F952FAB6AD2008A52FC /* magic_kingdom_r4_c2.png */; };
+		217010092FAB6AD2008A52FC /* animal_kingdom_r5_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F1E2FAB6AD2008A52FC /* animal_kingdom_r5_c5.png */; };
+		2170100A2FAB6AD2008A52FC /* universal_studios_florida_r2_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FB72FAB6AD2008A52FC /* universal_studios_florida_r2_c5.png */; };
+		2170100B2FAB6AD2008A52FC /* epcot_r1_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F202FAB6AD2008A52FC /* epcot_r1_c1.png */; };
+		2170100C2FAB6AD2008A52FC /* hollywood_studios_r2_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F5B2FAB6AD2008A52FC /* hollywood_studios_r2_c1.png */; };
+		2170100D2FAB6AD2008A52FC /* animal_kingdom_r5_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F1A2FAB6AD2008A52FC /* animal_kingdom_r5_c1.png */; };
+		2170100E2FAB6AD2008A52FC /* magic_kingdom_r2_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F8D2FAB6AD2008A52FC /* magic_kingdom_r2_c4.png */; };
+		2170100F2FAB6AD2008A52FC /* epcot_r5_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F362FAB6AD2008A52FC /* epcot_r5_c5.png */; };
+		217010102FAB6AD2008A52FC /* hollywood_studios_r2_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F5E2FAB6AD2008A52FC /* hollywood_studios_r2_c4.png */; };
+		217010112FAB6AD2008A52FC /* magic_kingdom_r4_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F972FAB6AD2008A52FC /* magic_kingdom_r4_c4.png */; };
+		217010122FAB6AD2008A52FC /* magic_kingdom_r1_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F862FAB6AD2008A52FC /* magic_kingdom_r1_c1.png */; };
+		217010132FAB6AD2008A52FC /* hollywood_studios_r3_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F632FAB6AD2008A52FC /* hollywood_studios_r3_c4.png */; };
+		217010142FAB6AD2008A52FC /* islands_of_adventure_r1_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F742FAB6AD2008A52FC /* islands_of_adventure_r1_c5.png */; };
+		217010152FAB6AD2008A52FC /* animal_kingdom_r1_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F082FAB6AD2008A52FC /* animal_kingdom_r1_c3.png */; };
+		217010162FAB6AD2008A52FC /* islands_of_adventure_r2_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F7C2FAB6AD2008A52FC /* islands_of_adventure_r2_c6.png */; };
+		217010172FAB6AD2008A52FC /* universal_studios_florida_r2_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FB52FAB6AD2008A52FC /* universal_studios_florida_r2_c3.png */; };
+		217010182FAB6AD2008A52FC /* magic_kingdom_r1_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F872FAB6AD2008A52FC /* magic_kingdom_r1_c2.png */; };
+		217010192FAB6AD2008A52FC /* hollywood_studios_r5_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F6A2FAB6AD2008A52FC /* hollywood_studios_r5_c1.png */; };
+		2170101A2FAB6AD2008A52FC /* magic_kingdom_r1_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F892FAB6AD2008A52FC /* magic_kingdom_r1_c4.png */; };
+		2170101B2FAB6AD2008A52FC /* epcot_r5_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F372FAB6AD2008A52FC /* epcot_r5_c6.png */; };
+		2170101C2FAB6AD2008A52FC /* animal_kingdom_r2_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F0C2FAB6AD2008A52FC /* animal_kingdom_r2_c2.png */; };
+		2170101D2FAB6AD2008A52FC /* magic_kingdom_r1_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F882FAB6AD2008A52FC /* magic_kingdom_r1_c3.png */; };
+		2170101E2FAB6AD2008A52FC /* hollywood_studios_r5_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F6B2FAB6AD2008A52FC /* hollywood_studios_r5_c2.png */; };
+		2170101F2FAB6AD2008A52FC /* epcot_r2_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F272FAB6AD2008A52FC /* epcot_r2_c2.png */; };
+		217010202FAB6AD2008A52FC /* hollywood_studios_r1_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F572FAB6AD2008A52FC /* hollywood_studios_r1_c2.png */; };
+		217010212FAB6AD2008A52FC /* islands_of_adventure_r1_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F732FAB6AD2008A52FC /* islands_of_adventure_r1_c4.png */; };
+		217010222FAB6AD2008A52FC /* epcot_r1_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F212FAB6AD2008A52FC /* epcot_r1_c2.png */; };
+		217010232FAB6AD2008A52FC /* universal_studios_florida_r3_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FBC2FAB6AD2008A52FC /* universal_studios_florida_r3_c5.png */; };
+		217010242FAB6AD2008A52FC /* magic_kingdom_r6_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F9D2FAB6AD2008A52FC /* magic_kingdom_r6_c1.png */; };
+		217010252FAB6AD2008A52FC /* epcot_r4_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F302FAB6AD2008A52FC /* epcot_r4_c2.png */; };
+		217010262FAB6AD2008A52FC /* universal_studios_florida_r1_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FAF2FAB6AD2008A52FC /* universal_studios_florida_r1_c2.png */; };
+		217010272FAB6AD2008A52FC /* animal_kingdom_r4_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F172FAB6AD2008A52FC /* animal_kingdom_r4_c3.png */; };
+		217010282FAB6AD2008A52FC /* animal_kingdom_r4_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F162FAB6AD2008A52FC /* animal_kingdom_r4_c2.png */; };
+		217010292FAB6AD2008A52FC /* islands_of_adventure_r3_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F802FAB6AD2008A52FC /* islands_of_adventure_r3_c3.png */; };
+		2170102A2FAB6AD2008A52FC /* epcot_r5_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F342FAB6AD2008A52FC /* epcot_r5_c3.png */; };
+		2170102B2FAB6AD2008A52FC /* magic_kingdom_r7_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FA42FAB6AD2008A52FC /* magic_kingdom_r7_c2.png */; };
+		2170102C2FAB6AD2008A52FC /* islands_of_adventure_r3_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F7E2FAB6AD2008A52FC /* islands_of_adventure_r3_c1.png */; };
+		2170102D2FAB6AD2008A52FC /* epcot_r2_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F2A2FAB6AD2008A52FC /* epcot_r2_c5.png */; };
+		2170102E2FAB6AD2008A52FC /* animal_kingdom_r1_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F072FAB6AD2008A52FC /* animal_kingdom_r1_c2.png */; };
+		2170102F2FAB6AD2008A52FC /* magic_kingdom_r5_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F982FAB6AD2008A52FC /* magic_kingdom_r5_c1.png */; };
+		217010302FAB6AD2008A52FC /* epcot_r2_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F262FAB6AD2008A52FC /* epcot_r2_c1.png */; };
+		217010312FAB6AD2008A52FC /* epcot_r4_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F312FAB6AD2008A52FC /* epcot_r4_c3.png */; };
+		217010322FAB6AD2008A52FC /* magic_kingdom_r3_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F8F2FAB6AD2008A52FC /* magic_kingdom_r3_c1.png */; };
+		217010332FAB6AD2008A52FC /* universal_studios_florida_r2_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FB42FAB6AD2008A52FC /* universal_studios_florida_r2_c2.png */; };
+		217010342FAB6AD2008A52FC /* epic_universe_r2_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F492FAB6AD2008A52FC /* epic_universe_r2_c3.png */; };
+		217010352FAB6AD2008A52FC /* universal_studios_florida_r1_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FB12FAB6AD2008A52FC /* universal_studios_florida_r1_c4.png */; };
+		217010362FAB6AD2008A52FC /* islands_of_adventure_r1_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F752FAB6AD2008A52FC /* islands_of_adventure_r1_c6.png */; };
+		217010372FAB6AD2008A52FC /* epic_universe_r2_c7.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F4D2FAB6AD2008A52FC /* epic_universe_r2_c7.png */; };
+		217010382FAB6AD2008A52FC /* islands_of_adventure_r3_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F7F2FAB6AD2008A52FC /* islands_of_adventure_r3_c2.png */; };
+		217010392FAB6AD2008A52FC /* islands_of_adventure_r3_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F832FAB6AD2008A52FC /* islands_of_adventure_r3_c6.png */; };
+		2170103A2FAB6AD2008A52FC /* magic_kingdom_r6_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F9F2FAB6AD2008A52FC /* magic_kingdom_r6_c3.png */; };
+		2170103B2FAB6AD2008A52FC /* magic_kingdom_r8_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FAB2FAB6AD2008A52FC /* magic_kingdom_r8_c4.png */; };
+		2170103C2FAB6AD2008A52FC /* hollywood_studios_r5_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F6D2FAB6AD2008A52FC /* hollywood_studios_r5_c4.png */; };
+		2170103D2FAB6AD2008A52FC /* islands_of_adventure_r2_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F782FAB6AD2008A52FC /* islands_of_adventure_r2_c2.png */; };
+		2170103E2FAB6AD2008A52FC /* epcot_r5_c7.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F382FAB6AD2008A52FC /* epcot_r5_c7.png */; };
+		2170103F2FAB6AD2008A52FC /* animal_kingdom_r5_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F1C2FAB6AD2008A52FC /* animal_kingdom_r5_c3.png */; };
+		217010402FAB6AD2008A52FC /* epcot_r2_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F292FAB6AD2008A52FC /* epcot_r2_c4.png */; };
+		217010412FAB6AD2008A52FC /* epcot_r1_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F222FAB6AD2008A52FC /* epcot_r1_c3.png */; };
+		217010422FAB6AD2008A52FC /* islands_of_adventure_r3_c7.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F842FAB6AD2008A52FC /* islands_of_adventure_r3_c7.png */; };
+		217010432FAB6AD2008A52FC /* epic_universe_r1_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F442FAB6AD2008A52FC /* epic_universe_r1_c4.png */; };
+		217010442FAB6AD2008A52FC /* universal_studios_florida_r2_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FB32FAB6AD2008A52FC /* universal_studios_florida_r2_c1.png */; };
+		217010452FAB6AD2008A52FC /* animal_kingdom_r2_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F0E2FAB6AD2008A52FC /* animal_kingdom_r2_c4.png */; };
+		217010462FAB6AD2008A52FC /* hollywood_studios_r1_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F562FAB6AD2008A52FC /* hollywood_studios_r1_c1.png */; };
+		217010472FAB6AD2008A52FC /* animal_kingdom_r4_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F192FAB6AD2008A52FC /* animal_kingdom_r4_c5.png */; };
+		217010482FAB6AD2008A52FC /* hollywood_studios_r4_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F672FAB6AD2008A52FC /* hollywood_studios_r4_c3.png */; };
+		217010492FAB6AD2008A52FC /* universal_studios_florida_r3_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FB92FAB6AD2008A52FC /* universal_studios_florida_r3_c2.png */; };
+		2170104A2FAB6AD2008A52FC /* epcot_r6_c7.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F3F2FAB6AD2008A52FC /* epcot_r6_c7.png */; };
+		2170104B2FAB6AD2008A52FC /* islands_of_adventure_r1_c7.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F762FAB6AD2008A52FC /* islands_of_adventure_r1_c7.png */; };
+		2170104C2FAB6AD2008A52FC /* epic_universe_r2_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F4C2FAB6AD2008A52FC /* epic_universe_r2_c6.png */; };
+		2170104D2FAB6AD2008A52FC /* islands_of_adventure_r2_c7.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F7D2FAB6AD2008A52FC /* islands_of_adventure_r2_c7.png */; };
+		2170104E2FAB6AD2008A52FC /* hollywood_studios_r3_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F602FAB6AD2008A52FC /* hollywood_studios_r3_c1.png */; };
+		2170104F2FAB6AD2008A52FC /* islands_of_adventure_r2_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F772FAB6AD2008A52FC /* islands_of_adventure_r2_c1.png */; };
+		217010502FAB6AD2008A52FC /* epic_universe_r3_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F4F2FAB6AD2008A52FC /* epic_universe_r3_c2.png */; };
+		217010512FAB6AD2008A52FC /* animal_kingdom_r3_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F102FAB6AD2008A52FC /* animal_kingdom_r3_c1.png */; };
+		217010522FAB6AD2008A52FC /* epic_universe_r2_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F482FAB6AD2008A52FC /* epic_universe_r2_c2.png */; };
+		217010532FAB6AD2008A52FC /* epcot_r6_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F3B2FAB6AD2008A52FC /* epcot_r6_c3.png */; };
+		217010542FAB6AD2008A52FC /* epcot_r4_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F2F2FAB6AD2008A52FC /* epcot_r4_c1.png */; };
+		217010552FAB6AD2008A52FC /* magic_kingdom_r7_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FA32FAB6AD2008A52FC /* magic_kingdom_r7_c1.png */; };
+		217010562FAB6AD2008A52FC /* magic_kingdom_r8_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FAA2FAB6AD2008A52FC /* magic_kingdom_r8_c3.png */; };
+		217010572FAB6AD2008A52FC /* animal_kingdom_r4_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F182FAB6AD2008A52FC /* animal_kingdom_r4_c4.png */; };
+		217010582FAB6AD2008A52FC /* epic_universe_r3_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F532FAB6AD2008A52FC /* epic_universe_r3_c6.png */; };
+		217010592FAB6AD2008A52FC /* epcot_r1_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F232FAB6AD2008A52FC /* epcot_r1_c4.png */; };
+		2170105A2FAB6AD2008A52FC /* magic_kingdom_r7_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FA72FAB6AD2008A52FC /* magic_kingdom_r7_c5.png */; };
+		2170105B2FAB6AD2008A52FC /* magic_kingdom_r3_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F912FAB6AD2008A52FC /* magic_kingdom_r3_c3.png */; };
+		2170105C2FAB6AD2008A52FC /* epic_universe_r1_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F432FAB6AD2008A52FC /* epic_universe_r1_c3.png */; };
+		2170105D2FAB6AD2008A52FC /* magic_kingdom_r6_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FA22FAB6AD2008A52FC /* magic_kingdom_r6_c6.png */; };
+		2170105E2FAB6AD2008A52FC /* magic_kingdom_r4_c1.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F942FAB6AD2008A52FC /* magic_kingdom_r4_c1.png */; };
+		2170105F2FAB6AD2008A52FC /* magic_kingdom_r5_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F992FAB6AD2008A52FC /* magic_kingdom_r5_c2.png */; };
+		217010602FAB6AD2008A52FC /* magic_kingdom_r8_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FAC2FAB6AD2008A52FC /* magic_kingdom_r8_c5.png */; };
+		217010612FAB6AD2008A52FC /* epcot_r2_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F2B2FAB6AD2008A52FC /* epcot_r2_c6.png */; };
+		217010622FAB6AD2008A52FC /* universal_studios_florida_r1_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700FB02FAB6AD2008A52FC /* universal_studios_florida_r1_c3.png */; };
+		217010632FAB6AD2008A52FC /* magic_kingdom_r6_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F9E2FAB6AD2008A52FC /* magic_kingdom_r6_c2.png */; };
+		217010642FAB6AD2008A52FC /* epic_universe_r1_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F452FAB6AD2008A52FC /* epic_universe_r1_c5.png */; };
+		217010652FAB6AD2008A52FC /* hollywood_studios_r4_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F692FAB6AD2008A52FC /* hollywood_studios_r4_c5.png */; };
+		217010662FAB6AD2008A52FC /* hollywood_studios_r3_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F642FAB6AD2008A52FC /* hollywood_studios_r3_c5.png */; };
+		217010672FAB6AD2008A52FC /* magic_kingdom_r2_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F8C2FAB6AD2008A52FC /* magic_kingdom_r2_c3.png */; };
+		217010682FAB6AD2008A52FC /* animal_kingdom_r1_c4.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F092FAB6AD2008A52FC /* animal_kingdom_r1_c4.png */; };
+		217010692FAB6AD2008A52FC /* hollywood_studios_r2_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F5F2FAB6AD2008A52FC /* hollywood_studios_r2_c5.png */; };
+		2170106A2FAB6AD2008A52FC /* islands_of_adventure_r2_c5.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F7B2FAB6AD2008A52FC /* islands_of_adventure_r2_c5.png */; };
+		2170106B2FAB6AD2008A52FC /* epcot_r6_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F3A2FAB6AD2008A52FC /* epcot_r6_c2.png */; };
+		2170106C2FAB6AD2008A52FC /* epcot_r3_c3.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F2E2FAB6AD2008A52FC /* epcot_r3_c3.png */; };
+		2170106D2FAB6AD2008A52FC /* epcot_r1_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F252FAB6AD2008A52FC /* epcot_r1_c6.png */; };
+		2170106E2FAB6AD2008A52FC /* epic_universe_r1_c6.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F462FAB6AD2008A52FC /* epic_universe_r1_c6.png */; };
+		2170106F2FAB6AD2008A52FC /* islands_of_adventure_r1_c2.png in Resources */ = {isa = PBXBuildFile; fileRef = 21700F712FAB6AD2008A52FC /* islands_of_adventure_r1_c2.png */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
+		21700EF12FAA6A79008A52FC /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 21D04F1B2DF7652C00526ECA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 21700EE12FAA6A78008A52FC;
+			remoteInfo = QueueBuddyWidgetExtension;
+		};
 		21C299C52E244380005B6ECA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 21D04F1B2DF7652C00526ECA /* Project object */;
@@ -16,13 +206,213 @@
 		};
 /* End PBXContainerItemProxy section */
 
+/* Begin PBXCopyFilesBuildPhase section */
+		21700EB62FAA698A008A52FC /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			dstPath = "";
+			dstSubfolder = PlugIns;
+			files = (
+				21700EF32FAA6A79008A52FC /* QueueBuddyWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
+		21700EA12FAA6988008A52FC /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		21700EA32FAA6989008A52FC /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		21700EE22FAA6A78008A52FC /* QueueBuddyWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = QueueBuddyWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		21700F052FAA6EA8008A52FC /* QueueBuddyWidgetExtensionDebug.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = QueueBuddyWidgetExtensionDebug.entitlements; sourceTree = "<group>"; };
+		21700F062FAB6AD2008A52FC /* animal_kingdom_r1_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r1_c1.png; sourceTree = "<group>"; };
+		21700F072FAB6AD2008A52FC /* animal_kingdom_r1_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r1_c2.png; sourceTree = "<group>"; };
+		21700F082FAB6AD2008A52FC /* animal_kingdom_r1_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r1_c3.png; sourceTree = "<group>"; };
+		21700F092FAB6AD2008A52FC /* animal_kingdom_r1_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r1_c4.png; sourceTree = "<group>"; };
+		21700F0A2FAB6AD2008A52FC /* animal_kingdom_r1_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r1_c5.png; sourceTree = "<group>"; };
+		21700F0B2FAB6AD2008A52FC /* animal_kingdom_r2_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r2_c1.png; sourceTree = "<group>"; };
+		21700F0C2FAB6AD2008A52FC /* animal_kingdom_r2_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r2_c2.png; sourceTree = "<group>"; };
+		21700F0D2FAB6AD2008A52FC /* animal_kingdom_r2_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r2_c3.png; sourceTree = "<group>"; };
+		21700F0E2FAB6AD2008A52FC /* animal_kingdom_r2_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r2_c4.png; sourceTree = "<group>"; };
+		21700F0F2FAB6AD2008A52FC /* animal_kingdom_r2_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r2_c5.png; sourceTree = "<group>"; };
+		21700F102FAB6AD2008A52FC /* animal_kingdom_r3_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r3_c1.png; sourceTree = "<group>"; };
+		21700F112FAB6AD2008A52FC /* animal_kingdom_r3_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r3_c2.png; sourceTree = "<group>"; };
+		21700F122FAB6AD2008A52FC /* animal_kingdom_r3_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r3_c3.png; sourceTree = "<group>"; };
+		21700F132FAB6AD2008A52FC /* animal_kingdom_r3_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r3_c4.png; sourceTree = "<group>"; };
+		21700F142FAB6AD2008A52FC /* animal_kingdom_r3_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r3_c5.png; sourceTree = "<group>"; };
+		21700F152FAB6AD2008A52FC /* animal_kingdom_r4_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r4_c1.png; sourceTree = "<group>"; };
+		21700F162FAB6AD2008A52FC /* animal_kingdom_r4_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r4_c2.png; sourceTree = "<group>"; };
+		21700F172FAB6AD2008A52FC /* animal_kingdom_r4_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r4_c3.png; sourceTree = "<group>"; };
+		21700F182FAB6AD2008A52FC /* animal_kingdom_r4_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r4_c4.png; sourceTree = "<group>"; };
+		21700F192FAB6AD2008A52FC /* animal_kingdom_r4_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r4_c5.png; sourceTree = "<group>"; };
+		21700F1A2FAB6AD2008A52FC /* animal_kingdom_r5_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r5_c1.png; sourceTree = "<group>"; };
+		21700F1B2FAB6AD2008A52FC /* animal_kingdom_r5_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r5_c2.png; sourceTree = "<group>"; };
+		21700F1C2FAB6AD2008A52FC /* animal_kingdom_r5_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r5_c3.png; sourceTree = "<group>"; };
+		21700F1D2FAB6AD2008A52FC /* animal_kingdom_r5_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r5_c4.png; sourceTree = "<group>"; };
+		21700F1E2FAB6AD2008A52FC /* animal_kingdom_r5_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = animal_kingdom_r5_c5.png; sourceTree = "<group>"; };
+		21700F202FAB6AD2008A52FC /* epcot_r1_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r1_c1.png; sourceTree = "<group>"; };
+		21700F212FAB6AD2008A52FC /* epcot_r1_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r1_c2.png; sourceTree = "<group>"; };
+		21700F222FAB6AD2008A52FC /* epcot_r1_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r1_c3.png; sourceTree = "<group>"; };
+		21700F232FAB6AD2008A52FC /* epcot_r1_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r1_c4.png; sourceTree = "<group>"; };
+		21700F242FAB6AD2008A52FC /* epcot_r1_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r1_c5.png; sourceTree = "<group>"; };
+		21700F252FAB6AD2008A52FC /* epcot_r1_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r1_c6.png; sourceTree = "<group>"; };
+		21700F262FAB6AD2008A52FC /* epcot_r2_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r2_c1.png; sourceTree = "<group>"; };
+		21700F272FAB6AD2008A52FC /* epcot_r2_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r2_c2.png; sourceTree = "<group>"; };
+		21700F282FAB6AD2008A52FC /* epcot_r2_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r2_c3.png; sourceTree = "<group>"; };
+		21700F292FAB6AD2008A52FC /* epcot_r2_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r2_c4.png; sourceTree = "<group>"; };
+		21700F2A2FAB6AD2008A52FC /* epcot_r2_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r2_c5.png; sourceTree = "<group>"; };
+		21700F2B2FAB6AD2008A52FC /* epcot_r2_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r2_c6.png; sourceTree = "<group>"; };
+		21700F2C2FAB6AD2008A52FC /* epcot_r3_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r3_c1.png; sourceTree = "<group>"; };
+		21700F2D2FAB6AD2008A52FC /* epcot_r3_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r3_c2.png; sourceTree = "<group>"; };
+		21700F2E2FAB6AD2008A52FC /* epcot_r3_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r3_c3.png; sourceTree = "<group>"; };
+		21700F2F2FAB6AD2008A52FC /* epcot_r4_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r4_c1.png; sourceTree = "<group>"; };
+		21700F302FAB6AD2008A52FC /* epcot_r4_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r4_c2.png; sourceTree = "<group>"; };
+		21700F312FAB6AD2008A52FC /* epcot_r4_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r4_c3.png; sourceTree = "<group>"; };
+		21700F322FAB6AD2008A52FC /* epcot_r5_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r5_c1.png; sourceTree = "<group>"; };
+		21700F332FAB6AD2008A52FC /* epcot_r5_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r5_c2.png; sourceTree = "<group>"; };
+		21700F342FAB6AD2008A52FC /* epcot_r5_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r5_c3.png; sourceTree = "<group>"; };
+		21700F352FAB6AD2008A52FC /* epcot_r5_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r5_c4.png; sourceTree = "<group>"; };
+		21700F362FAB6AD2008A52FC /* epcot_r5_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r5_c5.png; sourceTree = "<group>"; };
+		21700F372FAB6AD2008A52FC /* epcot_r5_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r5_c6.png; sourceTree = "<group>"; };
+		21700F382FAB6AD2008A52FC /* epcot_r5_c7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r5_c7.png; sourceTree = "<group>"; };
+		21700F392FAB6AD2008A52FC /* epcot_r6_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r6_c1.png; sourceTree = "<group>"; };
+		21700F3A2FAB6AD2008A52FC /* epcot_r6_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r6_c2.png; sourceTree = "<group>"; };
+		21700F3B2FAB6AD2008A52FC /* epcot_r6_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r6_c3.png; sourceTree = "<group>"; };
+		21700F3C2FAB6AD2008A52FC /* epcot_r6_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r6_c4.png; sourceTree = "<group>"; };
+		21700F3D2FAB6AD2008A52FC /* epcot_r6_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r6_c5.png; sourceTree = "<group>"; };
+		21700F3E2FAB6AD2008A52FC /* epcot_r6_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r6_c6.png; sourceTree = "<group>"; };
+		21700F3F2FAB6AD2008A52FC /* epcot_r6_c7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epcot_r6_c7.png; sourceTree = "<group>"; };
+		21700F412FAB6AD2008A52FC /* epic_universe_r1_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r1_c1.png; sourceTree = "<group>"; };
+		21700F422FAB6AD2008A52FC /* epic_universe_r1_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r1_c2.png; sourceTree = "<group>"; };
+		21700F432FAB6AD2008A52FC /* epic_universe_r1_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r1_c3.png; sourceTree = "<group>"; };
+		21700F442FAB6AD2008A52FC /* epic_universe_r1_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r1_c4.png; sourceTree = "<group>"; };
+		21700F452FAB6AD2008A52FC /* epic_universe_r1_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r1_c5.png; sourceTree = "<group>"; };
+		21700F462FAB6AD2008A52FC /* epic_universe_r1_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r1_c6.png; sourceTree = "<group>"; };
+		21700F472FAB6AD2008A52FC /* epic_universe_r2_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r2_c1.png; sourceTree = "<group>"; };
+		21700F482FAB6AD2008A52FC /* epic_universe_r2_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r2_c2.png; sourceTree = "<group>"; };
+		21700F492FAB6AD2008A52FC /* epic_universe_r2_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r2_c3.png; sourceTree = "<group>"; };
+		21700F4A2FAB6AD2008A52FC /* epic_universe_r2_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r2_c4.png; sourceTree = "<group>"; };
+		21700F4B2FAB6AD2008A52FC /* epic_universe_r2_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r2_c5.png; sourceTree = "<group>"; };
+		21700F4C2FAB6AD2008A52FC /* epic_universe_r2_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r2_c6.png; sourceTree = "<group>"; };
+		21700F4D2FAB6AD2008A52FC /* epic_universe_r2_c7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r2_c7.png; sourceTree = "<group>"; };
+		21700F4E2FAB6AD2008A52FC /* epic_universe_r3_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r3_c1.png; sourceTree = "<group>"; };
+		21700F4F2FAB6AD2008A52FC /* epic_universe_r3_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r3_c2.png; sourceTree = "<group>"; };
+		21700F502FAB6AD2008A52FC /* epic_universe_r3_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r3_c3.png; sourceTree = "<group>"; };
+		21700F512FAB6AD2008A52FC /* epic_universe_r3_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r3_c4.png; sourceTree = "<group>"; };
+		21700F522FAB6AD2008A52FC /* epic_universe_r3_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r3_c5.png; sourceTree = "<group>"; };
+		21700F532FAB6AD2008A52FC /* epic_universe_r3_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r3_c6.png; sourceTree = "<group>"; };
+		21700F542FAB6AD2008A52FC /* epic_universe_r3_c7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = epic_universe_r3_c7.png; sourceTree = "<group>"; };
+		21700F562FAB6AD2008A52FC /* hollywood_studios_r1_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r1_c1.png; sourceTree = "<group>"; };
+		21700F572FAB6AD2008A52FC /* hollywood_studios_r1_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r1_c2.png; sourceTree = "<group>"; };
+		21700F582FAB6AD2008A52FC /* hollywood_studios_r1_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r1_c3.png; sourceTree = "<group>"; };
+		21700F592FAB6AD2008A52FC /* hollywood_studios_r1_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r1_c4.png; sourceTree = "<group>"; };
+		21700F5A2FAB6AD2008A52FC /* hollywood_studios_r1_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r1_c5.png; sourceTree = "<group>"; };
+		21700F5B2FAB6AD2008A52FC /* hollywood_studios_r2_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r2_c1.png; sourceTree = "<group>"; };
+		21700F5C2FAB6AD2008A52FC /* hollywood_studios_r2_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r2_c2.png; sourceTree = "<group>"; };
+		21700F5D2FAB6AD2008A52FC /* hollywood_studios_r2_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r2_c3.png; sourceTree = "<group>"; };
+		21700F5E2FAB6AD2008A52FC /* hollywood_studios_r2_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r2_c4.png; sourceTree = "<group>"; };
+		21700F5F2FAB6AD2008A52FC /* hollywood_studios_r2_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r2_c5.png; sourceTree = "<group>"; };
+		21700F602FAB6AD2008A52FC /* hollywood_studios_r3_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r3_c1.png; sourceTree = "<group>"; };
+		21700F612FAB6AD2008A52FC /* hollywood_studios_r3_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r3_c2.png; sourceTree = "<group>"; };
+		21700F622FAB6AD2008A52FC /* hollywood_studios_r3_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r3_c3.png; sourceTree = "<group>"; };
+		21700F632FAB6AD2008A52FC /* hollywood_studios_r3_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r3_c4.png; sourceTree = "<group>"; };
+		21700F642FAB6AD2008A52FC /* hollywood_studios_r3_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r3_c5.png; sourceTree = "<group>"; };
+		21700F652FAB6AD2008A52FC /* hollywood_studios_r4_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r4_c1.png; sourceTree = "<group>"; };
+		21700F662FAB6AD2008A52FC /* hollywood_studios_r4_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r4_c2.png; sourceTree = "<group>"; };
+		21700F672FAB6AD2008A52FC /* hollywood_studios_r4_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r4_c3.png; sourceTree = "<group>"; };
+		21700F682FAB6AD2008A52FC /* hollywood_studios_r4_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r4_c4.png; sourceTree = "<group>"; };
+		21700F692FAB6AD2008A52FC /* hollywood_studios_r4_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r4_c5.png; sourceTree = "<group>"; };
+		21700F6A2FAB6AD2008A52FC /* hollywood_studios_r5_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r5_c1.png; sourceTree = "<group>"; };
+		21700F6B2FAB6AD2008A52FC /* hollywood_studios_r5_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r5_c2.png; sourceTree = "<group>"; };
+		21700F6C2FAB6AD2008A52FC /* hollywood_studios_r5_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r5_c3.png; sourceTree = "<group>"; };
+		21700F6D2FAB6AD2008A52FC /* hollywood_studios_r5_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r5_c4.png; sourceTree = "<group>"; };
+		21700F6E2FAB6AD2008A52FC /* hollywood_studios_r5_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = hollywood_studios_r5_c5.png; sourceTree = "<group>"; };
+		21700F702FAB6AD2008A52FC /* islands_of_adventure_r1_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r1_c1.png; sourceTree = "<group>"; };
+		21700F712FAB6AD2008A52FC /* islands_of_adventure_r1_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r1_c2.png; sourceTree = "<group>"; };
+		21700F722FAB6AD2008A52FC /* islands_of_adventure_r1_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r1_c3.png; sourceTree = "<group>"; };
+		21700F732FAB6AD2008A52FC /* islands_of_adventure_r1_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r1_c4.png; sourceTree = "<group>"; };
+		21700F742FAB6AD2008A52FC /* islands_of_adventure_r1_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r1_c5.png; sourceTree = "<group>"; };
+		21700F752FAB6AD2008A52FC /* islands_of_adventure_r1_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r1_c6.png; sourceTree = "<group>"; };
+		21700F762FAB6AD2008A52FC /* islands_of_adventure_r1_c7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r1_c7.png; sourceTree = "<group>"; };
+		21700F772FAB6AD2008A52FC /* islands_of_adventure_r2_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r2_c1.png; sourceTree = "<group>"; };
+		21700F782FAB6AD2008A52FC /* islands_of_adventure_r2_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r2_c2.png; sourceTree = "<group>"; };
+		21700F792FAB6AD2008A52FC /* islands_of_adventure_r2_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r2_c3.png; sourceTree = "<group>"; };
+		21700F7A2FAB6AD2008A52FC /* islands_of_adventure_r2_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r2_c4.png; sourceTree = "<group>"; };
+		21700F7B2FAB6AD2008A52FC /* islands_of_adventure_r2_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r2_c5.png; sourceTree = "<group>"; };
+		21700F7C2FAB6AD2008A52FC /* islands_of_adventure_r2_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r2_c6.png; sourceTree = "<group>"; };
+		21700F7D2FAB6AD2008A52FC /* islands_of_adventure_r2_c7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r2_c7.png; sourceTree = "<group>"; };
+		21700F7E2FAB6AD2008A52FC /* islands_of_adventure_r3_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r3_c1.png; sourceTree = "<group>"; };
+		21700F7F2FAB6AD2008A52FC /* islands_of_adventure_r3_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r3_c2.png; sourceTree = "<group>"; };
+		21700F802FAB6AD2008A52FC /* islands_of_adventure_r3_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r3_c3.png; sourceTree = "<group>"; };
+		21700F812FAB6AD2008A52FC /* islands_of_adventure_r3_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r3_c4.png; sourceTree = "<group>"; };
+		21700F822FAB6AD2008A52FC /* islands_of_adventure_r3_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r3_c5.png; sourceTree = "<group>"; };
+		21700F832FAB6AD2008A52FC /* islands_of_adventure_r3_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r3_c6.png; sourceTree = "<group>"; };
+		21700F842FAB6AD2008A52FC /* islands_of_adventure_r3_c7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = islands_of_adventure_r3_c7.png; sourceTree = "<group>"; };
+		21700F862FAB6AD2008A52FC /* magic_kingdom_r1_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r1_c1.png; sourceTree = "<group>"; };
+		21700F872FAB6AD2008A52FC /* magic_kingdom_r1_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r1_c2.png; sourceTree = "<group>"; };
+		21700F882FAB6AD2008A52FC /* magic_kingdom_r1_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r1_c3.png; sourceTree = "<group>"; };
+		21700F892FAB6AD2008A52FC /* magic_kingdom_r1_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r1_c4.png; sourceTree = "<group>"; };
+		21700F8A2FAB6AD2008A52FC /* magic_kingdom_r2_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r2_c1.png; sourceTree = "<group>"; };
+		21700F8B2FAB6AD2008A52FC /* magic_kingdom_r2_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r2_c2.png; sourceTree = "<group>"; };
+		21700F8C2FAB6AD2008A52FC /* magic_kingdom_r2_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r2_c3.png; sourceTree = "<group>"; };
+		21700F8D2FAB6AD2008A52FC /* magic_kingdom_r2_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r2_c4.png; sourceTree = "<group>"; };
+		21700F8E2FAB6AD2008A52FC /* magic_kingdom_r2_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r2_c5.png; sourceTree = "<group>"; };
+		21700F8F2FAB6AD2008A52FC /* magic_kingdom_r3_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r3_c1.png; sourceTree = "<group>"; };
+		21700F902FAB6AD2008A52FC /* magic_kingdom_r3_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r3_c2.png; sourceTree = "<group>"; };
+		21700F912FAB6AD2008A52FC /* magic_kingdom_r3_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r3_c3.png; sourceTree = "<group>"; };
+		21700F922FAB6AD2008A52FC /* magic_kingdom_r3_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r3_c4.png; sourceTree = "<group>"; };
+		21700F932FAB6AD2008A52FC /* magic_kingdom_r3_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r3_c5.png; sourceTree = "<group>"; };
+		21700F942FAB6AD2008A52FC /* magic_kingdom_r4_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r4_c1.png; sourceTree = "<group>"; };
+		21700F952FAB6AD2008A52FC /* magic_kingdom_r4_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r4_c2.png; sourceTree = "<group>"; };
+		21700F962FAB6AD2008A52FC /* magic_kingdom_r4_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r4_c3.png; sourceTree = "<group>"; };
+		21700F972FAB6AD2008A52FC /* magic_kingdom_r4_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r4_c4.png; sourceTree = "<group>"; };
+		21700F982FAB6AD2008A52FC /* magic_kingdom_r5_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r5_c1.png; sourceTree = "<group>"; };
+		21700F992FAB6AD2008A52FC /* magic_kingdom_r5_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r5_c2.png; sourceTree = "<group>"; };
+		21700F9A2FAB6AD2008A52FC /* magic_kingdom_r5_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r5_c3.png; sourceTree = "<group>"; };
+		21700F9B2FAB6AD2008A52FC /* magic_kingdom_r5_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r5_c4.png; sourceTree = "<group>"; };
+		21700F9C2FAB6AD2008A52FC /* magic_kingdom_r5_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r5_c5.png; sourceTree = "<group>"; };
+		21700F9D2FAB6AD2008A52FC /* magic_kingdom_r6_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r6_c1.png; sourceTree = "<group>"; };
+		21700F9E2FAB6AD2008A52FC /* magic_kingdom_r6_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r6_c2.png; sourceTree = "<group>"; };
+		21700F9F2FAB6AD2008A52FC /* magic_kingdom_r6_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r6_c3.png; sourceTree = "<group>"; };
+		21700FA02FAB6AD2008A52FC /* magic_kingdom_r6_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r6_c4.png; sourceTree = "<group>"; };
+		21700FA12FAB6AD2008A52FC /* magic_kingdom_r6_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r6_c5.png; sourceTree = "<group>"; };
+		21700FA22FAB6AD2008A52FC /* magic_kingdom_r6_c6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r6_c6.png; sourceTree = "<group>"; };
+		21700FA32FAB6AD2008A52FC /* magic_kingdom_r7_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r7_c1.png; sourceTree = "<group>"; };
+		21700FA42FAB6AD2008A52FC /* magic_kingdom_r7_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r7_c2.png; sourceTree = "<group>"; };
+		21700FA52FAB6AD2008A52FC /* magic_kingdom_r7_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r7_c3.png; sourceTree = "<group>"; };
+		21700FA62FAB6AD2008A52FC /* magic_kingdom_r7_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r7_c4.png; sourceTree = "<group>"; };
+		21700FA72FAB6AD2008A52FC /* magic_kingdom_r7_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r7_c5.png; sourceTree = "<group>"; };
+		21700FA82FAB6AD2008A52FC /* magic_kingdom_r8_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r8_c1.png; sourceTree = "<group>"; };
+		21700FA92FAB6AD2008A52FC /* magic_kingdom_r8_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r8_c2.png; sourceTree = "<group>"; };
+		21700FAA2FAB6AD2008A52FC /* magic_kingdom_r8_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r8_c3.png; sourceTree = "<group>"; };
+		21700FAB2FAB6AD2008A52FC /* magic_kingdom_r8_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r8_c4.png; sourceTree = "<group>"; };
+		21700FAC2FAB6AD2008A52FC /* magic_kingdom_r8_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = magic_kingdom_r8_c5.png; sourceTree = "<group>"; };
+		21700FAE2FAB6AD2008A52FC /* universal_studios_florida_r1_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r1_c1.png; sourceTree = "<group>"; };
+		21700FAF2FAB6AD2008A52FC /* universal_studios_florida_r1_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r1_c2.png; sourceTree = "<group>"; };
+		21700FB02FAB6AD2008A52FC /* universal_studios_florida_r1_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r1_c3.png; sourceTree = "<group>"; };
+		21700FB12FAB6AD2008A52FC /* universal_studios_florida_r1_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r1_c4.png; sourceTree = "<group>"; };
+		21700FB22FAB6AD2008A52FC /* universal_studios_florida_r1_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r1_c5.png; sourceTree = "<group>"; };
+		21700FB32FAB6AD2008A52FC /* universal_studios_florida_r2_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r2_c1.png; sourceTree = "<group>"; };
+		21700FB42FAB6AD2008A52FC /* universal_studios_florida_r2_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r2_c2.png; sourceTree = "<group>"; };
+		21700FB52FAB6AD2008A52FC /* universal_studios_florida_r2_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r2_c3.png; sourceTree = "<group>"; };
+		21700FB62FAB6AD2008A52FC /* universal_studios_florida_r2_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r2_c4.png; sourceTree = "<group>"; };
+		21700FB72FAB6AD2008A52FC /* universal_studios_florida_r2_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r2_c5.png; sourceTree = "<group>"; };
+		21700FB82FAB6AD2008A52FC /* universal_studios_florida_r3_c1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r3_c1.png; sourceTree = "<group>"; };
+		21700FB92FAB6AD2008A52FC /* universal_studios_florida_r3_c2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r3_c2.png; sourceTree = "<group>"; };
+		21700FBA2FAB6AD2008A52FC /* universal_studios_florida_r3_c3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r3_c3.png; sourceTree = "<group>"; };
+		21700FBB2FAB6AD2008A52FC /* universal_studios_florida_r3_c4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r3_c4.png; sourceTree = "<group>"; };
+		21700FBC2FAB6AD2008A52FC /* universal_studios_florida_r3_c5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = universal_studios_florida_r3_c5.png; sourceTree = "<group>"; };
 		21A476172E29C61C001B3DA9 /* QueueBuddy - Park Waits.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = "QueueBuddy - Park Waits.xctestplan"; sourceTree = "<group>"; };
 		21C299C12E244380005B6ECA /* QueueBuddyTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QueueBuddyTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		21D04F232DF7652C00526ECA /* QueueBuddy - Park Waits.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "QueueBuddy - Park Waits.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		21700EF72FAA6A79008A52FC /* Exceptions for "QueueBuddyWidget" folder in "QueueBuddyWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 21700EE12FAA6A78008A52FC /* QueueBuddyWidgetExtension */;
+		};
 		21C299BC2E244249005B6ECA /* Exceptions for "QueueBuddy - Park Waits" folder in "QueueBuddy - Park Waits" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
@@ -33,6 +423,14 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		21700EE52FAA6A78008A52FC /* QueueBuddyWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				21700EF72FAA6A79008A52FC /* Exceptions for "QueueBuddyWidget" folder in "QueueBuddyWidgetExtension" target */,
+			);
+			path = QueueBuddyWidget;
+			sourceTree = "<group>";
+		};
 		21C299C22E244380005B6ECA /* QueueBuddyTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = QueueBuddyTests;
@@ -49,6 +447,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		21700EDF2FAA6A78008A52FC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			files = (
+				21700EE42FAA6A78008A52FC /* SwiftUI.framework in Frameworks */,
+				21700EE32FAA6A78008A52FC /* WidgetKit.framework in Frameworks */,
+			);
+		};
 		21C299BE2E244380005B6ECA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
@@ -62,13 +467,266 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		21700EA02FAA6988008A52FC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				21700EA12FAA6988008A52FC /* WidgetKit.framework */,
+				21700EA32FAA6989008A52FC /* SwiftUI.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		21700F1F2FAB6AD2008A52FC /* animal_kingdom */ = {
+			isa = PBXGroup;
+			children = (
+				21700F062FAB6AD2008A52FC /* animal_kingdom_r1_c1.png */,
+				21700F072FAB6AD2008A52FC /* animal_kingdom_r1_c2.png */,
+				21700F082FAB6AD2008A52FC /* animal_kingdom_r1_c3.png */,
+				21700F092FAB6AD2008A52FC /* animal_kingdom_r1_c4.png */,
+				21700F0A2FAB6AD2008A52FC /* animal_kingdom_r1_c5.png */,
+				21700F0B2FAB6AD2008A52FC /* animal_kingdom_r2_c1.png */,
+				21700F0C2FAB6AD2008A52FC /* animal_kingdom_r2_c2.png */,
+				21700F0D2FAB6AD2008A52FC /* animal_kingdom_r2_c3.png */,
+				21700F0E2FAB6AD2008A52FC /* animal_kingdom_r2_c4.png */,
+				21700F0F2FAB6AD2008A52FC /* animal_kingdom_r2_c5.png */,
+				21700F102FAB6AD2008A52FC /* animal_kingdom_r3_c1.png */,
+				21700F112FAB6AD2008A52FC /* animal_kingdom_r3_c2.png */,
+				21700F122FAB6AD2008A52FC /* animal_kingdom_r3_c3.png */,
+				21700F132FAB6AD2008A52FC /* animal_kingdom_r3_c4.png */,
+				21700F142FAB6AD2008A52FC /* animal_kingdom_r3_c5.png */,
+				21700F152FAB6AD2008A52FC /* animal_kingdom_r4_c1.png */,
+				21700F162FAB6AD2008A52FC /* animal_kingdom_r4_c2.png */,
+				21700F172FAB6AD2008A52FC /* animal_kingdom_r4_c3.png */,
+				21700F182FAB6AD2008A52FC /* animal_kingdom_r4_c4.png */,
+				21700F192FAB6AD2008A52FC /* animal_kingdom_r4_c5.png */,
+				21700F1A2FAB6AD2008A52FC /* animal_kingdom_r5_c1.png */,
+				21700F1B2FAB6AD2008A52FC /* animal_kingdom_r5_c2.png */,
+				21700F1C2FAB6AD2008A52FC /* animal_kingdom_r5_c3.png */,
+				21700F1D2FAB6AD2008A52FC /* animal_kingdom_r5_c4.png */,
+				21700F1E2FAB6AD2008A52FC /* animal_kingdom_r5_c5.png */,
+			);
+			path = animal_kingdom;
+			sourceTree = "<group>";
+		};
+		21700F402FAB6AD2008A52FC /* epcot */ = {
+			isa = PBXGroup;
+			children = (
+				21700F202FAB6AD2008A52FC /* epcot_r1_c1.png */,
+				21700F212FAB6AD2008A52FC /* epcot_r1_c2.png */,
+				21700F222FAB6AD2008A52FC /* epcot_r1_c3.png */,
+				21700F232FAB6AD2008A52FC /* epcot_r1_c4.png */,
+				21700F242FAB6AD2008A52FC /* epcot_r1_c5.png */,
+				21700F252FAB6AD2008A52FC /* epcot_r1_c6.png */,
+				21700F262FAB6AD2008A52FC /* epcot_r2_c1.png */,
+				21700F272FAB6AD2008A52FC /* epcot_r2_c2.png */,
+				21700F282FAB6AD2008A52FC /* epcot_r2_c3.png */,
+				21700F292FAB6AD2008A52FC /* epcot_r2_c4.png */,
+				21700F2A2FAB6AD2008A52FC /* epcot_r2_c5.png */,
+				21700F2B2FAB6AD2008A52FC /* epcot_r2_c6.png */,
+				21700F2C2FAB6AD2008A52FC /* epcot_r3_c1.png */,
+				21700F2D2FAB6AD2008A52FC /* epcot_r3_c2.png */,
+				21700F2E2FAB6AD2008A52FC /* epcot_r3_c3.png */,
+				21700F2F2FAB6AD2008A52FC /* epcot_r4_c1.png */,
+				21700F302FAB6AD2008A52FC /* epcot_r4_c2.png */,
+				21700F312FAB6AD2008A52FC /* epcot_r4_c3.png */,
+				21700F322FAB6AD2008A52FC /* epcot_r5_c1.png */,
+				21700F332FAB6AD2008A52FC /* epcot_r5_c2.png */,
+				21700F342FAB6AD2008A52FC /* epcot_r5_c3.png */,
+				21700F352FAB6AD2008A52FC /* epcot_r5_c4.png */,
+				21700F362FAB6AD2008A52FC /* epcot_r5_c5.png */,
+				21700F372FAB6AD2008A52FC /* epcot_r5_c6.png */,
+				21700F382FAB6AD2008A52FC /* epcot_r5_c7.png */,
+				21700F392FAB6AD2008A52FC /* epcot_r6_c1.png */,
+				21700F3A2FAB6AD2008A52FC /* epcot_r6_c2.png */,
+				21700F3B2FAB6AD2008A52FC /* epcot_r6_c3.png */,
+				21700F3C2FAB6AD2008A52FC /* epcot_r6_c4.png */,
+				21700F3D2FAB6AD2008A52FC /* epcot_r6_c5.png */,
+				21700F3E2FAB6AD2008A52FC /* epcot_r6_c6.png */,
+				21700F3F2FAB6AD2008A52FC /* epcot_r6_c7.png */,
+			);
+			path = epcot;
+			sourceTree = "<group>";
+		};
+		21700F552FAB6AD2008A52FC /* epic_universe */ = {
+			isa = PBXGroup;
+			children = (
+				21700F412FAB6AD2008A52FC /* epic_universe_r1_c1.png */,
+				21700F422FAB6AD2008A52FC /* epic_universe_r1_c2.png */,
+				21700F432FAB6AD2008A52FC /* epic_universe_r1_c3.png */,
+				21700F442FAB6AD2008A52FC /* epic_universe_r1_c4.png */,
+				21700F452FAB6AD2008A52FC /* epic_universe_r1_c5.png */,
+				21700F462FAB6AD2008A52FC /* epic_universe_r1_c6.png */,
+				21700F472FAB6AD2008A52FC /* epic_universe_r2_c1.png */,
+				21700F482FAB6AD2008A52FC /* epic_universe_r2_c2.png */,
+				21700F492FAB6AD2008A52FC /* epic_universe_r2_c3.png */,
+				21700F4A2FAB6AD2008A52FC /* epic_universe_r2_c4.png */,
+				21700F4B2FAB6AD2008A52FC /* epic_universe_r2_c5.png */,
+				21700F4C2FAB6AD2008A52FC /* epic_universe_r2_c6.png */,
+				21700F4D2FAB6AD2008A52FC /* epic_universe_r2_c7.png */,
+				21700F4E2FAB6AD2008A52FC /* epic_universe_r3_c1.png */,
+				21700F4F2FAB6AD2008A52FC /* epic_universe_r3_c2.png */,
+				21700F502FAB6AD2008A52FC /* epic_universe_r3_c3.png */,
+				21700F512FAB6AD2008A52FC /* epic_universe_r3_c4.png */,
+				21700F522FAB6AD2008A52FC /* epic_universe_r3_c5.png */,
+				21700F532FAB6AD2008A52FC /* epic_universe_r3_c6.png */,
+				21700F542FAB6AD2008A52FC /* epic_universe_r3_c7.png */,
+			);
+			path = epic_universe;
+			sourceTree = "<group>";
+		};
+		21700F6F2FAB6AD2008A52FC /* hollywood_studios */ = {
+			isa = PBXGroup;
+			children = (
+				21700F562FAB6AD2008A52FC /* hollywood_studios_r1_c1.png */,
+				21700F572FAB6AD2008A52FC /* hollywood_studios_r1_c2.png */,
+				21700F582FAB6AD2008A52FC /* hollywood_studios_r1_c3.png */,
+				21700F592FAB6AD2008A52FC /* hollywood_studios_r1_c4.png */,
+				21700F5A2FAB6AD2008A52FC /* hollywood_studios_r1_c5.png */,
+				21700F5B2FAB6AD2008A52FC /* hollywood_studios_r2_c1.png */,
+				21700F5C2FAB6AD2008A52FC /* hollywood_studios_r2_c2.png */,
+				21700F5D2FAB6AD2008A52FC /* hollywood_studios_r2_c3.png */,
+				21700F5E2FAB6AD2008A52FC /* hollywood_studios_r2_c4.png */,
+				21700F5F2FAB6AD2008A52FC /* hollywood_studios_r2_c5.png */,
+				21700F602FAB6AD2008A52FC /* hollywood_studios_r3_c1.png */,
+				21700F612FAB6AD2008A52FC /* hollywood_studios_r3_c2.png */,
+				21700F622FAB6AD2008A52FC /* hollywood_studios_r3_c3.png */,
+				21700F632FAB6AD2008A52FC /* hollywood_studios_r3_c4.png */,
+				21700F642FAB6AD2008A52FC /* hollywood_studios_r3_c5.png */,
+				21700F652FAB6AD2008A52FC /* hollywood_studios_r4_c1.png */,
+				21700F662FAB6AD2008A52FC /* hollywood_studios_r4_c2.png */,
+				21700F672FAB6AD2008A52FC /* hollywood_studios_r4_c3.png */,
+				21700F682FAB6AD2008A52FC /* hollywood_studios_r4_c4.png */,
+				21700F692FAB6AD2008A52FC /* hollywood_studios_r4_c5.png */,
+				21700F6A2FAB6AD2008A52FC /* hollywood_studios_r5_c1.png */,
+				21700F6B2FAB6AD2008A52FC /* hollywood_studios_r5_c2.png */,
+				21700F6C2FAB6AD2008A52FC /* hollywood_studios_r5_c3.png */,
+				21700F6D2FAB6AD2008A52FC /* hollywood_studios_r5_c4.png */,
+				21700F6E2FAB6AD2008A52FC /* hollywood_studios_r5_c5.png */,
+			);
+			path = hollywood_studios;
+			sourceTree = "<group>";
+		};
+		21700F852FAB6AD2008A52FC /* islands_of_adventure */ = {
+			isa = PBXGroup;
+			children = (
+				21700F702FAB6AD2008A52FC /* islands_of_adventure_r1_c1.png */,
+				21700F712FAB6AD2008A52FC /* islands_of_adventure_r1_c2.png */,
+				21700F722FAB6AD2008A52FC /* islands_of_adventure_r1_c3.png */,
+				21700F732FAB6AD2008A52FC /* islands_of_adventure_r1_c4.png */,
+				21700F742FAB6AD2008A52FC /* islands_of_adventure_r1_c5.png */,
+				21700F752FAB6AD2008A52FC /* islands_of_adventure_r1_c6.png */,
+				21700F762FAB6AD2008A52FC /* islands_of_adventure_r1_c7.png */,
+				21700F772FAB6AD2008A52FC /* islands_of_adventure_r2_c1.png */,
+				21700F782FAB6AD2008A52FC /* islands_of_adventure_r2_c2.png */,
+				21700F792FAB6AD2008A52FC /* islands_of_adventure_r2_c3.png */,
+				21700F7A2FAB6AD2008A52FC /* islands_of_adventure_r2_c4.png */,
+				21700F7B2FAB6AD2008A52FC /* islands_of_adventure_r2_c5.png */,
+				21700F7C2FAB6AD2008A52FC /* islands_of_adventure_r2_c6.png */,
+				21700F7D2FAB6AD2008A52FC /* islands_of_adventure_r2_c7.png */,
+				21700F7E2FAB6AD2008A52FC /* islands_of_adventure_r3_c1.png */,
+				21700F7F2FAB6AD2008A52FC /* islands_of_adventure_r3_c2.png */,
+				21700F802FAB6AD2008A52FC /* islands_of_adventure_r3_c3.png */,
+				21700F812FAB6AD2008A52FC /* islands_of_adventure_r3_c4.png */,
+				21700F822FAB6AD2008A52FC /* islands_of_adventure_r3_c5.png */,
+				21700F832FAB6AD2008A52FC /* islands_of_adventure_r3_c6.png */,
+				21700F842FAB6AD2008A52FC /* islands_of_adventure_r3_c7.png */,
+			);
+			path = islands_of_adventure;
+			sourceTree = "<group>";
+		};
+		21700FAD2FAB6AD2008A52FC /* magic_kingdom */ = {
+			isa = PBXGroup;
+			children = (
+				21700F862FAB6AD2008A52FC /* magic_kingdom_r1_c1.png */,
+				21700F872FAB6AD2008A52FC /* magic_kingdom_r1_c2.png */,
+				21700F882FAB6AD2008A52FC /* magic_kingdom_r1_c3.png */,
+				21700F892FAB6AD2008A52FC /* magic_kingdom_r1_c4.png */,
+				21700F8A2FAB6AD2008A52FC /* magic_kingdom_r2_c1.png */,
+				21700F8B2FAB6AD2008A52FC /* magic_kingdom_r2_c2.png */,
+				21700F8C2FAB6AD2008A52FC /* magic_kingdom_r2_c3.png */,
+				21700F8D2FAB6AD2008A52FC /* magic_kingdom_r2_c4.png */,
+				21700F8E2FAB6AD2008A52FC /* magic_kingdom_r2_c5.png */,
+				21700F8F2FAB6AD2008A52FC /* magic_kingdom_r3_c1.png */,
+				21700F902FAB6AD2008A52FC /* magic_kingdom_r3_c2.png */,
+				21700F912FAB6AD2008A52FC /* magic_kingdom_r3_c3.png */,
+				21700F922FAB6AD2008A52FC /* magic_kingdom_r3_c4.png */,
+				21700F932FAB6AD2008A52FC /* magic_kingdom_r3_c5.png */,
+				21700F942FAB6AD2008A52FC /* magic_kingdom_r4_c1.png */,
+				21700F952FAB6AD2008A52FC /* magic_kingdom_r4_c2.png */,
+				21700F962FAB6AD2008A52FC /* magic_kingdom_r4_c3.png */,
+				21700F972FAB6AD2008A52FC /* magic_kingdom_r4_c4.png */,
+				21700F982FAB6AD2008A52FC /* magic_kingdom_r5_c1.png */,
+				21700F992FAB6AD2008A52FC /* magic_kingdom_r5_c2.png */,
+				21700F9A2FAB6AD2008A52FC /* magic_kingdom_r5_c3.png */,
+				21700F9B2FAB6AD2008A52FC /* magic_kingdom_r5_c4.png */,
+				21700F9C2FAB6AD2008A52FC /* magic_kingdom_r5_c5.png */,
+				21700F9D2FAB6AD2008A52FC /* magic_kingdom_r6_c1.png */,
+				21700F9E2FAB6AD2008A52FC /* magic_kingdom_r6_c2.png */,
+				21700F9F2FAB6AD2008A52FC /* magic_kingdom_r6_c3.png */,
+				21700FA02FAB6AD2008A52FC /* magic_kingdom_r6_c4.png */,
+				21700FA12FAB6AD2008A52FC /* magic_kingdom_r6_c5.png */,
+				21700FA22FAB6AD2008A52FC /* magic_kingdom_r6_c6.png */,
+				21700FA32FAB6AD2008A52FC /* magic_kingdom_r7_c1.png */,
+				21700FA42FAB6AD2008A52FC /* magic_kingdom_r7_c2.png */,
+				21700FA52FAB6AD2008A52FC /* magic_kingdom_r7_c3.png */,
+				21700FA62FAB6AD2008A52FC /* magic_kingdom_r7_c4.png */,
+				21700FA72FAB6AD2008A52FC /* magic_kingdom_r7_c5.png */,
+				21700FA82FAB6AD2008A52FC /* magic_kingdom_r8_c1.png */,
+				21700FA92FAB6AD2008A52FC /* magic_kingdom_r8_c2.png */,
+				21700FAA2FAB6AD2008A52FC /* magic_kingdom_r8_c3.png */,
+				21700FAB2FAB6AD2008A52FC /* magic_kingdom_r8_c4.png */,
+				21700FAC2FAB6AD2008A52FC /* magic_kingdom_r8_c5.png */,
+			);
+			path = magic_kingdom;
+			sourceTree = "<group>";
+		};
+		21700FBD2FAB6AD2008A52FC /* universal_studios_florida */ = {
+			isa = PBXGroup;
+			children = (
+				21700FAE2FAB6AD2008A52FC /* universal_studios_florida_r1_c1.png */,
+				21700FAF2FAB6AD2008A52FC /* universal_studios_florida_r1_c2.png */,
+				21700FB02FAB6AD2008A52FC /* universal_studios_florida_r1_c3.png */,
+				21700FB12FAB6AD2008A52FC /* universal_studios_florida_r1_c4.png */,
+				21700FB22FAB6AD2008A52FC /* universal_studios_florida_r1_c5.png */,
+				21700FB32FAB6AD2008A52FC /* universal_studios_florida_r2_c1.png */,
+				21700FB42FAB6AD2008A52FC /* universal_studios_florida_r2_c2.png */,
+				21700FB52FAB6AD2008A52FC /* universal_studios_florida_r2_c3.png */,
+				21700FB62FAB6AD2008A52FC /* universal_studios_florida_r2_c4.png */,
+				21700FB72FAB6AD2008A52FC /* universal_studios_florida_r2_c5.png */,
+				21700FB82FAB6AD2008A52FC /* universal_studios_florida_r3_c1.png */,
+				21700FB92FAB6AD2008A52FC /* universal_studios_florida_r3_c2.png */,
+				21700FBA2FAB6AD2008A52FC /* universal_studios_florida_r3_c3.png */,
+				21700FBB2FAB6AD2008A52FC /* universal_studios_florida_r3_c4.png */,
+				21700FBC2FAB6AD2008A52FC /* universal_studios_florida_r3_c5.png */,
+			);
+			path = universal_studios_florida;
+			sourceTree = "<group>";
+		};
+		21700FBE2FAB6AD2008A52FC /* all_park_icons_individual */ = {
+			isa = PBXGroup;
+			children = (
+				21700F1F2FAB6AD2008A52FC /* animal_kingdom */,
+				21700F402FAB6AD2008A52FC /* epcot */,
+				21700F552FAB6AD2008A52FC /* epic_universe */,
+				21700F6F2FAB6AD2008A52FC /* hollywood_studios */,
+				21700F852FAB6AD2008A52FC /* islands_of_adventure */,
+				21700FAD2FAB6AD2008A52FC /* magic_kingdom */,
+				21700FBD2FAB6AD2008A52FC /* universal_studios_florida */,
+			);
+			path = all_park_icons_individual;
+			sourceTree = "<group>";
+		};
 		21D04F1A2DF7652C00526ECA = {
 			isa = PBXGroup;
 			children = (
+				21700F052FAA6EA8008A52FC /* QueueBuddyWidgetExtensionDebug.entitlements */,
 				21A476172E29C61C001B3DA9 /* QueueBuddy - Park Waits.xctestplan */,
 				21D04F252DF7652C00526ECA /* QueueBuddy - Park Waits */,
 				21C299C22E244380005B6ECA /* QueueBuddyTests */,
+				21700EE52FAA6A78008A52FC /* QueueBuddyWidget */,
+				21700EA02FAA6988008A52FC /* Frameworks */,
 				21D04F242DF7652C00526ECA /* Products */,
+				21700FBE2FAB6AD2008A52FC /* all_park_icons_individual */,
 			);
 			sourceTree = "<group>";
 		};
@@ -77,6 +735,7 @@
 			children = (
 				21D04F232DF7652C00526ECA /* QueueBuddy - Park Waits.app */,
 				21C299C12E244380005B6ECA /* QueueBuddyTests.xctest */,
+				21700EE22FAA6A78008A52FC /* QueueBuddyWidgetExtension.appex */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -84,6 +743,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		21700EE12FAA6A78008A52FC /* QueueBuddyWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 21700EF42FAA6A79008A52FC /* Build configuration list for PBXNativeTarget "QueueBuddyWidgetExtension" */;
+			buildPhases = (
+				21700EDE2FAA6A78008A52FC /* Sources */,
+				21700EDF2FAA6A78008A52FC /* Frameworks */,
+				21700EE02FAA6A78008A52FC /* Resources */,
+			);
+			buildRules = (
+			);
+			fileSystemSynchronizedGroups = (
+				21700EE52FAA6A78008A52FC /* QueueBuddyWidget */,
+			);
+			name = QueueBuddyWidgetExtension;
+			productName = QueueBuddyWidgetExtension;
+			productReference = 21700EE22FAA6A78008A52FC /* QueueBuddyWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 		21C299C02E244380005B6ECA /* QueueBuddyTests */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 21C299C72E244380005B6ECA /* Build configuration list for PBXNativeTarget "QueueBuddyTests" */;
@@ -112,8 +789,12 @@
 				21D04F1F2DF7652C00526ECA /* Sources */,
 				21D04F202DF7652C00526ECA /* Frameworks */,
 				21D04F212DF7652C00526ECA /* Resources */,
+				21700EB62FAA698A008A52FC /* Embed Foundation Extensions */,
 			);
 			buildRules = (
+			);
+			dependencies = (
+				21700EF22FAA6A79008A52FC /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				21D04F252DF7652C00526ECA /* QueueBuddy - Park Waits */,
@@ -130,9 +811,12 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = 1;
-				LastSwiftUpdateCheck = 2600;
+				LastSwiftUpdateCheck = 2640;
 				LastUpgradeCheck = 2610;
 				TargetAttributes = {
+					21700EE12FAA6A78008A52FC = {
+						CreatedOnToolsVersion = 26.4.1;
+					};
 					21C299C02E244380005B6ECA = {
 						CreatedOnToolsVersion = 26.0;
 						TestTargetID = 21D04F222DF7652C00526ECA;
@@ -160,11 +844,17 @@
 			targets = (
 				21D04F222DF7652C00526ECA /* QueueBuddy - Park Waits */,
 				21C299C02E244380005B6ECA /* QueueBuddyTests */,
+				21700EE12FAA6A78008A52FC /* QueueBuddyWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		21700EE02FAA6A78008A52FC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			files = (
+			);
+		};
 		21C299BF2E244380005B6ECA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
@@ -173,11 +863,193 @@
 		21D04F212DF7652C00526ECA /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			files = (
+				21700FBF2FAB6AD2008A52FC /* magic_kingdom_r3_c5.png in Resources */,
+				21700FC02FAB6AD2008A52FC /* universal_studios_florida_r1_c5.png in Resources */,
+				21700FC12FAB6AD2008A52FC /* magic_kingdom_r5_c5.png in Resources */,
+				21700FC22FAB6AD2008A52FC /* hollywood_studios_r5_c3.png in Resources */,
+				21700FC32FAB6AD2008A52FC /* epcot_r1_c5.png in Resources */,
+				21700FC42FAB6AD2008A52FC /* hollywood_studios_r3_c3.png in Resources */,
+				21700FC52FAB6AD2008A52FC /* animal_kingdom_r2_c1.png in Resources */,
+				21700FC62FAB6AD2008A52FC /* hollywood_studios_r4_c2.png in Resources */,
+				21700FC72FAB6AD2008A52FC /* epic_universe_r1_c2.png in Resources */,
+				21700FC82FAB6AD2008A52FC /* epic_universe_r3_c1.png in Resources */,
+				21700FC92FAB6AD2008A52FC /* animal_kingdom_r1_c1.png in Resources */,
+				21700FCA2FAB6AD2008A52FC /* universal_studios_florida_r2_c4.png in Resources */,
+				21700FCB2FAB6AD2008A52FC /* animal_kingdom_r4_c1.png in Resources */,
+				21700FCC2FAB6AD2008A52FC /* epcot_r3_c2.png in Resources */,
+				21700FCD2FAB6AD2008A52FC /* islands_of_adventure_r2_c3.png in Resources */,
+				21700FCE2FAB6AD2008A52FC /* animal_kingdom_r2_c5.png in Resources */,
+				21700FCF2FAB6AD2008A52FC /* magic_kingdom_r7_c4.png in Resources */,
+				21700FD02FAB6AD2008A52FC /* epic_universe_r3_c7.png in Resources */,
+				21700FD12FAB6AD2008A52FC /* animal_kingdom_r3_c2.png in Resources */,
+				21700FD22FAB6AD2008A52FC /* epcot_r6_c5.png in Resources */,
+				21700FD32FAB6AD2008A52FC /* islands_of_adventure_r2_c4.png in Resources */,
+				21700FD42FAB6AD2008A52FC /* islands_of_adventure_r3_c5.png in Resources */,
+				21700FD52FAB6AD2008A52FC /* magic_kingdom_r8_c1.png in Resources */,
+				21700FD62FAB6AD2008A52FC /* epic_universe_r3_c5.png in Resources */,
+				21700FD72FAB6AD2008A52FC /* magic_kingdom_r8_c2.png in Resources */,
+				21700FD82FAB6AD2008A52FC /* hollywood_studios_r1_c4.png in Resources */,
+				21700FD92FAB6AD2008A52FC /* hollywood_studios_r2_c3.png in Resources */,
+				21700FDA2FAB6AD2008A52FC /* epic_universe_r2_c5.png in Resources */,
+				21700FDB2FAB6AD2008A52FC /* magic_kingdom_r2_c5.png in Resources */,
+				21700FDC2FAB6AD2008A52FC /* hollywood_studios_r4_c1.png in Resources */,
+				21700FDD2FAB6AD2008A52FC /* hollywood_studios_r1_c3.png in Resources */,
+				21700FDE2FAB6AD2008A52FC /* universal_studios_florida_r3_c1.png in Resources */,
+				21700FDF2FAB6AD2008A52FC /* universal_studios_florida_r3_c4.png in Resources */,
+				21700FE02FAB6AD2008A52FC /* epcot_r5_c2.png in Resources */,
+				21700FE12FAB6AD2008A52FC /* animal_kingdom_r3_c5.png in Resources */,
+				21700FE22FAB6AD2008A52FC /* hollywood_studios_r1_c5.png in Resources */,
+				21700FE32FAB6AD2008A52FC /* animal_kingdom_r1_c5.png in Resources */,
+				21700FE42FAB6AD2008A52FC /* magic_kingdom_r2_c2.png in Resources */,
+				21700FE52FAB6AD2008A52FC /* islands_of_adventure_r3_c4.png in Resources */,
+				21700FE62FAB6AD2008A52FC /* epic_universe_r3_c4.png in Resources */,
+				21700FE72FAB6AD2008A52FC /* magic_kingdom_r5_c3.png in Resources */,
+				21700FE82FAB6AD2008A52FC /* animal_kingdom_r5_c2.png in Resources */,
+				21700FE92FAB6AD2008A52FC /* hollywood_studios_r5_c5.png in Resources */,
+				21700FEA2FAB6AD2008A52FC /* epic_universe_r1_c1.png in Resources */,
+				21700FEB2FAB6AD2008A52FC /* animal_kingdom_r5_c4.png in Resources */,
+				21700FEC2FAB6AD2008A52FC /* epcot_r3_c1.png in Resources */,
+				21700FED2FAB6AD2008A52FC /* epcot_r6_c1.png in Resources */,
+				21700FEE2FAB6AD2008A52FC /* animal_kingdom_r3_c4.png in Resources */,
+				21700FEF2FAB6AD2008A52FC /* hollywood_studios_r3_c2.png in Resources */,
+				21700FF02FAB6AD2008A52FC /* epic_universe_r2_c1.png in Resources */,
+				21700FF12FAB6AD2008A52FC /* magic_kingdom_r2_c1.png in Resources */,
+				21700FF22FAB6AD2008A52FC /* epcot_r6_c6.png in Resources */,
+				21700FF32FAB6AD2008A52FC /* magic_kingdom_r3_c4.png in Resources */,
+				21700FF42FAB6AD2008A52FC /* epcot_r6_c4.png in Resources */,
+				21700FF52FAB6AD2008A52FC /* hollywood_studios_r4_c4.png in Resources */,
+				21700FF62FAB6AD2008A52FC /* animal_kingdom_r3_c3.png in Resources */,
+				21700FF72FAB6AD2008A52FC /* hollywood_studios_r2_c2.png in Resources */,
+				21700FF82FAB6AD2008A52FC /* islands_of_adventure_r1_c1.png in Resources */,
+				21700FF92FAB6AD2008A52FC /* epcot_r2_c3.png in Resources */,
+				21700FFA2FAB6AD2008A52FC /* magic_kingdom_r7_c3.png in Resources */,
+				21700FFB2FAB6AD2008A52FC /* epcot_r5_c1.png in Resources */,
+				21700FFC2FAB6AD2008A52FC /* islands_of_adventure_r1_c3.png in Resources */,
+				21700FFD2FAB6AD2008A52FC /* magic_kingdom_r3_c2.png in Resources */,
+				21700FFE2FAB6AD2008A52FC /* epic_universe_r2_c4.png in Resources */,
+				21700FFF2FAB6AD2008A52FC /* magic_kingdom_r4_c3.png in Resources */,
+				217010002FAB6AD2008A52FC /* universal_studios_florida_r1_c1.png in Resources */,
+				217010012FAB6AD2008A52FC /* magic_kingdom_r5_c4.png in Resources */,
+				217010022FAB6AD2008A52FC /* epic_universe_r3_c3.png in Resources */,
+				217010032FAB6AD2008A52FC /* animal_kingdom_r2_c3.png in Resources */,
+				217010042FAB6AD2008A52FC /* universal_studios_florida_r3_c3.png in Resources */,
+				217010052FAB6AD2008A52FC /* magic_kingdom_r6_c5.png in Resources */,
+				217010062FAB6AD2008A52FC /* epcot_r5_c4.png in Resources */,
+				217010072FAB6AD2008A52FC /* magic_kingdom_r6_c4.png in Resources */,
+				217010082FAB6AD2008A52FC /* magic_kingdom_r4_c2.png in Resources */,
+				217010092FAB6AD2008A52FC /* animal_kingdom_r5_c5.png in Resources */,
+				2170100A2FAB6AD2008A52FC /* universal_studios_florida_r2_c5.png in Resources */,
+				2170100B2FAB6AD2008A52FC /* epcot_r1_c1.png in Resources */,
+				2170100C2FAB6AD2008A52FC /* hollywood_studios_r2_c1.png in Resources */,
+				2170100D2FAB6AD2008A52FC /* animal_kingdom_r5_c1.png in Resources */,
+				2170100E2FAB6AD2008A52FC /* magic_kingdom_r2_c4.png in Resources */,
+				2170100F2FAB6AD2008A52FC /* epcot_r5_c5.png in Resources */,
+				217010102FAB6AD2008A52FC /* hollywood_studios_r2_c4.png in Resources */,
+				217010112FAB6AD2008A52FC /* magic_kingdom_r4_c4.png in Resources */,
+				217010122FAB6AD2008A52FC /* magic_kingdom_r1_c1.png in Resources */,
+				217010132FAB6AD2008A52FC /* hollywood_studios_r3_c4.png in Resources */,
+				217010142FAB6AD2008A52FC /* islands_of_adventure_r1_c5.png in Resources */,
+				217010152FAB6AD2008A52FC /* animal_kingdom_r1_c3.png in Resources */,
+				217010162FAB6AD2008A52FC /* islands_of_adventure_r2_c6.png in Resources */,
+				217010172FAB6AD2008A52FC /* universal_studios_florida_r2_c3.png in Resources */,
+				217010182FAB6AD2008A52FC /* magic_kingdom_r1_c2.png in Resources */,
+				217010192FAB6AD2008A52FC /* hollywood_studios_r5_c1.png in Resources */,
+				2170101A2FAB6AD2008A52FC /* magic_kingdom_r1_c4.png in Resources */,
+				2170101B2FAB6AD2008A52FC /* epcot_r5_c6.png in Resources */,
+				2170101C2FAB6AD2008A52FC /* animal_kingdom_r2_c2.png in Resources */,
+				2170101D2FAB6AD2008A52FC /* magic_kingdom_r1_c3.png in Resources */,
+				2170101E2FAB6AD2008A52FC /* hollywood_studios_r5_c2.png in Resources */,
+				2170101F2FAB6AD2008A52FC /* epcot_r2_c2.png in Resources */,
+				217010202FAB6AD2008A52FC /* hollywood_studios_r1_c2.png in Resources */,
+				217010212FAB6AD2008A52FC /* islands_of_adventure_r1_c4.png in Resources */,
+				217010222FAB6AD2008A52FC /* epcot_r1_c2.png in Resources */,
+				217010232FAB6AD2008A52FC /* universal_studios_florida_r3_c5.png in Resources */,
+				217010242FAB6AD2008A52FC /* magic_kingdom_r6_c1.png in Resources */,
+				217010252FAB6AD2008A52FC /* epcot_r4_c2.png in Resources */,
+				217010262FAB6AD2008A52FC /* universal_studios_florida_r1_c2.png in Resources */,
+				217010272FAB6AD2008A52FC /* animal_kingdom_r4_c3.png in Resources */,
+				217010282FAB6AD2008A52FC /* animal_kingdom_r4_c2.png in Resources */,
+				217010292FAB6AD2008A52FC /* islands_of_adventure_r3_c3.png in Resources */,
+				2170102A2FAB6AD2008A52FC /* epcot_r5_c3.png in Resources */,
+				2170102B2FAB6AD2008A52FC /* magic_kingdom_r7_c2.png in Resources */,
+				2170102C2FAB6AD2008A52FC /* islands_of_adventure_r3_c1.png in Resources */,
+				2170102D2FAB6AD2008A52FC /* epcot_r2_c5.png in Resources */,
+				2170102E2FAB6AD2008A52FC /* animal_kingdom_r1_c2.png in Resources */,
+				2170102F2FAB6AD2008A52FC /* magic_kingdom_r5_c1.png in Resources */,
+				217010302FAB6AD2008A52FC /* epcot_r2_c1.png in Resources */,
+				217010312FAB6AD2008A52FC /* epcot_r4_c3.png in Resources */,
+				217010322FAB6AD2008A52FC /* magic_kingdom_r3_c1.png in Resources */,
+				217010332FAB6AD2008A52FC /* universal_studios_florida_r2_c2.png in Resources */,
+				217010342FAB6AD2008A52FC /* epic_universe_r2_c3.png in Resources */,
+				217010352FAB6AD2008A52FC /* universal_studios_florida_r1_c4.png in Resources */,
+				217010362FAB6AD2008A52FC /* islands_of_adventure_r1_c6.png in Resources */,
+				217010372FAB6AD2008A52FC /* epic_universe_r2_c7.png in Resources */,
+				217010382FAB6AD2008A52FC /* islands_of_adventure_r3_c2.png in Resources */,
+				217010392FAB6AD2008A52FC /* islands_of_adventure_r3_c6.png in Resources */,
+				2170103A2FAB6AD2008A52FC /* magic_kingdom_r6_c3.png in Resources */,
+				2170103B2FAB6AD2008A52FC /* magic_kingdom_r8_c4.png in Resources */,
+				2170103C2FAB6AD2008A52FC /* hollywood_studios_r5_c4.png in Resources */,
+				2170103D2FAB6AD2008A52FC /* islands_of_adventure_r2_c2.png in Resources */,
+				2170103E2FAB6AD2008A52FC /* epcot_r5_c7.png in Resources */,
+				2170103F2FAB6AD2008A52FC /* animal_kingdom_r5_c3.png in Resources */,
+				217010402FAB6AD2008A52FC /* epcot_r2_c4.png in Resources */,
+				217010412FAB6AD2008A52FC /* epcot_r1_c3.png in Resources */,
+				217010422FAB6AD2008A52FC /* islands_of_adventure_r3_c7.png in Resources */,
+				217010432FAB6AD2008A52FC /* epic_universe_r1_c4.png in Resources */,
+				217010442FAB6AD2008A52FC /* universal_studios_florida_r2_c1.png in Resources */,
+				217010452FAB6AD2008A52FC /* animal_kingdom_r2_c4.png in Resources */,
+				217010462FAB6AD2008A52FC /* hollywood_studios_r1_c1.png in Resources */,
+				217010472FAB6AD2008A52FC /* animal_kingdom_r4_c5.png in Resources */,
+				217010482FAB6AD2008A52FC /* hollywood_studios_r4_c3.png in Resources */,
+				217010492FAB6AD2008A52FC /* universal_studios_florida_r3_c2.png in Resources */,
+				2170104A2FAB6AD2008A52FC /* epcot_r6_c7.png in Resources */,
+				2170104B2FAB6AD2008A52FC /* islands_of_adventure_r1_c7.png in Resources */,
+				2170104C2FAB6AD2008A52FC /* epic_universe_r2_c6.png in Resources */,
+				2170104D2FAB6AD2008A52FC /* islands_of_adventure_r2_c7.png in Resources */,
+				2170104E2FAB6AD2008A52FC /* hollywood_studios_r3_c1.png in Resources */,
+				2170104F2FAB6AD2008A52FC /* islands_of_adventure_r2_c1.png in Resources */,
+				217010502FAB6AD2008A52FC /* epic_universe_r3_c2.png in Resources */,
+				217010512FAB6AD2008A52FC /* animal_kingdom_r3_c1.png in Resources */,
+				217010522FAB6AD2008A52FC /* epic_universe_r2_c2.png in Resources */,
+				217010532FAB6AD2008A52FC /* epcot_r6_c3.png in Resources */,
+				217010542FAB6AD2008A52FC /* epcot_r4_c1.png in Resources */,
+				217010552FAB6AD2008A52FC /* magic_kingdom_r7_c1.png in Resources */,
+				217010562FAB6AD2008A52FC /* magic_kingdom_r8_c3.png in Resources */,
+				217010572FAB6AD2008A52FC /* animal_kingdom_r4_c4.png in Resources */,
+				217010582FAB6AD2008A52FC /* epic_universe_r3_c6.png in Resources */,
+				217010592FAB6AD2008A52FC /* epcot_r1_c4.png in Resources */,
+				2170105A2FAB6AD2008A52FC /* magic_kingdom_r7_c5.png in Resources */,
+				2170105B2FAB6AD2008A52FC /* magic_kingdom_r3_c3.png in Resources */,
+				2170105C2FAB6AD2008A52FC /* epic_universe_r1_c3.png in Resources */,
+				2170105D2FAB6AD2008A52FC /* magic_kingdom_r6_c6.png in Resources */,
+				2170105E2FAB6AD2008A52FC /* magic_kingdom_r4_c1.png in Resources */,
+				2170105F2FAB6AD2008A52FC /* magic_kingdom_r5_c2.png in Resources */,
+				217010602FAB6AD2008A52FC /* magic_kingdom_r8_c5.png in Resources */,
+				217010612FAB6AD2008A52FC /* epcot_r2_c6.png in Resources */,
+				217010622FAB6AD2008A52FC /* universal_studios_florida_r1_c3.png in Resources */,
+				217010632FAB6AD2008A52FC /* magic_kingdom_r6_c2.png in Resources */,
+				217010642FAB6AD2008A52FC /* epic_universe_r1_c5.png in Resources */,
+				217010652FAB6AD2008A52FC /* hollywood_studios_r4_c5.png in Resources */,
+				217010662FAB6AD2008A52FC /* hollywood_studios_r3_c5.png in Resources */,
+				217010672FAB6AD2008A52FC /* magic_kingdom_r2_c3.png in Resources */,
+				217010682FAB6AD2008A52FC /* animal_kingdom_r1_c4.png in Resources */,
+				217010692FAB6AD2008A52FC /* hollywood_studios_r2_c5.png in Resources */,
+				2170106A2FAB6AD2008A52FC /* islands_of_adventure_r2_c5.png in Resources */,
+				2170106B2FAB6AD2008A52FC /* epcot_r6_c2.png in Resources */,
+				2170106C2FAB6AD2008A52FC /* epcot_r3_c3.png in Resources */,
+				2170106D2FAB6AD2008A52FC /* epcot_r1_c6.png in Resources */,
+				2170106E2FAB6AD2008A52FC /* epic_universe_r1_c6.png in Resources */,
+				2170106F2FAB6AD2008A52FC /* islands_of_adventure_r1_c2.png in Resources */,
 			);
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		21700EDE2FAA6A78008A52FC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			files = (
+			);
+		};
 		21C299BD2E244380005B6ECA /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			files = (
@@ -191,6 +1063,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		21700EF22FAA6A79008A52FC /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 21700EE12FAA6A78008A52FC /* QueueBuddyWidgetExtension */;
+			targetProxy = 21700EF12FAA6A79008A52FC /* PBXContainerItemProxy */;
+		};
 		21C299C62E244380005B6ECA /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 21D04F222DF7652C00526ECA /* QueueBuddy - Park Waits */;
@@ -199,6 +1076,69 @@
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		21700EF52FAA6A79008A52FC /* Debug configuration for PBXNativeTarget "QueueBuddyWidgetExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = QueueBuddyWidget/QueueBuddyWidget.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RV3V5935AF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = QueueBuddyWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = QueueBuddyWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Dzielinski.QueueBuddy---Park-Waits.QueueBuddyWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		21700EF62FAA6A79008A52FC /* Release configuration for PBXNativeTarget "QueueBuddyWidgetExtension" */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = RV3V5935AF;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = QueueBuddyWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = QueueBuddyWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 26.4;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "Dzielinski.QueueBuddy---Park-Waits.QueueBuddyWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 		21C299C82E244380005B6ECA /* Debug configuration for PBXNativeTarget "QueueBuddyTests" */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -465,6 +1405,14 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		21700EF42FAA6A79008A52FC /* Build configuration list for PBXNativeTarget "QueueBuddyWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				21700EF52FAA6A79008A52FC /* Debug configuration for PBXNativeTarget "QueueBuddyWidgetExtension" */,
+				21700EF62FAA6A79008A52FC /* Release configuration for PBXNativeTarget "QueueBuddyWidgetExtension" */,
+			);
+			defaultConfigurationName = Release;
+		};
 		21C299C72E244380005B6ECA /* Build configuration list for PBXNativeTarget "QueueBuddyTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
