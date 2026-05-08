@@ -146,6 +146,7 @@ class WaitTimeViewModel: ObservableObject {
 
             for (parkId, liveAttractions) in results {
                 processAndStoreAttractions(liveAttractions, for: parkId, isUpdating: true)
+                AttractionDataAudit.record(parkId: parkId, liveAttractions: liveAttractions)
                 for attraction in liveAttractions where attraction.is_open == true {
                     if let wait = attraction.wait_time {
                         WaitHistoryStore.shared.record(attractionId: attraction.id, minutes: wait)
@@ -156,6 +157,7 @@ class WaitTimeViewModel: ObservableObject {
             if !results.isEmpty {
                 NetworkMonitor.shared.markSuccessfulSync()
                 updateSharedCache()
+                AttractionDataAudit.logReport()
             }
 
             // After loading, check for notification triggers
@@ -175,6 +177,7 @@ class WaitTimeViewModel: ObservableObject {
         do {
             let liveAttractions = try await api.fetchWaitTimes(for: park.id)
             processAndStoreAttractions(liveAttractions, for: park.id, isUpdating: true)
+            AttractionDataAudit.record(parkId: park.id, liveAttractions: liveAttractions)
         } catch is CancellationError {
             // Ignore — user left the view.
         } catch {
@@ -259,6 +262,7 @@ class WaitTimeViewModel: ObservableObject {
         for (parkId, liveAttractions) in results {
             processAndStoreAttractions(liveAttractions, for: parkId, isUpdating: true)
             recordHistory(liveAttractions)
+            AttractionDataAudit.record(parkId: parkId, liveAttractions: liveAttractions)
         }
 
         if !results.isEmpty {
