@@ -93,28 +93,53 @@ struct WaitChip: View {
 
     enum Style { case small, large }
 
-    private var isClosed: Bool {
-        isOpen == false ||
-        status?.lowercased() == "closed" ||
-        status?.lowercased() == "down"
+    private var statusKind: StatusKind {
+        let lowered = status?.lowercased() ?? ""
+        if lowered == StaticData.AttractionStatus.refurbishment.rawValue.lowercased() {
+            return .refurbishment
+        }
+        if lowered == StaticData.AttractionStatus.closedPermanently.rawValue.lowercased() {
+            return .closedPermanently
+        }
+        if isOpen == false || lowered == "closed" || lowered == "down" {
+            return .closed
+        }
+        return .open
     }
+
+    private enum StatusKind { case open, closed, closedPermanently, refurbishment }
 
     var body: some View {
         Group {
-            if isClosed {
+            switch statusKind {
+            case .closed:
                 label(text: "Closed", tone: DB.muted)
                     .background(
                         Capsule().fill(Color.white.opacity(0.04))
                             .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
                     )
-            } else if wait == nil {
-                label(text: "Show", tone: DB.amber)
+            case .closedPermanently:
+                label(text: "Retired", tone: DB.muted)
                     .background(
-                        Capsule().fill(DB.amber.opacity(0.10))
-                            .overlay(Capsule().stroke(DB.amber.opacity(0.30), lineWidth: 1))
+                        Capsule().fill(Color.white.opacity(0.04))
+                            .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
                     )
-            } else {
-                activeChip
+            case .refurbishment:
+                label(text: "Refurb", tone: DB.amber)
+                    .background(
+                        Capsule().fill(DB.amber.opacity(0.08))
+                            .overlay(Capsule().stroke(DB.amber.opacity(0.25), lineWidth: 1))
+                    )
+            case .open:
+                if wait == nil {
+                    label(text: "Show", tone: DB.amber)
+                        .background(
+                            Capsule().fill(DB.amber.opacity(0.10))
+                                .overlay(Capsule().stroke(DB.amber.opacity(0.30), lineWidth: 1))
+                        )
+                } else {
+                    activeChip
+                }
             }
         }
         .accessibilityElement(children: .ignore)
@@ -122,10 +147,15 @@ struct WaitChip: View {
     }
 
     private var accessibilityText: String {
-        if isClosed { return "Closed" }
-        guard let wait else { return "Show attraction" }
-        if wait == 0 { return "Walk-on, no wait" }
-        return "\(wait) minute" + (wait == 1 ? "" : "s") + " wait"
+        switch statusKind {
+        case .closed: return "Closed"
+        case .closedPermanently: return "Permanently closed"
+        case .refurbishment: return "Down for refurbishment"
+        case .open:
+            guard let wait else { return "Show attraction" }
+            if wait == 0 { return "Walk-on, no wait" }
+            return "\(wait) minute" + (wait == 1 ? "" : "s") + " wait"
+        }
     }
 
     @ViewBuilder

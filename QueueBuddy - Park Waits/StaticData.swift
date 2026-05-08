@@ -72,11 +72,12 @@ struct StaticData {
         let allAttractionDetails = getAttractionDetails()
         let parkAttractions = allAttractionDetails.filter { $0.value.parkId == parkId }
         return parkAttractions.map { id, details in
-            Attraction(id: id,
+            let override = statusOverride(for: id)
+            return Attraction(id: id,
                        name: details.name,
                        wait_time: nil,
-                       status: "N/A",
-                       is_open: true,
+                       status: override?.status ?? "N/A",
+                       is_open: override == nil,
                        last_updated: nil,
                        type: details.type,
                        description: details.description,
@@ -84,6 +85,51 @@ struct StaticData {
                        latitude: details.lat,
                        longitude: details.lon)
         }
+    }
+
+    // MARK: - Operational Status Overrides
+    //
+    // Some attractions are permanently closed (the land is being rebuilt, the
+    // ride was retired, etc.) or in extended refurbishment. The Queue-Times
+    // API may still echo cached wait_time/is_open for them, so we apply our
+    // own override after merging live data — see WaitTimeViewModel.
+
+    enum AttractionStatus: String {
+        case closedPermanently = "Closed Permanently"
+        case refurbishment = "Refurbishment"
+    }
+
+    /// Attractions that are permanently closed and should never show a wait
+    /// time. They stay in the list (with a "Closed" chip) so historical
+    /// favorites and notifications still resolve cleanly.
+    static let permanentlyClosedAttractions: Set<Int> = [
+        // Animal Kingdom — DinoLand U.S.A. closed in early 2026 to make
+        // way for the Tropical Americas expansion.
+        111,    // DINOSAUR
+        652,    // The Boneyard
+        10920,  // Finding Nemo: The Big Blue... and Beyond!
+        13809,  // Dino-Sue
+        // Magic Kingdom — closed for the Beyond Big Thunder Mountain project.
+        465,    // Tom Sawyer Island
+        // Universal Studios Florida — closed for Five Nights at Freddy's.
+        6021    // Race Through New York Starring Jimmy Fallon
+    ]
+
+    /// Attractions currently down for an extended refurbishment.
+    static let attractionsUnderRefurbishment: Set<Int> = [
+        // Populate as needed.
+    ]
+
+    /// Returns a status override (and matching display string) for an
+    /// attraction ID, or nil if it should be treated as live.
+    static func statusOverride(for attractionId: Int) -> (status: String, kind: AttractionStatus)? {
+        if permanentlyClosedAttractions.contains(attractionId) {
+            return (AttractionStatus.closedPermanently.rawValue, .closedPermanently)
+        }
+        if attractionsUnderRefurbishment.contains(attractionId) {
+            return (AttractionStatus.refurbishment.rawValue, .refurbishment)
+        }
+        return nil
     }
     
     static let attractionToLandMapping: [Int: String] = [
@@ -697,11 +743,11 @@ struct StaticData {
       {"id": 1190, "parkId": 6, "name": "Tomorrowland Transit Authority PeopleMover", "type": "experience", "description": "Board a slow-moving tram for a narrated journey through Tomorrowland.", "minHeight": null, "latitude": 28.4185, "longitude": -81.5797},
       {"id": 11527, "parkId": 6, "name": "TRON Lightcycle / Run", "type": "coaster", "description": "Race through the Grid on a thrilling semi-enclosed roller coaster.", "minHeight": 48, "latitude": 28.4198, "longitude": -81.5790},
       {"id": 457, "parkId": 6, "name": "Walt Disney's Carousel of Progress", "type": "show", "description": "Revolve through the 20th century to see how technology has improved family life.", "minHeight": null, "latitude": 28.4182, "longitude": -81.5792},
-    {"id": 13773, "parkId": 5, "name": "American Heritage Gallery", "type": "show", "description": "Explore American history and culture through exhibits.", "minHeight": null, "latitude": 28.373, "longitude": -81.549},
+    {"id": 13773, "parkId": 5, "name": "American Heritage Gallery", "type": "experience", "description": "Explore American history and culture through exhibits.", "minHeight": null, "latitude": 28.373, "longitude": -81.549},
     {"id": 13778, "parkId": 5, "name": "Kidcot Fun Stops", "type": "experience", "description": "Interactive craft stations for kids in World Showcase.", "minHeight": null, "latitude": 28.373, "longitude": -81.549},
     {"id": 13779, "parkId": 5, "name": "Palais du Cinéma", "type": "show", "description": "French cinema and cultural exhibits.", "minHeight": null, "latitude": 28.370, "longitude": -81.547},
     {"id": 13777, "parkId": 5, "name": "ImageWorks - The \\"What If\\" Labs", "type": "experience", "description": "Interactive play area for kids and families.", "minHeight": null, "latitude": 28.374, "longitude": -81.551},
-    {"id": 13781, "parkId": 5, "name": "Bijutsu-kan Gallery", "type": "show", "description": "Japanese art and culture exhibits.", "minHeight": null, "latitude": 28.370, "longitude": -81.547},
+    {"id": 13781, "parkId": 5, "name": "Bijutsu-kan Gallery", "type": "experience", "description": "Japanese art and culture exhibits.", "minHeight": null, "latitude": 28.370, "longitude": -81.547},
     {"id": 2495, "parkId": 5, "name": "Disney and Pixar Short Film Festival", "type": "show", "description": "A 4D film festival featuring Disney and Pixar shorts.", "minHeight": null, "latitude": 28.375, "longitude": -81.549},
     {"id": 155, "parkId": 5, "name": "Journey Into Imagination With Figment", "type": "darkride", "description": "A whimsical dark ride through your imagination.", "minHeight": null, "latitude": 28.3745, "longitude": -81.5510},
     {"id": 13627, "parkId": 5, "name": "Meet Beloved Disney Pals at Mickey & Friends", "type": "meet", "description": "Meet Mickey and friends in World Celebration.", "minHeight": null, "latitude": 28.375, "longitude": -81.549},
@@ -721,14 +767,14 @@ struct StaticData {
     {"id": 152, "parkId": 5, "name": "Turtle Talk With Crush", "type": "show", "description": "Interactive show with Crush the turtle.", "minHeight": null, "latitude": 28.376, "longitude": -81.549},
     {"id": 829, "parkId": 5, "name": "Canada Far and Wide in Circle-Vision 360", "type": "show", "description": "A Circle-Vision 360 film showcasing the beauty and diversity of Canada.", "minHeight": null, "latitude": 28.3645, "longitude": -81.5490},
     {"id": 2679, "parkId": 5, "name": "Frozen Ever After", "type": "boat", "description": "Embark on a musical boat ride through the wintery world of Arendelle.", "minHeight": null, "latitude": 28.3687, "longitude": -81.5489},
-    {"id": 13772, "parkId": 5, "name": "Gallery of Arts and History", "type": "show", "description": "Cultural exhibits in World Showcase.", "minHeight": null, "latitude": 28.369, "longitude": -81.549},
+    {"id": 13772, "parkId": 5, "name": "Gallery of Arts and History", "type": "experience", "description": "Cultural exhibits in World Showcase.", "minHeight": null, "latitude": 28.369, "longitude": -81.549},
     {"id": 466, "parkId": 5, "name": "Gran Fiesta Tour Starring The Three Caballeros", "type": "boat", "description": "A gentle boat ride through Mexico with The Three Caballeros.", "minHeight": null, "latitude": 28.3695, "longitude": -81.5495},
-    {"id": 13767, "parkId": 5, "name": "House of the Whispering Willows", "type": "show", "description": "Chinese art and culture exhibits.", "minHeight": null, "latitude": 28.368, "longitude": -81.548},
+    {"id": 13767, "parkId": 5, "name": "House of the Whispering Willows", "type": "experience", "description": "Chinese art and culture exhibits.", "minHeight": null, "latitude": 28.368, "longitude": -81.548},
     {"id": 6701, "parkId": 5, "name": "Meet Anna and Elsa at Royal Sommerhus", "type": "meet", "description": "Meet Anna and Elsa in Norway Pavilion.", "minHeight": null, "latitude": 28.369, "longitude": -81.548},
-    {"id": 13780, "parkId": 5, "name": "Mexico Folk Art Gallery", "type": "show", "description": "Mexican folk art exhibits.", "minHeight": null, "latitude": 28.369, "longitude": -81.549},
+    {"id": 13780, "parkId": 5, "name": "Mexico Folk Art Gallery", "type": "experience", "description": "Mexican folk art exhibits.", "minHeight": null, "latitude": 28.369, "longitude": -81.549},
     {"id": 10914, "parkId": 5, "name": "Remy's Ratatouille Adventure", "type": "darkride", "description": "Shrink down to the size of a rat for a 4D culinary adventure.", "minHeight": null, "latitude": 28.3707, "longitude": -81.5469},
     {"id": 10915, "parkId": 5, "name": "Remy's Ratatouille Adventure Single Rider", "type": "darkride", "description": "Single rider line for Remy's Ratatouille Adventure.", "minHeight": null, "latitude": 28.3707, "longitude": -81.5469},
-    {"id": 13776, "parkId": 5, "name": "Stave Church Gallery", "type": "show", "description": "Norwegian culture and history exhibits.", "minHeight": null, "latitude": 28.369, "longitude": -81.548},
+    {"id": 13776, "parkId": 5, "name": "Stave Church Gallery", "type": "experience", "description": "Norwegian culture and history exhibits.", "minHeight": null, "latitude": 28.369, "longitude": -81.548},
     {"id": 12430, "parkId": 7, "name": "Meet Ariel at Walt Disney Presents", "type": "meet", "description": "Meet Ariel in Animation Courtyard.", "minHeight": null, "latitude": 28.357, "longitude": -81.558},
     {"id": 2478, "parkId": 7, "name": "Star Wars Launch Bay", "type": "experience", "description": "Star Wars exhibits and meet & greets.", "minHeight": null, "latitude": 28.357, "longitude": -81.558},
     {"id": 2663, "parkId": 7, "name": "Star Wars Launch Bay Theater", "type": "show", "description": "Short film about Star Wars.", "minHeight": null, "latitude": 28.357, "longitude": -81.558},
@@ -821,7 +867,7 @@ struct StaticData {
     {"id": 14740, "parkId": 334, "name": "Stardust Racers Single Rider", "type": "coaster", "description": "Single rider line for Stardust Racers.", "minHeight": 48, "latitude": 28.4600, "longitude": -81.4800},
     {"id": 14692, "parkId": 334, "name": "Curse of the Werewolf", "type": "darkride", "description": "A thrilling dark ride and coaster combination through a haunted European village.", "minHeight": 40, "latitude": 28.4602, "longitude": -81.4802},
     {"id": 14698, "parkId": 334, "name": "Curse of the Werewolf Single Rider", "type": "darkride", "description": "Single rider line for Curse of the Werewolf.", "minHeight": 40, "latitude": 28.4602, "longitude": -81.4802},
-    {"id": 14694, "parkId": 334, "name": "Monsters Unchained: The Frankenstein Experiment", "type": "show", "description": "A live show featuring Universal Monsters.", "minHeight": null, "latitude": 28.4603, "longitude": -81.4803},
+    {"id": 14694, "parkId": 334, "name": "Monsters Unchained: The Frankenstein Experiment", "type": "darkride", "description": "A trackless dark ride through Dr. Victoria Frankenstein's lab in Dark Universe.", "minHeight": 48, "latitude": 28.4603, "longitude": -81.4803},
     {"id": 14693, "parkId": 334, "name": "Dragon Racer's Rally", "type": "spinner", "description": "A spinning ride themed to How to Train Your Dragon.", "minHeight": null, "latitude": 28.4604, "longitude": -81.4804},
     {"id": 14691, "parkId": 334, "name": "Fyre Drill", "type": "experience", "description": "Interactive water play area in Isle of Berk.", "minHeight": null, "latitude": 28.4605, "longitude": -81.4805},
     {"id": 14695, "parkId": 334, "name": "Hiccup Wing Glider", "type": "coaster", "description": "A family coaster through the Isle of Berk.", "minHeight": 42, "latitude": 28.4606, "longitude": -81.4806},

@@ -42,6 +42,17 @@ struct AttractionDetailView: View {
         return DB.waitTone(for: attraction.wait_time)
     }
 
+    private var closureLabel: String {
+        let raw = attraction.status?.lowercased() ?? ""
+        if raw == StaticData.AttractionStatus.refurbishment.rawValue.lowercased() {
+            return "REFURB"
+        }
+        if raw == StaticData.AttractionStatus.closedPermanently.rawValue.lowercased() {
+            return "RETIRED"
+        }
+        return "CLOSED"
+    }
+
     private var landName: String? {
         StaticData.attractionToLandMapping[attraction.id]
     }
@@ -207,7 +218,7 @@ struct AttractionDetailView: View {
                         value: attraction.is_open == false ? nil : attraction.wait_time,
                         size: 64,
                         tone: waitTone,
-                        label: attraction.is_open == false ? "CLOSED" : "MIN WAIT"
+                        label: attraction.is_open == false ? closureLabel : "MIN WAIT"
                     )
                     Spacer()
                     if let updated = attraction.last_updated, let fresh = relativeUpdate(updated) {
@@ -296,7 +307,7 @@ struct AttractionDetailView: View {
             } else {
                 out.append(("HEIGHT", "ANY"))
             }
-            out.append(("STATUS", attraction.is_open == false ? "CLOSED" : "OPEN"))
+            out.append(("STATUS", attraction.is_open == false ? closureLabel : "OPEN"))
             if let w = attraction.wait_time, attraction.is_open != false {
                 let tier = w <= 15 ? "SHORT" : (w <= 45 ? "MODERATE" : "LONG")
                 out.append(("QUEUE", tier))

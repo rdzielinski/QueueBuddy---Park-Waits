@@ -292,6 +292,17 @@ class WaitTimeViewModel: ObservableObject {
             }
             mergedAttractions = Array(staticMap.values)
         }
+
+        // Apply known operational-status overrides last so the live API
+        // can't paint a refurbed/retired ride with a stale wait time.
+        for i in mergedAttractions.indices {
+            if let override = StaticData.statusOverride(for: mergedAttractions[i].id) {
+                mergedAttractions[i].is_open = false
+                mergedAttractions[i].wait_time = nil
+                mergedAttractions[i].status = override.status
+            }
+        }
+
         self.attractionsByPark[parkId] = mergedAttractions.sorted { $0.name < $1.name }
     }
 
