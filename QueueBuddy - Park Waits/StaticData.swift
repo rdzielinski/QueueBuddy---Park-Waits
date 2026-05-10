@@ -28,6 +28,63 @@ struct StaticData {
          334: (28.4603, -81.4803)
      ]
 
+    /// Maps our internal queue-times int parkId to the ThemeParks.wiki UUID.
+    /// Used by `ThemeParksWikiClient` to fetch the same park from the new API.
+    static let parkUUIDByInternalId: [Int: String] = [
+        5:   "47f90d2c-e191-4239-a466-5892ef59a88b", // EPCOT
+        6:   "75ea578a-adc8-4116-a54d-dccb60765ef9", // Magic Kingdom Park
+        7:   "288747d1-8b4f-4a64-867e-ea7c9b27bad8", // Disney's Hollywood Studios
+        8:   "1c84a229-8862-4648-9c71-378ddd2c7693", // Disney's Animal Kingdom
+        64:  "267615cc-8943-4c2a-ae2c-5da728ca591f", // Universal Islands of Adventure
+        65:  "eb3f4560-2383-4a36-9152-6b3e5ed6bc57", // Universal Studios Florida
+        334: "12dbb85b-265f-44e6-bccf-f1faa17211fc"  // Universal Epic Universe
+    ]
+
+    /// Cached normalized-name → internal int ID lookup, built on first access
+    /// from `attractionsJSON`. Used to resolve ThemeParks.wiki entities (which
+    /// expose UUIDs) back to the int IDs the rest of the app keys off of.
+    private static let normalizedNameIndex: [String: Int] = {
+        var index: [String: Int] = [:]
+        for (id, details) in getAttractionDetails() {
+            let key = normalizeAttractionName(details.name)
+            // Prefer the lower internal ID on collision — keeps results stable
+            // when two static rows share the same normalized name.
+            if let existing = index[key], existing < id { continue }
+            index[key] = id
+        }
+        return index
+    }()
+
+    /// Normalize an attraction name for cross-source matching: case-fold,
+    /// strip trademark/punctuation noise, fold smart quotes/dashes, and
+    /// collapse whitespace. Stable across queue-times and ThemeParks.wiki.
+    static func normalizeAttractionName(_ name: String) -> String {
+        var s = name.lowercased()
+        // Drop trademark/copyright marks.
+        for marker in ["™", "®", "©"] { s = s.replacingOccurrences(of: marker, with: "") }
+        // Fold smart punctuation to ASCII equivalents.
+        let folds: [(String, String)] = [
+            ("’", "'"), ("‘", "'"), ("“", "\""), ("”", "\""),
+            ("–", "-"), ("—", "-"), ("…", "..."),
+            (" & ", " and ")
+        ]
+        for (from, to) in folds { s = s.replacingOccurrences(of: from, with: to) }
+        // Strip remaining punctuation we don't care about for matching.
+        let stripped = s.unicodeScalars.filter { scalar in
+            CharacterSet.alphanumerics.contains(scalar) || scalar == " "
+        }
+        s = String(String.UnicodeScalarView(stripped))
+        // Collapse runs of whitespace.
+        s = s.split(separator: " ", omittingEmptySubsequences: true).joined(separator: " ")
+        return s
+    }
+
+    /// Look up the internal int attraction ID for a name from any source.
+    /// Returns nil if the name doesn't match any known static attraction.
+    static func internalAttractionId(forName name: String) -> Int? {
+        normalizedNameIndex[normalizeAttractionName(name)]
+    }
+
     /// Typical year-round operating hours per park (open/close in 24h local time).
     /// These are sensible defaults; live park hours would require an API integration.
     static let parkHours: [Int: (openHour: Int, closeHour: Int)] = [
