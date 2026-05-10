@@ -1,5 +1,8 @@
 import SwiftUI
 import CoreLocation
+#if canImport(UIKit)
+import UIKit
+#endif
 
 struct HomeView: View {
     @EnvironmentObject var viewModel: WaitTimeViewModel
@@ -19,34 +22,33 @@ struct HomeView: View {
         searchText.trimmingCharacters(in: .whitespaces)
     }
 
-    /// Parks whose name matches the search query.
+    /// Parks whose name matches the search query (fuzzy).
     private var matchingParks: [Park] {
         guard isSearching else { return [] }
         return viewModel.resortGroups.flatMap { $0.parks }
-            .filter { $0.name.localizedCaseInsensitiveContains(trimmedQuery) }
+            .filter { FuzzySearch.score(trimmedQuery, against: $0.name) != nil }
     }
 
     /// Attractions whose name matches the search query. Ranked so that
-    /// prefix matches float above substring matches, then shortest waits.
+    /// prefix matches float above substring matches, then fuzzy matches.
     private var matchingAttractions: [(attraction: Attraction, park: Park)] {
         guard isSearching else { return [] }
-        let q = trimmedQuery.lowercased()
+        let q = trimmedQuery
         let allParks = viewModel.resortGroups.flatMap { $0.parks }
-        var hits: [(Attraction, Park, Int)] = []
+        var hits: [(Attraction, Park, Double)] = []
         for (parkId, attractions) in viewModel.attractionsByPark {
             guard let park = allParks.first(where: { $0.id == parkId }) else { continue }
             for a in attractions {
-                let lower = a.name.lowercased()
-                guard lower.contains(q) else { continue }
-                let prefixBoost = lower.hasPrefix(q) ? 0 : 1
-                hits.append((a, park, prefixBoost))
+                if let score = FuzzySearch.score(q, against: a.name) {
+                    hits.append((a, park, score))
+                }
             }
         }
         return hits
             .sorted {
-                if $0.2 != $1.2 { return $0.2 < $1.2 }                       // prefix matches first
+                if abs($0.2 - $1.2) > 0.05 { return $0.2 > $1.2 }
                 let aOpen = $0.0.is_open == true, bOpen = $1.0.is_open == true
-                if aOpen != bOpen { return aOpen }                            // open before closed
+                if aOpen != bOpen { return aOpen }
                 return ($0.0.wait_time ?? Int.max) < ($1.0.wait_time ?? Int.max)
             }
             .map { ($0.0, $0.1) }
@@ -124,6 +126,9 @@ struct HomeView: View {
                 }
                 .refreshable {
                     await viewModel.refreshAllWaits()
+                    #if os(iOS)
+                    UINotificationFeedbackGenerator().notificationOccurred(.success)
+                    #endif
                 }
 
                 if viewModel.isLoading && viewModel.resortGroups.isEmpty {
@@ -131,6 +136,7 @@ struct HomeView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .swipeBackEnabled()
             .navigationDestination(for: Park.self) { park in
                 ParkDetailView(park: park)
             }
@@ -284,6 +290,15 @@ struct HomeView: View {
             }
             .padding(18)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(hottestAccessibilityLabel)
+    }
+
+    private var hottestAccessibilityLabel: String {
+        guard let hot = hottestAttraction, let wait = hot.attraction.wait_time else {
+            return "Hottest ride: data not available yet"
+        }
+        return "Hottest right now: \(hot.attraction.name) at \(hot.park.name), \(wait) minute wait"
     }
 
     private var terminalSearch: some View {

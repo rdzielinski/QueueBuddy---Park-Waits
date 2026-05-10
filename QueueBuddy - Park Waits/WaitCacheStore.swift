@@ -12,6 +12,7 @@ enum WaitCacheStore {
     static let suiteName = "group.Dzielinski.QueueBuddy"
     static let lastSyncKey = "qb.lastSync"
     static let parksKey = "qb.parks"
+    static let favoritesKey = "favorites"
 
     struct CachedPark: Codable, Hashable, Identifiable {
         let id: Int
@@ -65,5 +66,9 @@ enum WaitCacheStore {
     static var lastSync: Date? {
         let ts = defaults.double(forKey: lastSyncKey)
         return ts > 0 ? Date(timeIntervalSince1970: ts) : nil
+    }
+
+    static func hasCachedData() -> Bool {
+        defaults.data(forKey: parksKey) != nil
     }
 }

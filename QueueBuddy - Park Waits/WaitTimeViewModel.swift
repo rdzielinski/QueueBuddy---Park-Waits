@@ -50,6 +50,8 @@ class WaitTimeViewModel: ObservableObject {
     private var timerTask: Task<Void, Error>?
     private let api = ThemeParkAPI.shared
     private let aiClient = ClaudeAIClient.shared
+    private var lastNotificationTimes: [Int: Date] = [:]
+    private let notificationCooldown: TimeInterval = 30 * 60
 
     init() {
         loadFavorites()
@@ -109,9 +111,13 @@ class WaitTimeViewModel: ObservableObject {
             let groups = try await api.fetchResortGroups()
             self.resortGroups = groups
 
-            // Pre-populate all parks with their complete attraction list from static data.
+            // Pre-populate all parks. Use offline-first data (typical waits) when
+            // no cached snapshot exists, so the UI has useful data immediately.
+            let hasCachedData = WaitCacheStore.hasCachedData()
             for park in groups.flatMap({ $0.parks }) {
-                let staticAttractions = StaticData.getStaticAttractions(for: park.id)
+                let staticAttractions = hasCachedData
+                    ? StaticData.getStaticAttractions(for: park.id)
+                    : StaticData.getOfflineAttractions(for: park.id)
                 self.processAndStoreAttractions(staticAttractions, for: park.id, isUpdating: false)
             }
 
@@ -145,6 +151,7 @@ class WaitTimeViewModel: ObservableObject {
             }
 
             for (parkId, liveAttractions) in results {
+                AttractionDataAudit.record(parkId: parkId, liveAttractions: liveAttractions)
                 processAndStoreAttractions(liveAttractions, for: parkId, isUpdating: true)
                 for attraction in liveAttractions where attraction.is_open == true {
                     if let wait = attraction.wait_time {
@@ -160,6 +167,7 @@ class WaitTimeViewModel: ObservableObject {
 
             // After loading, check for notification triggers
             await checkAndSendAttractionNotifications()
+            AttractionDataAudit.logReport()
         } catch is CancellationError {
             // Refresh was cancelled (user navigated away). Not an error.
         } catch {
@@ -174,6 +182,7 @@ class WaitTimeViewModel: ObservableObject {
     func refreshPark(_ park: Park) async {
         do {
             let liveAttractions = try await api.fetchWaitTimes(for: park.id)
+            AttractionDataAudit.record(parkId: park.id, liveAttractions: liveAttractions)
             processAndStoreAttractions(liveAttractions, for: park.id, isUpdating: true)
         } catch is CancellationError {
             // Ignore — user left the view.
@@ -257,6 +266,7 @@ class WaitTimeViewModel: ObservableObject {
         }
 
         for (parkId, liveAttractions) in results {
+            AttractionDataAudit.record(parkId: parkId, liveAttractions: liveAttractions)
             processAndStoreAttractions(liveAttractions, for: parkId, isUpdating: true)
             recordHistory(liveAttractions)
         }
@@ -299,7 +309,13 @@ class WaitTimeViewModel: ObservableObject {
 
     private func checkAndSendAttractionNotifications() async {
         let center = UNUserNotificationCenter.current()
+        let now = Date()
         for preference in notificationPreferences {
+            if let lastSent = lastNotificationTimes[preference.id],
+               now.timeIntervalSince(lastSent) < notificationCooldown {
+                continue
+            }
+
             if let attraction = attractionsByPark.values.flatMap({ $0 }).first(where: { $0.id == preference.id }),
                let wait = attraction.wait_time,
                attraction.is_open == true,
@@ -308,16 +324,17 @@ class WaitTimeViewModel: ObservableObject {
                 #if !os(tvOS)
                 let content = UNMutableNotificationContent()
                 content.title = "QueueBuddy Alert"
-                content.body = "\(attraction.name) is now at \(wait) min wait or less!"
+                content.body = "\(attraction.name) is now at \(wait) min wait — go now!"
                 content.sound = .default
 
                 let request = UNNotificationRequest(
-                    identifier: "wait-\(attraction.id)-\(Date().timeIntervalSince1970)",
+                    identifier: "wait-\(attraction.id)-\(now.timeIntervalSince1970)",
                     content: content,
-                    trigger: nil // deliver immediately
+                    trigger: nil
                 )
                 do {
                     try await center.add(request)
+                    lastNotificationTimes[preference.id] = now
                 } catch {
                     print("Failed to schedule notification: \(error)")
                 }
@@ -429,6 +446,7 @@ class WaitTimeViewModel: ObservableObject {
     func addWaitTime(_ seconds: Double, forEntityId id: Int) {
         let minutes = Int(seconds / 60)
         print("✅ Manually adding a wait time of \(minutes) minutes for entity ID: \(id).")
+        WaitHistoryStore.shared.record(attractionId: id, minutes: minutes)
     }
 
     // MARK: - Favorites
@@ -449,11 +467,14 @@ class WaitTimeViewModel: ObservableObject {
     private func saveFavorites() {
         if let data = try? JSONEncoder().encode(favoriteAttractionIds) {
             UserDefaults.standard.set(data, forKey: "favorites")
+            WaitCacheStore.defaults.set(data, forKey: WaitCacheStore.favoritesKey)
         }
+        updateSharedCache()
     }
 
     private func loadFavorites() {
-        if let data = UserDefaults.standard.data(forKey: "favorites") {
+        if let data = WaitCacheStore.defaults.data(forKey: WaitCacheStore.favoritesKey)
+            ?? UserDefaults.standard.data(forKey: "favorites") {
             if let decoded = try? JSONDecoder().decode(Set<Int>.self, from: data) {
                 self.favoriteAttractionIds = decoded
             }
@@ -606,6 +627,13 @@ class WaitTimeViewModel: ObservableObject {
         }
 
         if let childHeight { parts.append("Traveling child height: \(childHeight) inches.") }
+        let planItems = ParkDayPlanStore.shared.items(for: park?.id)
+        if !planItems.isEmpty {
+            let names = planItems.map { item in
+                item.isDone ? "\(item.attractionName) (done)" : item.attractionName
+            }
+            parts.append("My Day plan: \(names.joined(separator: ", ")).")
+        }
         if let likes, !likes.isEmpty { parts.append("User likes: \(likes.joined(separator: ", ")).") }
         if let dislikes, !dislikes.isEmpty { parts.append("User dislikes: \(dislikes.joined(separator: ", ")).") }
 
@@ -617,6 +645,26 @@ class WaitTimeViewModel: ObservableObject {
         aiConversation = []
         aiResponse = ""
         aiError = nil
+    }
+
+    // MARK: - Crowd Level
+
+    func crowdLevel(for parkId: Int) -> CrowdLevel? {
+        guard let attractions = attractionsByPark[parkId] else { return nil }
+        let waits = attractions.compactMap { $0.is_open == true ? $0.wait_time : nil }
+        guard !waits.isEmpty else { return nil }
+        let avg = waits.reduce(0, +) / waits.count
+        return CrowdLevel.from(averageWait: avg)
+    }
+
+    func parkHoursText(for parkId: Int) -> String? {
+        guard let hours = StaticData.parkHours[parkId] else { return nil }
+        func fmt(_ h: Int) -> String {
+            let twelve = ((h % 12) == 0) ? 12 : (h % 12)
+            let suffix = h >= 12 && h < 24 ? "PM" : "AM"
+            return "\(twelve) \(suffix)"
+        }
+        return "\(fmt(hours.openHour)) – \(fmt(hours.closeHour))"
     }
 
     // MARK: - Color Logic

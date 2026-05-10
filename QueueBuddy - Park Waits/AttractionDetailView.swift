@@ -16,6 +16,7 @@ private enum ActiveSheet: Identifiable {
 struct AttractionDetailView: View {
     @EnvironmentObject private var viewModel: WaitTimeViewModel
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var planStore = ParkDayPlanStore.shared
     let attraction: Attraction
 
     @State private var activeSheet: ActiveSheet? = nil
@@ -31,6 +32,11 @@ struct AttractionDetailView: View {
             return "PARKS"
         }
         return park.name.uppercased()
+    }
+
+    private var homePark: Park? {
+        guard let pid = parkId else { return nil }
+        return viewModel.resortGroups.flatMap { $0.parks }.first { $0.id == pid }
     }
 
     private var accent: Color {
@@ -67,6 +73,9 @@ struct AttractionDetailView: View {
                     statsGrid
                         .padding(.horizontal, 16)
 
+                    planActionRow
+                        .padding(.horizontal, 16)
+
                     aboutBlock
                         .padding(.horizontal, 16)
 
@@ -84,6 +93,7 @@ struct AttractionDetailView: View {
         }
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
+        .swipeBackEnabled()
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
             case .notification:
@@ -265,6 +275,23 @@ struct AttractionDetailView: View {
             }
             .padding(20)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(heroAccessibilityLabel)
+    }
+
+    private var heroAccessibilityLabel: String {
+        var parts = [attraction.name]
+        if let land = landName { parts.append("in \(land)") }
+        if attraction.is_open == false {
+            parts.append("Currently closed")
+        } else if let wait = attraction.wait_time {
+            parts.append(wait == 0 ? "Walk-on, no wait" : "\(wait) minute wait")
+        }
+        if let type = attraction.type { parts.append(type) }
+        if let minH = attraction.min_height_inches, minH > 0 {
+            parts.append("minimum height \(minH) inches")
+        }
+        return parts.joined(separator: ", ")
     }
 
     private var metaLine: String {
@@ -307,6 +334,7 @@ struct AttractionDetailView: View {
             } else {
                 out.append(("QUEUE", "—"))
             }
+            out.append(("TREND", trendSummary.uppercased()))
             return out
         }()
 
@@ -329,6 +357,61 @@ struct AttractionDetailView: View {
                                 .stroke(Color.white.opacity(0.05), lineWidth: 1)
                         )
                 )
+                .accessibilityElement(children: .ignore)
+                .accessibilityLabel("\(row.0): \(row.1)")
+            }
+        }
+    }
+
+    private var trendSummary: String {
+        guard let delta = WaitHistoryStore.shared.trendDelta(for: attraction.id) else { return "Learning" }
+        if delta > 5 { return "Rising \(delta)m" }
+        if delta < -5 { return "Dropping \(abs(delta))m" }
+        return "Steady"
+    }
+
+    private var planActionRow: some View {
+        HStack(spacing: 10) {
+            Button {
+                if let park = homePark {
+                    planStore.add(attraction: attraction, park: park)
+                    triggerHaptic(.medium)
+                }
+            } label: {
+                HStack {
+                    Image(systemName: planStore.contains(attractionId: attraction.id) ? "checkmark.circle.fill" : "plus.circle.fill")
+                    Text(planStore.contains(attractionId: attraction.id) ? "In My Day" : "Add to My Day")
+                }
+                .font(DB.heading(14, weight: .semibold))
+                .foregroundStyle(Color(hex: 0x0A0B0D))
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(
+                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        .fill(accent)
+                        .opacity(homePark == nil ? 0.45 : 1)
+                )
+            }
+            .buttonStyle(.plain)
+            .disabled(homePark == nil || planStore.contains(attractionId: attraction.id))
+            .accessibilityLabel(planStore.contains(attractionId: attraction.id) ? "\(attraction.name) is in My Day" : "Add \(attraction.name) to My Day")
+
+            if let latitude = attraction.latitude, let longitude = attraction.longitude {
+                Link(destination: URL(string: "http://maps.apple.com/?ll=\(latitude),\(longitude)&q=\(attraction.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? attraction.name)")!) {
+                    Image(systemName: "map.fill")
+                        .font(.system(size: 15, weight: .semibold))
+                        .foregroundStyle(DB.text)
+                        .frame(width: 46, height: 46)
+                        .background(
+                            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                .fill(Color.white.opacity(0.05))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                )
+                        )
+                }
+                .accessibilityLabel("Open \(attraction.name) in Maps")
             }
         }
     }
@@ -428,6 +511,9 @@ struct AttractionDetailView: View {
             )
         }
         .buttonStyle(.plain)
+        .accessibilityLabel(inLineActivityRunning
+            ? "Stop tracking \(attraction.name) on lock screen"
+            : "Track \(attraction.name) wait time on lock screen")
         .onAppear { syncInLineActivityState() }
         .onChange(of: attraction.wait_time) { _, _ in
             #if canImport(ActivityKit)

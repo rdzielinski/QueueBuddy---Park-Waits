@@ -30,6 +30,18 @@ struct AttractionRowCardView: View {
         return wait >= 60
     }
 
+    private var trendDelta: Int? {
+        WaitHistoryStore.shared.recentTrend(for: attraction.id)
+    }
+
+    private var trendArrow: (symbol: String, color: Color)? {
+        guard attraction.is_open == true, !isClosed else { return nil }
+        guard let delta = trendDelta else { return nil }
+        if delta >= 5 { return ("arrow.up.right", DB.red) }
+        if delta <= -5 { return ("arrow.down.right", DB.green) }
+        return nil
+    }
+
     private var sparklineSamples: [WaitHistoryStore.Sample] {
         WaitHistoryStore.shared.history(for: attraction.id)
     }
@@ -76,6 +88,13 @@ struct AttractionRowCardView: View {
 
             Spacer(minLength: 8)
 
+            if let trend = trendArrow {
+                Image(systemName: trend.symbol)
+                    .font(.system(size: 10, weight: .bold))
+                    .foregroundStyle(trend.color)
+                    .accessibilityLabel(trend.symbol.contains("up") ? "Wait rising" : "Wait dropping")
+            }
+
             if sparklineSamples.count >= 3 {
                 MiniSparkline(samples: sparklineSamples, tone: sparklineTone)
                     .frame(width: 44, height: 18)
@@ -90,5 +109,24 @@ struct AttractionRowCardView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .opacity(isClosed ? 0.55 : 1)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(rowAccessibilityLabel)
+    }
+
+    private var rowAccessibilityLabel: String {
+        var parts = [attraction.name]
+        if isClosed {
+            parts.append("Closed")
+        } else if let wait = attraction.wait_time {
+            parts.append(wait == 0 ? "Walk-on" : "\(wait) minute wait")
+        }
+        if let type = attraction.type { parts.append(type) }
+        if let trend = trendArrow {
+            parts.append(trend.symbol.contains("up") ? "wait rising" : "wait dropping")
+        }
+        if let minH = attraction.min_height_inches, minH > 0 {
+            parts.append("minimum height \(minH) inches")
+        }
+        return parts.joined(separator: ", ")
     }
 }

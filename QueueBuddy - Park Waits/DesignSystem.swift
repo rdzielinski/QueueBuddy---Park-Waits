@@ -101,6 +101,17 @@ enum DB {
         default:    return red
         }
     }
+
+    // MARK: - Crowd level
+
+    static func crowdColor(for level: CrowdLevel) -> Color {
+        switch level {
+        case .low:      return green
+        case .moderate: return amber
+        case .busy:     return Color(hex: 0xFF8C7A)
+        case .packed:   return red
+        }
+    }
 }
 
 // MARK: - Color hex helper

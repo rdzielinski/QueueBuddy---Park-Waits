@@ -89,6 +89,7 @@ struct AIKeySettingsView: View {
                     .bold()
                 }
             }
+            .swipeBackEnabled()
             .onAppear {
                 apiKey = ClaudeAIClient.readAPIKey() ?? ""
                 selectedModelID = ClaudeAIClient.currentModelID()

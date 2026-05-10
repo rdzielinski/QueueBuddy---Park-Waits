@@ -115,5 +115,19 @@ struct ParkCardView: View {
                         .stroke(Color.white.opacity(0.05), lineWidth: 1)
                 )
         )
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(cardAccessibilityLabel)
+    }
+
+    private var cardAccessibilityLabel: String {
+        var parts = [park.name]
+        if isClosed {
+            parts.append("Closed today")
+        } else {
+            parts.append("\(openCount) attractions open")
+            if let avg = avgWaitValue { parts.append("average wait \(avg) minutes") }
+        }
+        if let hoursLine { parts.append(hoursLine) }
+        return parts.joined(separator: ", ")
     }
 }

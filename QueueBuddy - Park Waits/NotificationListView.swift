@@ -45,6 +45,7 @@ struct NotificationListView: View {
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .swipeBackEnabled()
             .sheet(item: $editingPreference) { preference in
                 EditNotificationPreferenceView(preference: preference)
                     .environmentObject(viewModel)
@@ -201,6 +202,7 @@ struct EditNotificationPreferenceView: View {
                     Button("Cancel") { dismiss() }.foregroundStyle(DB.muted)
                 }
             }
+            .swipeBackEnabled()
         }
     }
 }

@@ -36,6 +36,7 @@ struct NotificationSettingView: View {
                         Slider(value: $thresholdMinutes, in: 1...120, step: 5)
                             .tint(DB.amber)
                         #endif
+                        presetRow
                         HStack {
                             MonoLabel(text: "1 MIN", color: DB.dim, tracking: 1.5, size: 10)
                             Spacer()
@@ -78,10 +79,34 @@ struct NotificationSettingView: View {
                     Button("Cancel") { dismiss() }.foregroundStyle(DB.muted)
                 }
             }
+            .swipeBackEnabled()
             .onAppear {
                 if let pref = viewModel.notificationPreferences.first(where: { $0.id == attraction.id }) {
                     thresholdMinutes = Double(pref.thresholdMinutes)
                 }
+            }
+        }
+    }
+
+    private var presetRow: some View {
+        HStack(spacing: 8) {
+            ForEach([15, 30, 45, 60], id: \.self) { minutes in
+                Button {
+                    thresholdMinutes = Double(minutes)
+                } label: {
+                    Text("\(minutes)m")
+                        .font(DB.mono(11, weight: .semibold))
+                        .foregroundStyle(Int(thresholdMinutes) == minutes ? Color(hex: 0x0A0B0D) : DB.text)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 7)
+                        .background(
+                            Capsule()
+                                .fill(Int(thresholdMinutes) == minutes ? DB.amber : Color.white.opacity(0.06))
+                                .overlay(Capsule().stroke(DB.amber.opacity(0.25), lineWidth: 1))
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Set alert threshold to \(minutes) minutes")
             }
         }
     }

@@ -2,6 +2,7 @@ import SwiftUI
 
 struct AIPlaygroundView: View {
     @EnvironmentObject var viewModel: WaitTimeViewModel
+    @StateObject private var planStore = ParkDayPlanStore.shared
     @AppStorage("preferredParkId") private var preferredParkId: Int = 0
     @AppStorage("childHeightInches") private var childHeightInches: Int = 0
     @State private var query: String = ""
@@ -54,6 +55,7 @@ struct AIPlaygroundView: View {
                         header
                         if !hasAPIKey { missingKeyBanner }
                         parkContextPicker
+                        myDayBoard
                         inputRow
                         if !viewModel.isAILoading && viewModel.aiConversation.isEmpty {
                             suggestionChips
@@ -69,6 +71,7 @@ struct AIPlaygroundView: View {
                 .onTapGesture { isTextFieldFocused = false }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .swipeBackEnabled()
             .sheet(isPresented: $showSettings) {
                 AIKeySettingsView()
             }
@@ -201,6 +204,88 @@ struct AIPlaygroundView: View {
                 .background(
                     Capsule().fill(Color.white.opacity(0.05))
                         .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
+                )
+            }
+        }
+    }
+
+    private var myDayBoard: some View {
+        let visibleItems = planStore.items(for: selectedPark?.id)
+        return VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                MonoLabel(text: "MY DAY", color: DB.muted, tracking: 1.5, size: 10)
+                Spacer()
+                if let park = selectedPark {
+                    Button {
+                        let attractions = viewModel.attractionsByPark[park.id] ?? []
+                        planStore.addTopPicks(from: attractions, park: park)
+                    } label: {
+                        Label("Auto-fill", systemImage: "wand.and.stars")
+                            .font(DB.mono(11, weight: .semibold))
+                            .foregroundStyle(accent)
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityLabel("Auto-fill My Day with short waits")
+                }
+            }
+
+            if visibleItems.isEmpty {
+                Text("Add rides from attraction details or auto-fill from the shortest waits.")
+                    .font(.system(size: 13))
+                    .foregroundStyle(DB.muted)
+                    .padding(14)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(DB.card))
+            } else {
+                VStack(spacing: 0) {
+                    ForEach(Array(visibleItems.enumerated()), id: \.element.id) { index, item in
+                        HStack(spacing: 10) {
+                            Button {
+                                planStore.toggleDone(item)
+                            } label: {
+                                Image(systemName: item.isDone ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(item.isDone ? DB.green : DB.muted)
+                                    .frame(width: 28, height: 28)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel(item.isDone ? "Mark \(item.attractionName) incomplete" : "Mark \(item.attractionName) complete")
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(item.attractionName)
+                                    .font(DB.heading(14, weight: .medium))
+                                    .foregroundStyle(item.isDone ? DB.muted : DB.text)
+                                    .lineLimit(1)
+                                Text(item.parkName.uppercased())
+                                    .font(DB.mono(9))
+                                    .tracking(1.4)
+                                    .foregroundStyle(DB.muted)
+                            }
+                            Spacer()
+                            Button {
+                                planStore.remove(item)
+                            } label: {
+                                Image(systemName: "minus.circle")
+                                    .foregroundStyle(DB.muted)
+                                    .frame(width: 28, height: 28)
+                            }
+                            .buttonStyle(.plain)
+                            .accessibilityLabel("Remove \(item.attractionName) from My Day")
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+
+                        if index < visibleItems.count - 1 {
+                            Rectangle().fill(DB.line).frame(height: 1)
+                        }
+                    }
+                }
+                .background(
+                    RoundedRectangle(cornerRadius: 16, style: .continuous)
+                        .fill(DB.card)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                                .stroke(Color.white.opacity(0.05), lineWidth: 1)
+                        )
                 )
             }
         }

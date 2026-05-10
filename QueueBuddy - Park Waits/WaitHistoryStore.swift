@@ -48,6 +48,23 @@ final class WaitHistoryStore: ObservableObject {
         return current - pastSample.minutes
     }
 
+    /// Short-term trend direction based on last two samples.
+    func recentTrend(for attractionId: Int) -> Int? {
+        let list = history(for: attractionId)
+        guard list.count >= 2 else { return nil }
+        let current = list[list.count - 1].minutes
+        let previous = list[list.count - 2].minutes
+        return current - previous
+    }
+
+    /// Average wait across all tracked attractions for a given park.
+    func crowdLevel(parkAttractionIds: [Int]) -> CrowdLevel? {
+        let recentWaits = parkAttractionIds.compactMap { samples[$0]?.last?.minutes }
+        guard !recentWaits.isEmpty else { return nil }
+        let avg = recentWaits.reduce(0, +) / recentWaits.count
+        return CrowdLevel.from(averageWait: avg)
+    }
+
     // MARK: - Persistence
 
     private func save() {

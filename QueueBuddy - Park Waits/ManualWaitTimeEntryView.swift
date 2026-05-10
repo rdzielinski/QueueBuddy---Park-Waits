@@ -78,6 +78,7 @@ struct ManualWaitTimeEntryView: View {
                     Button("Cancel") { dismiss() }.foregroundStyle(DB.muted)
                 }
             }
+            .swipeBackEnabled()
         }
     }
 }

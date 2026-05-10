@@ -5,6 +5,7 @@ import SwiftUI
 struct QueueBuddyWidgetBundle: WidgetBundle {
     var body: some Widget {
         FavoritesWaitWidget()
+        BestWaitsWidget()
         #if canImport(ActivityKit)
         if #available(iOS 16.1, *) {
             ParkDayLiveActivity()

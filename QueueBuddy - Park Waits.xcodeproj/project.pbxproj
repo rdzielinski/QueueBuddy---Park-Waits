@@ -242,7 +242,6 @@
 		2170116A2FAB8B05008A52FC /* gorilla_falls_exploration_trail_2.png in Resources */ = {isa = PBXBuildFile; fileRef = 217010852FAB8B05008A52FC /* gorilla_falls_exploration_trail_2.png */; };
 		2170116B2FAB8B05008A52FC /* for_the_first_time_in_forever_frozen_sing_along.png in Resources */ = {isa = PBXBuildFile; fileRef = 217010CD2FAB8B05008A52FC /* for_the_first_time_in_forever_frozen_sing_along.png */; };
 		2170116C2FAB8B05008A52FC /* hollywood_studios.png in Resources */ = {isa = PBXBuildFile; fileRef = 217010732FAB8B05008A52FC /* hollywood_studios.png */; };
-		2170116D2FAB8B05008A52FC /* _manifest.csv in Resources */ = {isa = PBXBuildFile; fileRef = 217011332FAB8B05008A52FC /* _manifest.csv */; };
 		2170116E2FAB8B05008A52FC /* lights_motors_action.png in Resources */ = {isa = PBXBuildFile; fileRef = 217010CF2FAB8B05008A52FC /* lights_motors_action.png */; };
 		2170116F2FAB8B05008A52FC /* the_oasis_exhibits.png in Resources */ = {isa = PBXBuildFile; fileRef = 2170108E2FAB8B05008A52FC /* the_oasis_exhibits.png */; };
 		217011702FAB8B05008A52FC /* tomorrowland_speedway.png in Resources */ = {isa = PBXBuildFile; fileRef = 217011182FAB8B05008A52FC /* tomorrowland_speedway.png */; };
@@ -287,7 +286,6 @@
 		217011972FAB8B05008A52FC /* yoshis_adventure.png in Resources */ = {isa = PBXBuildFile; fileRef = 217010C72FAB8B05008A52FC /* yoshis_adventure.png */; };
 		217011982FAB8B05008A52FC /* revenge_of_the_mummy.png in Resources */ = {isa = PBXBuildFile; fileRef = 2170112A2FAB8B05008A52FC /* revenge_of_the_mummy.png */; };
 		217011992FAB8B05008A52FC /* edna_mode_meet_and_greet.png in Resources */ = {isa = PBXBuildFile; fileRef = 217010CC2FAB8B05008A52FC /* edna_mode_meet_and_greet.png */; };
-		2170119A2FAB8B05008A52FC /* _manifest.csv in Resources */ = {isa = PBXBuildFile; fileRef = 217011312FAB8B05008A52FC /* _manifest.csv */; };
 		2170119B2FAB8B05008A52FC /* casey_jr_splash_n_soak_station.png in Resources */ = {isa = PBXBuildFile; fileRef = 217010FF2FAB8B05008A52FC /* casey_jr_splash_n_soak_station.png */; };
 		2170119C2FAB8B05008A52FC /* conservation_station.png in Resources */ = {isa = PBXBuildFile; fileRef = 2170107B2FAB8B05008A52FC /* conservation_station.png */; };
 		2170119D2FAB8B05008A52FC /* discovery_island_trails.png in Resources */ = {isa = PBXBuildFile; fileRef = 2170107E2FAB8B05008A52FC /* discovery_island_trails.png */; };
@@ -1718,7 +1716,6 @@
 				2170116A2FAB8B05008A52FC /* gorilla_falls_exploration_trail_2.png in Resources */,
 				2170116B2FAB8B05008A52FC /* for_the_first_time_in_forever_frozen_sing_along.png in Resources */,
 				2170116C2FAB8B05008A52FC /* hollywood_studios.png in Resources */,
-				2170116D2FAB8B05008A52FC /* _manifest.csv in Resources */,
 				2170116E2FAB8B05008A52FC /* lights_motors_action.png in Resources */,
 				2170116F2FAB8B05008A52FC /* the_oasis_exhibits.png in Resources */,
 				217011702FAB8B05008A52FC /* tomorrowland_speedway.png in Resources */,
@@ -1763,7 +1760,6 @@
 				217011972FAB8B05008A52FC /* yoshis_adventure.png in Resources */,
 				217011982FAB8B05008A52FC /* revenge_of_the_mummy.png in Resources */,
 				217011992FAB8B05008A52FC /* edna_mode_meet_and_greet.png in Resources */,
-				2170119A2FAB8B05008A52FC /* _manifest.csv in Resources */,
 				2170119B2FAB8B05008A52FC /* casey_jr_splash_n_soak_station.png in Resources */,
 				2170119C2FAB8B05008A52FC /* conservation_station.png in Resources */,
 				2170119D2FAB8B05008A52FC /* discovery_island_trails.png in Resources */,

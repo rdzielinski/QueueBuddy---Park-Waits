@@ -11,9 +11,11 @@ extension Park {
 struct ParkDetailView: View {
     @EnvironmentObject private var viewModel: WaitTimeViewModel
     @Environment(\.dismiss) private var dismiss
+    @StateObject private var planStore = ParkDayPlanStore.shared
     let park: Park
 
     @State private var selectedFilter: AttractionFilter = .all
+    @State private var selectedTypeFilter: AttractionTypeFilter = .all
     @State private var attractionForNotification: Attraction?
     @State private var tipIndex: Int = 0
     @State private var landOverrides: [String: Bool] = [:]
@@ -28,7 +30,7 @@ struct ParkDetailView: View {
             "Use Lightning Lane Multi Pass for Space Mountain and Big Thunder to save an hour.",
             "Grab a Dole Whip in Adventureland — the stand by Swiss Family Treehouse moves faster than the Pineapple Lanai.",
             "Catch Country Bear Musical Jamboree in Frontierland — the 2024 reboot is a fresh take worth seeing.",
-            "If you see Villains Land construction walls near Frontierland — that's for the 2027 expansion.",
+            "Construction walls can change walkway patterns near Frontierland — check the map before crossing the park.",
             "PeopleMover is the easiest reset in the park — 10 min, AC-cooled, almost never a wait.",
             "Carousel of Progress is fully air-conditioned and a quiet 21-minute break midday.",
             "Pirates of the Caribbean and Haunted Mansion drop hardest right at open and during fireworks.",
@@ -39,7 +41,7 @@ struct ParkDetailView: View {
             "Walt Disney World Railroad reopened in 2023 — full loop is 20 min and a fast way to swap lands."
         ],
         5: [
-            "Test Track's 2025 retro redesign reopened last summer — morning is the only time the line is short.",
+            "Test Track is easiest early in the morning before Future World crowds settle in.",
             "Guardians: Cosmic Rewind is still standby + Lightning Lane (virtual queue retired).",
             "World Showcase opens at 11 AM — do Future World rides first, then grab lunch in Mexico or Japan.",
             "Remy's Ratatouille Adventure has a single rider line right next to standby — use it.",
@@ -60,7 +62,7 @@ struct ParkDetailView: View {
             "Grab a Ronto Wrap at Ronto Roasters in Galaxy's Edge — best quick service in the park.",
             "Tower of Terror and Rock 'n' Roller Coaster both have single rider — use it for Rock 'n' Roller Coaster.",
             "The new Fantasmic! returned in 2023 — arrive 45 min early for a center seat.",
-            "Muppet*Vision 3D closed June 2025; that plot is slated to become the Monsters Inc. land.",
+            "Animation Courtyard and nearby show spaces can shift as Hollywood Studios changes — check same-day show listings.",
             "Tower of Terror randomizes its drop sequence — every ride feels different.",
             "Star Tours randomizes its destination, so re-rides aren't repeats.",
             "Smugglers Run lets you pick your role at the console; pilot has the best view.",
@@ -74,7 +76,7 @@ struct ParkDetailView: View {
             "Flight of Passage still has the longest wait in the park — rope drop or ride after 9 PM.",
             "Na'vi River Journey is best in late morning when the Flight of Passage crowd clears.",
             "Kilimanjaro Safaris pays off most at park open and at dusk when animals are active.",
-            "DinoLand is closing in phases — catch DINOSAUR before it's gone for the Tropical Americas retheme.",
+            "Animal Kingdom construction phases can change walking routes — check the park map before crossing to the back of the park.",
             "Rivers of Light ended, but Festival of the Lion King is still the showstopper — arrive 20 min early.",
             "Refill water bottles at the station near Expedition Everest — it's the quickest fill in the park.",
             "Expedition Everest typically drops below 30 min after 4 PM — wait it out instead of riding at open.",
@@ -203,6 +205,10 @@ struct ParkDetailView: View {
         }
     }
 
+    private var mapAttractions: [Attraction] {
+        viewModel.attractionsByPark[park.id] ?? StaticData.getStaticAttractions(for: park.id)
+    }
+
     private func landColor(for name: String) -> Color {
         // Simple stable hash → hue mapping so each land reads distinct.
         let h = abs(name.hashValue) % 360
@@ -248,11 +254,13 @@ struct ParkDetailView: View {
                 async let weather: Void = viewModel.fetchWeather(for: park)
                 async let waits: Void = viewModel.refreshPark(park)
                 _ = await (weather, waits)
+                triggerHaptic()
             }
             .simultaneousGesture(backSwipeGesture)
         }
         .navigationBarBackButtonHidden(true)
-        .toolbar(.hidden, for: .navigationBar)
+            .toolbar(.hidden, for: .navigationBar)
+            .swipeBackEnabled()
         .sheet(item: $attractionForNotification) { attraction in
             NotificationSettingView(attraction: attraction)
                 .environmentObject(viewModel)
@@ -297,7 +305,13 @@ struct ParkDetailView: View {
             Spacer()
 
             Menu {
-                Picker("Filter", selection: $selectedFilter) {
+                Picker("Type", selection: $selectedTypeFilter) {
+                    ForEach(AttractionTypeFilter.allCases) { t in
+                        Text(t.rawValue).tag(t)
+                    }
+                }
+                Divider()
+                Picker("Wait", selection: $selectedFilter) {
                     ForEach(AttractionFilter.allCases) { f in
                         Text(f.rawValue).tag(f)
                     }
@@ -305,18 +319,28 @@ struct ParkDetailView: View {
             } label: {
                 HStack(spacing: 6) {
                     Text("☰")
-                    Text("FILTER").tracking(1.5)
+                    Text(filterLabel).tracking(1.5)
                 }
                 .font(DB.mono(12, weight: .regular))
-                .foregroundStyle(DB.muted)
+                .foregroundStyle(hasActiveFilter ? accent : DB.muted)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
                 .background(
-                    Capsule().fill(Color.white.opacity(0.05))
-                        .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
+                    Capsule().fill(hasActiveFilter ? accent.opacity(0.1) : Color.white.opacity(0.05))
+                        .overlay(Capsule().stroke(hasActiveFilter ? accent.opacity(0.3) : Color.white.opacity(0.08), lineWidth: 1))
                 )
             }
         }
+    }
+
+    private var hasActiveFilter: Bool {
+        selectedFilter != .all || selectedTypeFilter != .all
+    }
+
+    private var filterLabel: String {
+        if selectedTypeFilter != .all { return selectedTypeFilter.rawValue.uppercased() }
+        if selectedFilter != .all { return selectedFilter.rawValue.uppercased() }
+        return "FILTER"
     }
 
     private var terminalHeader: some View {
@@ -356,6 +380,27 @@ struct ParkDetailView: View {
                     statusStrip(horizontal: false)
                 }
 
+                HStack(spacing: 10) {
+                    if let hours = viewModel.parkHoursText(for: park.id) {
+                        HStack(spacing: 5) {
+                            Image(systemName: "clock")
+                                .font(.system(size: 10))
+                            Text(hours)
+                        }
+                        .font(DB.mono(10))
+                        .tracking(1.2)
+                        .foregroundStyle(DB.muted)
+                        .accessibilityLabel("Park hours \(hours)")
+                    }
+                    if let crowd = viewModel.crowdLevel(for: park.id) {
+                        crowdBadge(crowd)
+                    }
+                    Spacer()
+                }
+                .padding(.top, 4)
+
+                parkActionRow
+
                 ViewThatFits(in: .horizontal) {
                     HStack(spacing: 10) {
                         weatherCard
@@ -370,6 +415,63 @@ struct ParkDetailView: View {
             }
             .padding(18)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(terminalAccessibilityLabel)
+    }
+
+    private var terminalAccessibilityLabel: String {
+        var parts = [park.name]
+        let open = viewModel.operatingAttractionCount(for: park.id)
+        let total = viewModel.attractionsByPark[park.id]?.count ?? 0
+        parts.append("\(open) of \(total) attractions open")
+        if let hours = viewModel.parkHoursText(for: park.id) { parts.append("Hours \(hours)") }
+        if let crowd = viewModel.crowdLevel(for: park.id) { parts.append("Crowd level \(crowd.label.lowercased())") }
+        if let wx = viewModel.weatherByPark[park.id] { parts.append("\(Int(wx.temperature)) degrees, \(wx.description)") }
+        return parts.joined(separator: ". ")
+    }
+
+    private var parkActionRow: some View {
+        HStack(spacing: 10) {
+            Button {
+                let attractions = viewModel.attractionsByPark[park.id] ?? []
+                planStore.addTopPicks(from: attractions, park: park)
+                triggerHaptic()
+            } label: {
+                Label("Add Best Waits", systemImage: "wand.and.stars")
+                    .font(DB.mono(11, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(Color(hex: 0x0A0B0D))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(RoundedRectangle(cornerRadius: 12, style: .continuous).fill(accent))
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Add the shortest open waits at \(park.name) to My Day")
+
+            NavigationLink {
+                ParkMapView(parkId: park.id, attractions: mapAttractions)
+                    .navigationTitle(park.name)
+                    .navigationBarTitleDisplayMode(.inline)
+            } label: {
+                    Label("Map", systemImage: "map.fill")
+                        .font(DB.mono(11, weight: .semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(DB.text)
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .background(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .fill(Color.white.opacity(0.05))
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                        .stroke(Color.white.opacity(0.1), lineWidth: 1)
+                                )
+                        )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Open the \(park.name) attraction map")
+        }
+        .padding(.top, 12)
     }
 
     @ViewBuilder
@@ -496,6 +598,25 @@ struct ParkDetailView: View {
         )
     }
 
+    private func crowdBadge(_ level: CrowdLevel) -> some View {
+        let color = DB.crowdColor(for: level)
+        return HStack(spacing: 5) {
+            Image(systemName: level.symbol)
+                .font(.system(size: 10))
+            Text(level.label)
+        }
+        .font(DB.mono(10, weight: .semibold))
+        .tracking(1.2)
+        .foregroundStyle(color)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            Capsule().fill(color.opacity(0.12))
+                .overlay(Capsule().stroke(color.opacity(0.3), lineWidth: 1))
+        )
+        .accessibilityLabel("Crowd level: \(level.label.lowercased())")
+    }
+
     private var backSwipeGesture: some Gesture {
         DragGesture(minimumDistance: 20, coordinateSpace: .local)
             .onEnded { value in
@@ -554,6 +675,7 @@ struct ParkDetailView: View {
                 return ($0.wait_time ?? Int.max) < ($1.wait_time ?? Int.max)
             }
             .filter { a in
+                guard selectedTypeFilter.matches(a.type) else { return false }
                 switch selectedFilter {
                 case .all: return true
                 case .operating: return a.is_open == true

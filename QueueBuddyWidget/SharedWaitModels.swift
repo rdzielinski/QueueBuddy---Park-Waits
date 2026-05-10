@@ -7,6 +7,7 @@ enum WaitCacheReader {
     static let suiteName = "group.Dzielinski.QueueBuddy"
     static let lastSyncKey = "qb.lastSync"
     static let parksKey = "qb.parks"
+    static let favoritesKey = "favorites"
 
     struct CachedPark: Codable, Hashable, Identifiable {
         let id: Int
@@ -40,7 +41,7 @@ enum WaitCacheReader {
     }
 
     static func loadFavoriteAttractions(limit: Int = 4) -> [(park: CachedPark, attraction: CachedAttraction)] {
-        let favoritesData = UserDefaults.standard.data(forKey: "favorites")
+        let favoritesData = defaults.data(forKey: favoritesKey) ?? UserDefaults.standard.data(forKey: favoritesKey)
         let favorites: Set<Int> = favoritesData
             .flatMap { try? JSONDecoder().decode(Set<Int>.self, from: $0) }
             ?? []
@@ -52,6 +53,22 @@ enum WaitCacheReader {
             }
         }
         pairs.sort { ($0.1.waitMinutes ?? Int.max) < ($1.1.waitMinutes ?? Int.max) }
+        return Array(pairs.prefix(limit))
+    }
+
+    static func loadBestWaits(limit: Int = 5) -> [(park: CachedPark, attraction: CachedAttraction)] {
+        var pairs: [(CachedPark, CachedAttraction)] = []
+        for park in loadParks() {
+            for attraction in park.attractions where attraction.isOpen {
+                pairs.append((park, attraction))
+            }
+        }
+        pairs.sort {
+            let left = $0.1.waitMinutes ?? Int.max
+            let right = $1.1.waitMinutes ?? Int.max
+            if left != right { return left < right }
+            return $0.1.name < $1.1.name
+        }
         return Array(pairs.prefix(limit))
     }
 }

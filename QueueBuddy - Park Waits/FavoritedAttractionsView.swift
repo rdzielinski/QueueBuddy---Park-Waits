@@ -15,6 +15,19 @@ struct FavoritedAttractionsView: View {
             .sorted { ($0.wait_time ?? Int.max) < ($1.wait_time ?? Int.max) }
     }
 
+    private var groupedFavorites: [(park: Park, attractions: [Attraction])] {
+        viewModel.resortGroups
+            .flatMap { $0.parks }
+            .compactMap { park in
+                let attractions = (viewModel.attractionsByPark[park.id] ?? [])
+                    .filter { viewModel.isFavorited(attractionId: $0.id) }
+                    .filter { searchText.isEmpty || $0.name.localizedCaseInsensitiveContains(searchText) }
+                    .sorted { ($0.wait_time ?? Int.max) < ($1.wait_time ?? Int.max) }
+                guard !attractions.isEmpty else { return nil }
+                return (park, attractions)
+            }
+    }
+
     /// Park accent color for a favorited attraction's home park.
     private func accent(for attractionId: Int) -> Color {
         let parkId = viewModel.attractionsByPark
@@ -37,41 +50,9 @@ struct FavoritedAttractionsView: View {
                             emptyState
                                 .padding(.top, 40)
                         } else {
-                            VStack(spacing: 0) {
-                                ForEach(Array(favoritedAttractions.enumerated()), id: \.element.id) { idx, attraction in
-                                    NavigationLink(value: attraction) {
-                                        AttractionRowCardView(
-                                            attraction: attraction,
-                                            routeColor: accent(for: attraction.id),
-                                            showMetaLine: true
-                                        )
-                                    }
-                                    .buttonStyle(.plain)
-                                    #if !os(tvOS)
-                                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                                        Button {
-                                            viewModel.toggleFavorite(attractionId: attraction.id)
-                                            triggerHaptic()
-                                        } label: {
-                                            Label("Unfavorite", systemImage: "star.slash")
-                                        }
-                                        .tint(.yellow)
-                                    }
-                                    #endif
-                                    if idx < favoritedAttractions.count - 1 {
-                                        Rectangle().fill(DB.line).frame(height: 1)
-                                    }
-                                }
+                            ForEach(groupedFavorites, id: \.park.id) { group in
+                                favoriteSection(park: group.park, attractions: group.attractions)
                             }
-                            .background(
-                                RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                    .fill(DB.card)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                            .stroke(Color.white.opacity(0.05), lineWidth: 1)
-                                    )
-                            )
-                            .padding(.horizontal, 16)
                         }
 
                         Color.clear.frame(height: 120)
@@ -79,12 +60,71 @@ struct FavoritedAttractionsView: View {
                 }
                 .refreshable {
                     await viewModel.refreshAllWaits()
+                    triggerHaptic()
                 }
             }
             .toolbar(.hidden, for: .navigationBar)
+            .swipeBackEnabled()
             .navigationDestination(for: Attraction.self) { attraction in
                 AttractionDetailView(attraction: attraction)
             }
+        }
+    }
+
+    private func favoriteSection(park: Park, attractions: [Attraction]) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Circle()
+                    .fill(DB.accent(for: park.id))
+                    .frame(width: 6, height: 6)
+                    .shadow(color: DB.accent(for: park.id), radius: 4)
+                MonoLabel(text: park.name.uppercased(), color: DB.muted, tracking: 1.5, size: 10)
+                Spacer()
+                if let best = attractions.first {
+                    Text("BEST: \(best.waitTimeDisplay.uppercased())")
+                        .font(DB.mono(10, weight: .semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(DB.waitTone(for: best.wait_time))
+                        .lineLimit(1)
+                }
+            }
+            .padding(.horizontal, 20)
+
+            VStack(spacing: 0) {
+                ForEach(Array(attractions.enumerated()), id: \.element.id) { idx, attraction in
+                    NavigationLink(value: attraction) {
+                        AttractionRowCardView(
+                            attraction: attraction,
+                            routeColor: accent(for: attraction.id),
+                            showMetaLine: true
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    #if !os(tvOS)
+                    .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+                        Button {
+                            viewModel.toggleFavorite(attractionId: attraction.id)
+                            triggerHaptic()
+                        } label: {
+                            Label("Unfavorite", systemImage: "star.slash")
+                        }
+                        .tint(.yellow)
+                    }
+                    #endif
+                    if idx < attractions.count - 1 {
+                        Rectangle().fill(DB.line).frame(height: 1)
+                    }
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .fill(DB.card)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .stroke(Color.white.opacity(0.05), lineWidth: 1)
+                    )
+            )
+            .padding(.horizontal, 16)
         }
     }
 
@@ -103,6 +143,8 @@ struct FavoritedAttractionsView: View {
         }
         .padding(.horizontal, 20)
         .padding(.top, 8)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel("\(favoritedAttractions.count) favorite attractions saved")
     }
 
     private var searchBar: some View {

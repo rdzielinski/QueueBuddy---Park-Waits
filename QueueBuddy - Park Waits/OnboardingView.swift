@@ -72,6 +72,7 @@ struct OnboardingView: View {
                     }
                 }
             }
+            .swipeBackEnabled()
             .onAppear { tempDisplayName = userDisplayName }
         }
     }

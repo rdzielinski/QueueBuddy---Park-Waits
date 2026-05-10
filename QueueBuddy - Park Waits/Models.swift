@@ -97,6 +97,68 @@ enum AttractionFilter: String, CaseIterable, Identifiable {
     var id: String { self.rawValue }
 }
 
+enum AttractionTypeFilter: String, CaseIterable, Identifiable {
+    case all = "All Types"
+    case coaster = "Coasters"
+    case darkride = "Dark Rides"
+    case water = "Water Rides"
+    case show = "Shows"
+    case spinner = "Spinners"
+    case simulator = "Simulators"
+    case meet = "Characters"
+    case shooter = "Shooters"
+    case experience = "Experiences"
+    var id: String { rawValue }
+
+    func matches(_ type: String?) -> Bool {
+        if self == .all { return true }
+        guard let type = type?.lowercased() else { return false }
+        switch self {
+        case .all: return true
+        case .coaster: return type == "coaster"
+        case .darkride: return type == "darkride"
+        case .water: return type == "water" || type == "boat"
+        case .show: return type == "show"
+        case .spinner: return type == "spinner" || type == "carousel"
+        case .simulator: return type == "simulator"
+        case .meet: return type == "meet"
+        case .shooter: return type == "shooter"
+        case .experience: return type == "experience" || type == "train" || type == "car"
+        }
+    }
+}
+
+enum CrowdLevel: Int, CaseIterable {
+    case low = 1, moderate = 2, busy = 3, packed = 4
+
+    var label: String {
+        switch self {
+        case .low: return "LOW"
+        case .moderate: return "MODERATE"
+        case .busy: return "BUSY"
+        case .packed: return "PACKED"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .low: return "person"
+        case .moderate: return "person.2"
+        case .busy: return "person.3"
+        case .packed: return "person.3.fill"
+        }
+    }
+
+    static func from(averageWait: Int) -> CrowdLevel {
+        switch averageWait {
+        case ...10: return .low
+        case ...25: return .moderate
+        case ...45: return .busy
+        default: return .packed
+        }
+    }
+}
+
 enum AttractionSort: String, CaseIterable, Identifiable {
     case nameAsc = "Name (A-Z)", waitTimeAsc = "Wait (Shortest)", waitTimeDesc = "Wait (Longest)"
     var id: String { self.rawValue }
@@ -124,7 +186,7 @@ struct Event: Identifiable, Hashable {
 enum EventType: String, CaseIterable, Identifiable, Codable {
     case show, parade, fireworks, characterGreeting, other
     var id: String { self.rawValue.capitalized }
-    
+
     var symbol: String {
         switch self {
         case .show: return "music.mic.fill"
@@ -133,5 +195,58 @@ enum EventType: String, CaseIterable, Identifiable, Codable {
         case .characterGreeting: return "face.smiling.fill"
         case .other: return "info.circle.fill"
         }
+    }
+}
+
+// MARK: - Fuzzy Search
+
+enum FuzzySearch {
+    /// Returns a score 0…1 for how well `query` matches `target`.
+    /// 1.0 = exact prefix, 0.0 = no match. Returns nil below threshold.
+    static func score(_ query: String, against target: String, threshold: Double = 0.3) -> Double? {
+        let q = query.lowercased()
+        let t = target.lowercased()
+
+        if t.hasPrefix(q) { return 1.0 }
+        if t.contains(q) { return 0.9 }
+
+        // Subsequence match: all chars of query appear in order
+        var qi = q.startIndex
+        for ch in t {
+            if qi < q.endIndex && ch == q[qi] {
+                qi = q.index(after: qi)
+            }
+        }
+        if qi == q.endIndex {
+            let ratio = Double(q.count) / Double(t.count)
+            let score = 0.5 + ratio * 0.3
+            return score >= threshold ? score : nil
+        }
+
+        // Edit distance fallback for short queries (typo tolerance)
+        if q.count >= 3 && q.count <= t.count + 2 {
+            let dist = editDistance(q, t.prefix(min(t.count, q.count + 4)))
+            let maxLen = max(q.count, min(t.count, q.count + 4))
+            let score = 1.0 - Double(dist) / Double(maxLen)
+            return score >= threshold ? score * 0.7 : nil
+        }
+
+        return nil
+    }
+
+    private static func editDistance<S1: StringProtocol, S2: StringProtocol>(_ s1: S1, _ s2: S2) -> Int {
+        let n = s2.count
+        var prev = Array(0...n)
+        var curr = [Int](repeating: 0, count: n + 1)
+        for (i, c1) in s1.enumerated() {
+            curr[0] = i + 1
+            for (j, c2) in s2.enumerated() {
+                curr[j + 1] = c1 == c2
+                    ? prev[j]
+                    : 1 + min(prev[j], prev[j + 1], curr[j])
+            }
+            swap(&prev, &curr)
+        }
+        return prev[n]
     }
 }
