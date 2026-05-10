@@ -25,7 +25,8 @@ enum LiveActivityBackend {
 
     /// Edit this once you've deployed the Worker. Leave nil to disable
     /// remote Live Activity updates entirely.
-    private static let compiledInDefault: URL? = nil
+    private static let compiledInDefault: URL? =
+        URL(string: "https://queuebuddy-push.robbydz-villages.workers.dev")
 
     static func register(
         attractionId: Int,
