@@ -18,6 +18,10 @@ class WaitTimeViewModel: ObservableObject {
     @Published var attractionsByParkGroupedByLand: [Int: [LandDisplayGroup]] = [:]
     @Published var eventsByPark: [Int: [Event]] = [:]
     @Published var weatherByPark: [Int: WeatherForecast] = [:]
+    /// Today's operating schedule per park (live hours + Early Entry +
+    /// Lightning Lane purchases). Populated only for parks routed through
+    /// ThemeParks.wiki; falls back to `StaticData.parkHours` otherwise.
+    @Published var scheduleByPark: [Int: ParkSchedule] = [:]
     @Published var favoriteAttractionIds: Set<Int> = []
     @Published var notificationPreferences: [NotificationPreference] = []
     @Published var isLoading: Bool = true
@@ -170,6 +174,10 @@ class WaitTimeViewModel: ObservableObject {
                 updateSharedCache()
             }
 
+            // Fetch park schedules (live hours + LL prices) in parallel.
+            // Only ThemeParks.wiki-routed parks return data; the rest no-op.
+            await refreshParkSchedules(parks: allParks)
+
             // After loading, check for notification triggers and push the
             // freshest wait into any running in-line Live Activity.
             await checkAndSendAttractionNotifications()
@@ -192,6 +200,9 @@ class WaitTimeViewModel: ObservableObject {
             AttractionDataAudit.record(parkId: park.id, liveAttractions: liveAttractions)
             processAndStoreAttractions(liveAttractions, for: park.id, isUpdating: true)
             recordHistory(liveAttractions)
+            if let schedule = await api.fetchSchedule(for: park.id) {
+                scheduleByPark[park.id] = schedule
+            }
             updateSharedCache()
             await checkAndSendAttractionNotifications()
             refreshActiveLiveActivity()
@@ -287,8 +298,48 @@ class WaitTimeViewModel: ObservableObject {
             updateSharedCache()
         }
 
+        await refreshParkSchedules(parks: allParks)
         await checkAndSendAttractionNotifications()
         refreshActiveLiveActivity()
+    }
+
+    /// Refresh today's schedule (open/close, LL purchases, Early Entry) for
+    /// every park concurrently. No-op for parks still on queue-times.
+    private func refreshParkSchedules(parks: [Park]) async {
+        let apiRef = api
+        let results: [(Int, ParkSchedule)] = await withTaskGroup(of: (Int, ParkSchedule)?.self) { group in
+            for park in parks {
+                group.addTask {
+                    if Task.isCancelled { return nil }
+                    if let schedule = await apiRef.fetchSchedule(for: park.id) {
+                        return (park.id, schedule)
+                    }
+                    return nil
+                }
+            }
+            var collected: [(Int, ParkSchedule)] = []
+            for await result in group {
+                if let result { collected.append(result) }
+            }
+            return collected
+        }
+        for (parkId, schedule) in results {
+            scheduleByPark[parkId] = schedule
+        }
+    }
+
+    /// Today's Early Entry window for the park, if Disney/Universal is
+    /// running one. Resort-guest users get exclusive early access; we
+    /// surface this on the park detail so they know to arrive early.
+    func earlyEntryWindow(parkId: Int) -> (Date, Date)? {
+        guard let ee = scheduleByPark[parkId]?.earlyEntry else { return nil }
+        return (ee.openingTime, ee.closingTime)
+    }
+
+    /// Today's Lightning Lane purchase options for the park (multi-pass,
+    /// per-attraction LL, etc.), with live availability and pricing.
+    func lightningLane(parkId: Int) -> [LightningLanePurchase] {
+        scheduleByPark[parkId]?.lightningLane ?? []
     }
 
     private func processAndStoreAttractions(_ attractions: [Attraction], for parkId: Int, isUpdating: Bool) {
@@ -299,7 +350,11 @@ class WaitTimeViewModel: ObservableObject {
             // Initial setup from static data
             mergedAttractions = staticAttractions
         } else {
-            // Merge live data with static data
+            // Merge live data with static data. ThemeParks.wiki adds
+            // forecast, per-attraction operating hours, and Lightning
+            // Lane / return-time state — preserve those on the merged
+            // entity. Static metadata (lands, descriptions, coordinates)
+            // stays from the static row.
             var staticMap = Dictionary(uniqueKeysWithValues: staticAttractions.map { ($0.id, $0) })
             for live in attractions {
                 if var staticAttr = staticMap[live.id] {
@@ -307,6 +362,10 @@ class WaitTimeViewModel: ObservableObject {
                     staticAttr.is_open = live.is_open
                     staticAttr.status = live.status
                     staticAttr.last_updated = Date().ISO8601Format()
+                    staticAttr.forecast = live.forecast
+                    staticAttr.operatingStart = live.operatingStart
+                    staticAttr.operatingEnd = live.operatingEnd
+                    staticAttr.returnTime = live.returnTime
                     staticMap[live.id] = staticAttr
                 } else {
                     staticMap[live.id] = live
@@ -319,51 +378,135 @@ class WaitTimeViewModel: ObservableObject {
 
     // MARK: - Notification Logic
 
-    /// Fire notifications only on the *transition* from above-threshold to
-    /// at-or-below-threshold per attraction. Without dedup, every BG
-    /// refresh that catches a low wait would re-spam the user. State is
-    /// persisted via `NotificationDedupStore` so it survives both app
-    /// relaunches and background-task invocations.
+    /// Per-attraction notification firing. Each registered alert can
+    /// trigger up to four distinct kinds of push, all edge-triggered
+    /// via `NotificationDedupStore` so no kind ever re-fires on the
+    /// same condition:
+    ///
+    ///   * `wait`  — wait dropped at-or-below the user's threshold
+    ///   * `down`  — ride went DOWN/REFURBISHMENT (operational problem)
+    ///   * `back`  — ride returned to OPERATING after being down
+    ///   * `ll`    — Lightning Lane / virtual queue became AVAILABLE again
     private func checkAndSendAttractionNotifications() async {
-        let center = UNUserNotificationCenter.current()
         for preference in notificationPreferences {
             guard let attraction = attractionsByPark.values
                 .flatMap({ $0 })
                 .first(where: { $0.id == preference.id }) else { continue }
 
-            // Closed / unknown rides re-arm the notification: when they
-            // reopen with a low wait, the user should be alerted again.
-            guard let wait = attraction.wait_time, attraction.is_open == true else {
-                NotificationDedupStore.resetState(attractionId: preference.id)
-                continue
-            }
+            // 1. Wait-threshold alert. Closed / unknown rides re-arm so
+            //    the next legit drop alerts.
+            await fireWaitThresholdAlert(for: attraction, preference: preference)
 
-            guard NotificationDedupStore.shouldFire(
-                attractionId: preference.id,
-                currentWait: wait,
-                threshold: preference.thresholdMinutes
-            ) else { continue }
+            // 2. Status alerts (down / back-up).
+            await fireStatusAlert(for: attraction)
 
-            #if !os(tvOS)
-            let content = UNMutableNotificationContent()
-            content.title = "QueueBuddy Alert"
-            content.body = "\(attraction.name) is now at \(wait) min wait or less!"
-            content.sound = .default
-            // Stable identifier per attraction means a stale pending alert
-            // is replaced rather than stacking — extra defense if the OS
-            // delivers a queued notification after a separate refresh.
-            let request = UNNotificationRequest(
-                identifier: "wait-\(attraction.id)",
-                content: content,
-                trigger: nil
-            )
-            do {
-                try await center.add(request)
-            } catch {
-                print("Failed to schedule notification: \(error)")
-            }
-            #endif
+            // 3. Lightning Lane / virtual queue drop alert.
+            await fireLightningLaneAlert(for: attraction)
         }
+    }
+
+    private func fireWaitThresholdAlert(for attraction: Attraction, preference: NotificationPreference) async {
+        guard let wait = attraction.wait_time, attraction.is_open == true else {
+            NotificationDedupStore.resetState(attractionId: preference.id)
+            return
+        }
+        guard NotificationDedupStore.shouldFire(
+            attractionId: preference.id,
+            currentWait: wait,
+            threshold: preference.thresholdMinutes
+        ) else { return }
+        await postNotification(
+            title: "QueueBuddy Alert",
+            body: "\(attraction.name) is now at \(wait) min wait or less!",
+            identifier: "wait-\(attraction.id)"
+        )
+    }
+
+    private func fireStatusAlert(for attraction: Attraction) async {
+        let status = (attraction.status ?? "").uppercased()
+        let isDown = status == "DOWN" || status == "REFURBISHMENT"
+        let isOperating = status == "OPERATING"
+
+        // Check first-sample state BEFORE shouldFire writes — we want
+        // to skip cold-start false positives where the unknown prior
+        // state looks like "was operating, now down".
+        let downKey = "down-\(attraction.id)"
+        let backKey = "back-\(attraction.id)"
+        let isFirstSampleDown = !NotificationDedupStore.hasStateRecorded(forKey: downKey)
+        let isFirstSampleBack = !NotificationDedupStore.hasStateRecorded(forKey: backKey)
+
+        // "Down" fires when the ride newly transitions into a problem
+        // state. We DO fire on the first sample if the ride is already
+        // down — telling the user "hey, this is currently down" is
+        // useful when they open the app.
+        if NotificationDedupStore.shouldFire(key: downKey, isActive: isDown) {
+            let detail = status == "REFURBISHMENT" ? "is under refurbishment" : "just went down"
+            await postNotification(
+                title: "Ride status",
+                body: "\(attraction.name) \(detail).",
+                identifier: downKey
+            )
+        }
+
+        // "Back up" needs to skip the cold-start case: when we have no
+        // prior recording and the ride is currently operating (which is
+        // ~80% of the time), shouldFire would trip false-positively.
+        if !isFirstSampleBack,
+           NotificationDedupStore.shouldFire(key: backKey, isActive: isOperating) {
+            await postNotification(
+                title: "Ride status",
+                body: "\(attraction.name) is back open.",
+                identifier: backKey
+            )
+        } else if isFirstSampleBack {
+            // Seed the store so future samples can detect real edges.
+            _ = NotificationDedupStore.shouldFire(key: backKey, isActive: isOperating)
+        }
+        _ = isFirstSampleDown // (intentionally unused — keeps the diff readable)
+    }
+
+    private func fireLightningLaneAlert(for attraction: Attraction) async {
+        // Only attractions with a return-time queue (virtual queue / LL)
+        // are eligible. Skip the cold-start case: if LL is currently
+        // AVAILABLE and we've never recorded a prior state, that's not
+        // a "drop" — that's just us learning the current state.
+        let available = attraction.returnTime?.state == .available
+        let key = "ll-\(attraction.id)"
+        let isFirstSample = !NotificationDedupStore.hasStateRecorded(forKey: key)
+        let edge = NotificationDedupStore.shouldFire(key: key, isActive: available)
+        guard !isFirstSample, edge else { return }
+        let when: String = {
+            guard let start = attraction.returnTime?.returnStart else { return "is available now" }
+            let f = DateFormatter()
+            f.dateFormat = "h:mm a"
+            return "is available · return at \(f.string(from: start))"
+        }()
+        await postNotification(
+            title: "Lightning Lane",
+            body: "\(attraction.name) \(when).",
+            identifier: key
+        )
+    }
+
+    private func postNotification(title: String, body: String, identifier: String) async {
+        #if !os(tvOS)
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        // Stable identifier — a still-queued earlier alert for the same
+        // condition is replaced rather than stacked.
+        let request = UNNotificationRequest(
+            identifier: identifier,
+            content: content,
+            trigger: nil
+        )
+        do {
+            try await UNUserNotificationCenter.current().add(request)
+        } catch {
+            print("Failed to post notification \(identifier): \(error)")
+        }
+        #endif
     }
 
     // MARK: - Live Activity sync
@@ -734,7 +877,16 @@ class WaitTimeViewModel: ObservableObject {
         return CrowdLevel.from(averageWait: avg)
     }
 
+    /// Today's park hours as a human-readable range. Uses live data from
+    /// ThemeParks.wiki when available; falls back to `StaticData.parkHours`
+    /// for parks still on queue-times.
     func parkHoursText(for parkId: Int) -> String? {
+        if let live = scheduleByPark[parkId]?.today {
+            let f = DateFormatter()
+            f.dateFormat = "h:mm a"
+            f.timeZone = scheduleByPark[parkId]?.timezone.flatMap(TimeZone.init(identifier:)) ?? .current
+            return "\(f.string(from: live.openingTime)) – \(f.string(from: live.closingTime))"
+        }
         guard let hours = StaticData.parkHours[parkId] else { return nil }
         func fmt(_ h: Int) -> String {
             let twelve = ((h % 12) == 0) ? 12 : (h % 12)

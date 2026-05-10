@@ -392,12 +392,18 @@ struct ParkDetailView: View {
                         .foregroundStyle(DB.muted)
                         .accessibilityLabel("Park hours \(hours)")
                     }
+                    if let ee = viewModel.earlyEntryWindow(parkId: park.id) {
+                        earlyEntryPill(start: ee.0)
+                    }
                     if let crowd = viewModel.crowdLevel(for: park.id) {
                         crowdBadge(crowd)
                     }
                     Spacer()
                 }
                 .padding(.top, 4)
+
+                lightningLaneStrip
+                    .padding(.top, 8)
 
                 parkActionRow
 
@@ -596,6 +602,76 @@ struct ParkDetailView: View {
                         .stroke(Color.white.opacity(0.05), lineWidth: 1)
                 )
         )
+    }
+
+    /// "EARLY ENTRY 8:30 AM" pill shown when the park has a live Early
+    /// Entry ticketed event today. Resort-guest users use this to plan
+    /// arrival; everyone else gets a heads-up to skip the queue.
+    private func earlyEntryPill(start: Date) -> some View {
+        let f = DateFormatter()
+        f.dateFormat = "h:mm a"
+        return HStack(spacing: 4) {
+            Image(systemName: "sunrise.fill")
+                .font(.system(size: 10))
+            Text("EARLY \(f.string(from: start).uppercased())")
+        }
+        .font(DB.mono(10, weight: .semibold))
+        .tracking(1.2)
+        .foregroundStyle(DB.amber)
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(
+            Capsule().fill(DB.amber.opacity(0.14))
+                .overlay(Capsule().stroke(DB.amber.opacity(0.32), lineWidth: 1))
+        )
+        .accessibilityLabel("Early Entry starting at \(f.string(from: start))")
+    }
+
+    /// Horizontally-scrolling row of Lightning Lane / Genie+ purchase
+    /// options for today, with live availability + pricing. Hidden when
+    /// the park doesn't expose LL data (queue-times parks, or before LL
+    /// goes live for the day).
+    @ViewBuilder
+    private var lightningLaneStrip: some View {
+        let options = viewModel.lightningLane(parkId: park.id)
+        if !options.isEmpty {
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(options) { option in
+                        lightningLaneChip(option)
+                    }
+                }
+            }
+            .accessibilityElement(children: .contain)
+            .accessibilityLabel("Lightning Lane options")
+        }
+    }
+
+    private func lightningLaneChip(_ option: LightningLanePurchase) -> some View {
+        let tone: Color = option.available ? DB.green : DB.muted
+        return HStack(spacing: 6) {
+            Image(systemName: option.available ? "bolt.fill" : "bolt.slash")
+                .font(.system(size: 10, weight: .semibold))
+            VStack(alignment: .leading, spacing: 0) {
+                Text(option.name)
+                    .font(.system(size: 11, weight: .semibold))
+                    .lineLimit(1)
+                if let price = option.priceFormatted {
+                    Text(option.available ? price : "Sold out")
+                        .font(.system(size: 10))
+                        .foregroundStyle(tone.opacity(0.85))
+                }
+            }
+        }
+        .foregroundStyle(tone)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            Capsule().fill(tone.opacity(0.12))
+                .overlay(Capsule().stroke(tone.opacity(0.3), lineWidth: 1))
+        )
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("\(option.name) \(option.available ? (option.priceFormatted ?? "available") : "sold out")")
     }
 
     private func crowdBadge(_ level: CrowdLevel) -> some View {

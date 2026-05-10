@@ -23,27 +23,46 @@ enum NotificationDedupStore {
     /// from "above threshold" to "at or below threshold".
     static func shouldFire(attractionId: Int, currentWait: Int, threshold: Int) -> Bool {
         let isBelow = currentWait <= threshold
-        let wasBelow = lastBelowState(attractionId: attractionId) ?? false
-        setBelowState(attractionId: attractionId, isBelow: isBelow)
-        let fire = isBelow && !wasBelow
+        let fire = shouldFire(key: String(attractionId), isActive: isBelow)
         #if DEBUG
-        print("🔔 dedup \(attractionId): wait=\(currentWait) ≤ \(threshold)? \(isBelow), wasBelow=\(wasBelow), fire=\(fire)")
+        print("🔔 dedup \(attractionId): wait=\(currentWait) ≤ \(threshold)? \(isBelow), fire=\(fire)")
         #endif
         return fire
     }
 
-    /// Treat the attraction as "above threshold" again — used when the
-    /// ride closes or wait becomes unknown. Closures shouldn't suppress
-    /// the next legitimate alert when the ride reopens with a low wait.
-    static func resetState(attractionId: Int) {
-        setBelowState(attractionId: attractionId, isBelow: false)
+    /// Generic edge-trigger: fires once on the false→true transition of
+    /// `isActive` for a given storage key. Used for status changes,
+    /// Lightning Lane drops, and any future per-attraction signals.
+    /// Caller picks a key that namespaces the event (e.g. "down-\(id)").
+    static func shouldFire(key: String, isActive: Bool) -> Bool {
+        let wasActive = currentMap()[key] ?? false
+        setState(key: key, isActive: isActive)
+        return isActive && !wasActive
     }
 
-    /// Forget a removed notification preference so we don't keep stale
-    /// per-attraction state forever.
+    /// True iff we've never recorded any state for this key — used by
+    /// callers that want to skip the cold-start "false → true" fire on
+    /// the very first sample (e.g. "this LL just became available")
+    /// because there was no real prior state to transition from.
+    static func hasStateRecorded(forKey key: String) -> Bool {
+        currentMap()[key] != nil
+    }
+
+    /// Treat the attraction's wait-threshold as "above threshold" again
+    /// — used when the ride closes or the wait becomes unknown. Closures
+    /// shouldn't suppress the next legitimate alert when the ride
+    /// reopens with a low wait.
+    static func resetState(attractionId: Int) {
+        setState(key: String(attractionId), isActive: false)
+    }
+
+    /// Forget all per-attraction state for a removed notification
+    /// preference (wait-threshold, status, LL — every event kind).
     static func clear(attractionId: Int) {
+        let suffix = "-\(attractionId)"
+        let bareKey = String(attractionId)
         var dict = currentMap()
-        dict.removeValue(forKey: String(attractionId))
+        dict = dict.filter { k, _ in k != bareKey && !k.hasSuffix(suffix) }
         persist(dict)
     }
 
@@ -57,13 +76,9 @@ enum NotificationDedupStore {
         return decoded
     }
 
-    private static func lastBelowState(attractionId: Int) -> Bool? {
-        currentMap()[String(attractionId)]
-    }
-
-    private static func setBelowState(attractionId: Int, isBelow: Bool) {
+    private static func setState(key: String, isActive: Bool) {
         var dict = currentMap()
-        dict[String(attractionId)] = isBelow
+        dict[key] = isActive
         persist(dict)
     }
 

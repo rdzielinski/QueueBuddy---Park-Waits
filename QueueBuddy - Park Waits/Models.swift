@@ -57,6 +57,28 @@ struct ResortGroup: Identifiable {
     let parks: [Park]
 }
 
+/// A single forecast point from ThemeParks.wiki — hourly wait prediction
+/// for one attraction. We get ~14 hours of these per attraction.
+public struct ForecastPoint: Hashable, Codable {
+    public let time: Date
+    public let waitMinutes: Int
+    public let percentage: Int
+}
+
+/// Lightning Lane / virtual queue return-time window state for one
+/// attraction. Surfaces alongside the standard standby wait so users can
+/// see "LL available, return at 3:35pm" or "LL sold out".
+public struct ReturnTimeState: Hashable, Codable {
+    public enum State: String, Codable, Hashable {
+        case available    = "AVAILABLE"   // window assigned, ride in the future
+        case temporarilyFull = "TEMPORARILY_FULL"
+        case finished     = "FINISHED"     // sold out / window closed
+    }
+    public let state: State
+    public let returnStart: Date?
+    public let returnEnd: Date?
+}
+
 public struct Attraction: Identifiable, Hashable {
     public let id: Int
     public var name: String
@@ -69,6 +91,16 @@ public struct Attraction: Identifiable, Hashable {
     public var min_height_inches: Int?
     public var latitude: Double?
     public var longitude: Double?
+    /// Hourly forecast for the rest of today, when available
+    /// (ThemeParks.wiki only). Sorted earliest → latest.
+    public var forecast: [ForecastPoint]?
+    /// Per-attraction operating window for today, when available. Distinct
+    /// from park hours — many rides open later / close earlier than the
+    /// park itself.
+    public var operatingStart: Date?
+    public var operatingEnd: Date?
+    /// Virtual queue / Lightning Lane return-time state, when applicable.
+    public var returnTime: ReturnTimeState?
 
     public var waitTimeDisplay: String {
         guard is_open == true else { return "Closed" }
@@ -79,9 +111,77 @@ public struct Attraction: Identifiable, Hashable {
         guard is_open == true else { return Int.max }
         return wait_time ?? (Int.max - 1)
     }
-    init(id: Int, name: String, wait_time: Int?, status: String?, is_open: Bool?, last_updated: String? = nil, type: String? = nil, description: String? = nil, min_height_inches: Int? = nil, latitude: Double? = nil, longitude: Double? = nil) {
-        self.id = id; self.name = name; self.wait_time = wait_time; self.status = status; self.is_open = is_open; self.last_updated = last_updated; self.type = type; self.description = description; self.min_height_inches = min_height_inches; self.latitude = latitude; self.longitude = longitude
+
+    /// True iff the ride closes within the next 30 minutes — UI uses this
+    /// for a "closing soon" badge and heat-aware recs use it to filter
+    /// out rides we'd waste a recommendation on.
+    public var closesSoon: Bool {
+        guard let end = operatingEnd else { return false }
+        let delta = end.timeIntervalSinceNow
+        return delta > 0 && delta < 30 * 60
     }
+
+    init(
+        id: Int,
+        name: String,
+        wait_time: Int?,
+        status: String?,
+        is_open: Bool?,
+        last_updated: String? = nil,
+        type: String? = nil,
+        description: String? = nil,
+        min_height_inches: Int? = nil,
+        latitude: Double? = nil,
+        longitude: Double? = nil,
+        forecast: [ForecastPoint]? = nil,
+        operatingStart: Date? = nil,
+        operatingEnd: Date? = nil,
+        returnTime: ReturnTimeState? = nil
+    ) {
+        self.id = id
+        self.name = name
+        self.wait_time = wait_time
+        self.status = status
+        self.is_open = is_open
+        self.last_updated = last_updated
+        self.type = type
+        self.description = description
+        self.min_height_inches = min_height_inches
+        self.latitude = latitude
+        self.longitude = longitude
+        self.forecast = forecast
+        self.operatingStart = operatingStart
+        self.operatingEnd = operatingEnd
+        self.returnTime = returnTime
+    }
+}
+
+// MARK: - Park Schedule (ThemeParks.wiki /schedule)
+
+/// One day's worth of operating data for a park: today's open/close, any
+/// Early Entry ticketed event, and today's Lightning Lane purchase options.
+public struct ParkSchedule: Hashable, Codable {
+    public let parkId: Int
+    public let timezone: String?
+    public let today: ScheduleEntry?
+    public let earlyEntry: ScheduleEntry?
+    public let lightningLane: [LightningLanePurchase]
+}
+
+public struct ScheduleEntry: Hashable, Codable {
+    public let date: String
+    public let openingTime: Date
+    public let closingTime: Date
+    public let type: String           // "OPERATING", "TICKETED_EVENT", etc.
+    public let description: String?
+}
+
+public struct LightningLanePurchase: Hashable, Codable, Identifiable {
+    public let id: String
+    public let name: String
+    public let priceFormatted: String?
+    public let priceCents: Int?
+    public let available: Bool
 }
 
 // MARK: - UI & State Models

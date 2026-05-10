@@ -8,14 +8,18 @@ import Foundation
 /// to fetch directly from queue-times.
 enum FeatureFlags {
     /// Park IDs that should attempt ThemeParks.wiki before queue-times.
-    /// Magic Kingdom (6) is the initial rollout — expand as we validate
-    /// per-park parity. Override at runtime via the user defaults key
-    /// `qb.themeparkswiki.enabledParks` (comma-separated int list).
+    /// All 7 supported parks are on the rollout — Magic Kingdom shipped
+    /// first and we've validated parity for the rest. Override at
+    /// runtime via the user-defaults key `qb.themeparkswiki.enabledParks`
+    /// (comma-separated int list, or empty string to disable).
     static var useThemeParksWikiForParks: Set<Int> {
-        let defaults: Set<Int> = [6]
+        let defaults: Set<Int> = [5, 6, 7, 8, 64, 65, 334]
         guard let raw = UserDefaults.standard.string(forKey: "qb.themeparkswiki.enabledParks") else {
             return defaults
         }
+        // Empty-string override disables ThemeParks.wiki entirely (forces
+        // every park back onto queue-times). Useful for emergency rollback.
+        if raw.trimmingCharacters(in: .whitespaces).isEmpty { return [] }
         let overrides = raw.split(separator: ",")
             .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
         return overrides.isEmpty ? defaults : Set(overrides)
@@ -52,6 +56,20 @@ class ThemeParkAPI {
             }
         }
         return try await fetchWaitTimesFromQueueTimes(for: parkId)
+    }
+
+    /// Fetch today's operating schedule for a park (open/close, Early Entry,
+    /// Lightning Lane prices). Only available for parks routed through
+    /// ThemeParks.wiki — returns nil for parks still on queue-times since
+    /// queue-times doesn't expose schedules in a structured form.
+    func fetchSchedule(for parkId: Int) async -> ParkSchedule? {
+        guard FeatureFlags.useThemeParksWikiForParks.contains(parkId) else { return nil }
+        do {
+            return try await themeParksWiki.fetchSchedule(forParkId: parkId)
+        } catch {
+            print("⚠️ ThemeParks.wiki schedule failed for park \(parkId): \(error)")
+            return nil
+        }
     }
 
     private func fetchWaitTimesFromQueueTimes(for parkId: Int) async throws -> [Attraction] {

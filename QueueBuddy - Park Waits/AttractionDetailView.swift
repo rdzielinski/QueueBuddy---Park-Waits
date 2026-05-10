@@ -82,6 +82,12 @@ struct AttractionDetailView: View {
                     trendingBlock
                         .padding(.horizontal, 16)
 
+                    forecastBlock
+                        .padding(.horizontal, 16)
+
+                    liveStatusStrip
+                        .padding(.horizontal, 16)
+
                     inLineToggle
                         .padding(.horizontal, 16)
 
@@ -446,6 +452,126 @@ struct AttractionDetailView: View {
                             )
                     )
             }
+        }
+    }
+
+    @ViewBuilder
+    private var forecastBlock: some View {
+        if let forecast = attraction.forecast, forecast.count >= 3 {
+            VStack(alignment: .leading, spacing: 10) {
+                HStack {
+                    MonoLabel(text: "→ FORECAST · NEXT 14 HOURS", color: DB.muted)
+                    Spacer()
+                    if let summary = forecastSummary(forecast) {
+                        Text(summary)
+                            .font(DB.mono(10, weight: .bold))
+                            .tracking(1.5)
+                            .foregroundStyle(DB.muted)
+                    }
+                }
+                ForecastChart(points: forecast, tone: waitTone)
+                    .frame(height: 100)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .fill(DB.card)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
+                            )
+                    )
+            }
+        }
+    }
+
+    /// "PEAK 65M · 4P" — surfaces the upcoming peak wait + when.
+    private func forecastSummary(_ points: [ForecastPoint]) -> String? {
+        let upcoming = points.filter { $0.time >= Date() }
+        guard let peak = upcoming.max(by: { $0.waitMinutes < $1.waitMinutes }) else { return nil }
+        let f = DateFormatter()
+        f.dateFormat = "ha"
+        return "PEAK \(peak.waitMinutes)M · \(f.string(from: peak.time).uppercased())"
+    }
+
+    @ViewBuilder
+    private var liveStatusStrip: some View {
+        // Compose hours + return-time chips. Don't render the surrounding
+        // card if we have nothing to say.
+        let hasHours = attraction.operatingStart != nil || attraction.operatingEnd != nil
+        let hasReturnTime = attraction.returnTime != nil
+        if hasHours || hasReturnTime {
+            VStack(alignment: .leading, spacing: 10) {
+                MonoLabel(text: "→ TODAY", color: DB.muted)
+                HStack(spacing: 10) {
+                    if hasHours { operatingHoursChip }
+                    if hasReturnTime { returnTimeChip }
+                    Spacer()
+                }
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var operatingHoursChip: some View {
+        let formatter: DateFormatter = {
+            let f = DateFormatter()
+            f.dateFormat = "h:mma"
+            return f
+        }()
+        let startText = attraction.operatingStart.map { formatter.string(from: $0).lowercased() }
+        let endText = attraction.operatingEnd.map { formatter.string(from: $0).lowercased() }
+        let timeText: String = {
+            switch (startText, endText) {
+            case let (.some(s), .some(e)): return "\(s)–\(e)"
+            case let (.some(s), .none):    return "from \(s)"
+            case let (.none, .some(e)):    return "until \(e)"
+            default:                       return ""
+            }
+        }()
+        let closingSoon = attraction.closesSoon
+        HStack(spacing: 6) {
+            Image(systemName: closingSoon ? "clock.badge.exclamationmark" : "clock")
+                .font(.system(size: 12, weight: .semibold))
+            Text(closingSoon ? "Closes \(endText ?? "soon")" : timeText)
+                .font(.system(size: 12, weight: .semibold))
+        }
+        .foregroundStyle(closingSoon ? DB.red : DB.text)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 8)
+        .background(
+            Capsule().fill(closingSoon ? DB.red.opacity(0.12) : Color.white.opacity(0.06))
+        )
+    }
+
+    @ViewBuilder
+    private var returnTimeChip: some View {
+        if let rt = attraction.returnTime {
+            let label: String = {
+                switch rt.state {
+                case .available:
+                    if let start = rt.returnStart {
+                        let f = DateFormatter()
+                        f.dateFormat = "h:mma"
+                        return "LL available · return \(f.string(from: start).lowercased())"
+                    }
+                    return "LL available"
+                case .temporarilyFull:
+                    return "LL paused"
+                case .finished:
+                    return "LL sold out"
+                }
+            }()
+            let tone: Color = rt.state == .available ? DB.green : DB.muted
+            HStack(spacing: 6) {
+                Image(systemName: rt.state == .available ? "bolt.fill" : "bolt.slash")
+                    .font(.system(size: 12, weight: .semibold))
+                Text(label)
+                    .font(.system(size: 12, weight: .semibold))
+            }
+            .foregroundStyle(tone)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+            .background(Capsule().fill(tone.opacity(0.12)))
         }
     }
 

@@ -397,6 +397,125 @@ struct MiniSparkline: View {
     }
 }
 
+// MARK: - ForecastChart
+// Hourly wait-time forecast from ThemeParks.wiki — typically 14 hours
+// out. Drawn in the same style as `Sparkline` (area-fill under a line)
+// with hour ticks along the bottom and a vertical "now" indicator.
+
+struct ForecastChart: View {
+    let points: [ForecastPoint]
+    let tone: Color
+
+    private var maxVal: CGFloat {
+        let m = points.map { CGFloat($0.waitMinutes) }.max() ?? 60
+        return max(m, 20)
+    }
+
+    /// Index that straddles "now" — used to place the dashed time line.
+    private var nowIndex: Double? {
+        guard !points.isEmpty else { return nil }
+        let now = Date()
+        // Linearly interpolate inside the bracketing pair so the line
+        // doesn't snap to whole-hour ticks.
+        for i in 0..<(points.count - 1) {
+            let a = points[i].time
+            let b = points[i + 1].time
+            if now >= a && now <= b {
+                let span = b.timeIntervalSince(a)
+                if span <= 0 { return Double(i) }
+                return Double(i) + now.timeIntervalSince(a) / span
+            }
+        }
+        if let first = points.first, now < first.time { return 0 }
+        return Double(points.count - 1)
+    }
+
+    var body: some View {
+        GeometryReader { proxy in
+            let width = proxy.size.width
+            let height = proxy.size.height - 18 // reserve bottom strip for labels
+            let values = points.map { CGFloat($0.waitMinutes) }
+            let range = max(maxVal, 1)
+            let pts: [CGPoint] = values.enumerated().map { idx, v in
+                let x = values.count <= 1 ? width : (CGFloat(idx) / CGFloat(values.count - 1)) * width
+                let y = height - (v / range) * height
+                return CGPoint(x: x, y: y)
+            }
+
+            ZStack(alignment: .topLeading) {
+                // Area fill
+                Path { p in
+                    guard let first = pts.first else { return }
+                    p.move(to: CGPoint(x: first.x, y: height))
+                    for point in pts { p.addLine(to: point) }
+                    p.addLine(to: CGPoint(x: pts.last?.x ?? width, y: height))
+                    p.closeSubpath()
+                }
+                .fill(
+                    LinearGradient(
+                        colors: [tone.opacity(0.28), tone.opacity(0.0)],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                )
+                // Line
+                Path { p in
+                    guard let first = pts.first else { return }
+                    p.move(to: first)
+                    for point in pts.dropFirst() { p.addLine(to: point) }
+                }
+                .stroke(tone, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+
+                // Dashed "now" indicator
+                if let nowIdx = nowIndex, pts.count > 1 {
+                    let nowX = (CGFloat(nowIdx) / CGFloat(pts.count - 1)) * width
+                    Path { p in
+                        p.move(to: CGPoint(x: nowX, y: 0))
+                        p.addLine(to: CGPoint(x: nowX, y: height))
+                    }
+                    .stroke(DB.muted, style: StrokeStyle(lineWidth: 1, dash: [3, 3]))
+
+                    Text("NOW")
+                        .font(DB.mono(8, weight: .bold))
+                        .tracking(1)
+                        .foregroundStyle(DB.muted)
+                        .offset(x: max(2, nowX - 14), y: -2)
+                }
+
+                // Hour tick labels — pick ~4 evenly-spaced indices.
+                let tickCount = min(4, points.count)
+                if tickCount >= 2 {
+                    ForEach(0..<tickCount, id: \.self) { i in
+                        let dataIdx = i * (points.count - 1) / (tickCount - 1)
+                        let x = CGFloat(dataIdx) / CGFloat(points.count - 1) * width
+                        Text(Self.hourLabel(points[dataIdx].time))
+                            .font(DB.mono(9, weight: .medium))
+                            .foregroundStyle(DB.muted)
+                            .frame(width: 36)
+                            .offset(x: max(0, x - 18), y: height + 2)
+                    }
+                }
+            }
+        }
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilitySummary)
+    }
+
+    private static func hourLabel(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateFormat = "ha"
+        return f.string(from: date).lowercased()
+    }
+
+    private var accessibilitySummary: String {
+        guard let nowPoint = points.first(where: { $0.time >= Date() }),
+              let peak = points.max(by: { $0.waitMinutes < $1.waitMinutes }) else {
+            return "Hourly wait forecast"
+        }
+        let peakLabel = Self.hourLabel(peak.time)
+        return "Forecast: now around \(nowPoint.waitMinutes) minutes, peaking at \(peak.waitMinutes) minutes by \(peakLabel)"
+    }
+}
+
 // MARK: - ErrorBanner
 
 struct ErrorBanner: View {
