@@ -1,0 +1,33 @@
+name = "queuebuddy-push"
+main = "src/index.ts"
+compatibility_date = "2026-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+# Active push tokens + last-known waits live here. Created via the
+# Cloudflare MCP; do NOT rename without also updating the namespace in
+# the dashboard, or the cron job will silently see an empty store.
+[[kv_namespaces]]
+binding = "PUSH_KV"
+id = "57eae629a7974190934fdd6734c54179"
+
+# Run the push fan-out every minute. Apple recommends keeping Live
+# Activity push frequency at-or-under once per minute; cron's "* * * * *"
+# is the tightest the free tier allows and lines up with that ceiling.
+[triggers]
+crons = ["* * * * *"]
+
+# Non-secret env. Real APNs key (.p8 contents) lives in Workers Secrets:
+#   wrangler secret put APNS_KEY
+# That keeps the private key out of source control even though the
+# rest of the config is committed.
+[vars]
+APNS_HOST = "api.push.apple.com"
+# APNS_BUNDLE_ID, APNS_TEAM_ID, APNS_KEY_ID — set as secrets too. They
+# aren't sensitive in the same way as the key, but keeping them out of
+# wrangler.toml means we don't accidentally commit the wrong account's
+# IDs.
+
+# Observability — keep cron + push errors visible. Worker logs are free.
+[observability]
+enabled = true
+head_sampling_rate = 1

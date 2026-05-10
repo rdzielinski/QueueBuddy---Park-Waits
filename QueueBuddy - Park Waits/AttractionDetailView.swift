@@ -665,8 +665,14 @@ struct AttractionDetailView: View {
                 InLineActivityController.stop()
                 inLineActivityRunning = false
             } else {
+                // parkUUID lets the Cloudflare push worker fetch live
+                // data for the right park without round-tripping to us.
+                // Falls back to an empty string for parks not on
+                // ThemeParks.wiki — the worker will skip them gracefully.
+                let parkUUID = parkId.flatMap { StaticData.parkUUIDByInternalId[$0] } ?? ""
                 InLineActivityController.start(
                     attractionId: attraction.id,
+                    parkUUID: parkUUID,
                     attractionName: attraction.name,
                     parkAccentHex: parkId.map { DB.accentHexValue(for: $0) } ?? 0xFFB547,
                     currentWait: attraction.wait_time

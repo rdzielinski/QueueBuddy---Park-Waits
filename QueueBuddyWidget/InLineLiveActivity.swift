@@ -10,11 +10,12 @@ struct InLineAttributes: ActivityAttributes {
         var attractionName: String
         var parkAccentHex: UInt32
         var currentWait: Int?
-        var startedAt: Date
-        var lastUpdatedAt: Date
+        var startedAt: Double      // UNIX seconds — matches Cloudflare push payload
+        var lastUpdatedAt: Double  // UNIX seconds — matches Cloudflare push payload
     }
 
     var attractionId: Int
+    var parkUUID: String
 }
 
 @available(iOS 16.2, *)
@@ -144,8 +145,8 @@ struct InLineLiveActivity: Widget {
 }
 
 @available(iOS 16.2, *)
-private func elapsedString(since: Date) -> String {
-    let elapsed = max(0, Int(Date().timeIntervalSince(since)))
+private func elapsedString(since unixSeconds: Double) -> String {
+    let elapsed = max(0, Int(Date().timeIntervalSince1970 - unixSeconds))
     if elapsed < 60 { return "\(elapsed)s" }
     let mins = elapsed / 60
     if mins < 60 { return "\(mins)m" }

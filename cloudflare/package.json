@@ -1,0 +1,16 @@
+{
+  "name": "queuebuddy-push",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Cloudflare Worker that pushes Live Activity updates to QueueBuddy via APNs.",
+  "scripts": {
+    "deploy": "wrangler deploy",
+    "dev": "wrangler dev --local",
+    "tail": "wrangler tail"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260101.0",
+    "typescript": "^5.5.0",
+    "wrangler": "^3.80.0"
+  }
+}
