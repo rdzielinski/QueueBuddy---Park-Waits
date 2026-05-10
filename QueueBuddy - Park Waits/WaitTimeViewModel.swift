@@ -405,13 +405,17 @@ class WaitTimeViewModel: ObservableObject {
     /// (the in-handler reschedule alone never fires the *first* task).
     static func scheduleNextAppRefresh() {
         let request = BGAppRefreshTaskRequest(identifier: backgroundAppRefreshTaskId)
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 10 * 60)
+        let earliest = Date(timeIntervalSinceNow: 10 * 60)
+        request.earliestBeginDate = earliest
         do {
             try BGTaskScheduler.shared.submit(request)
+            print("📅 BG refresh queued, earliest: \(earliest)")
         } catch {
-            // BGTaskSchedulerErrorDomain code 1 ("unavailable") fires on
-            // simulators and when running unsigned — not actionable.
-            print("Could not schedule next app refresh: \(error)")
+            // Common failures:
+            //   - BGTaskSchedulerErrorDomain code 1 (unavailable): iOS
+            //     simulator or Background App Refresh disabled in Settings
+            //   - code 3 (tooManyPendingTaskRequests): already queued
+            print("❌ Could not schedule BG refresh: \(error.localizedDescription)")
         }
     }
 

@@ -6,40 +6,44 @@ import UIKit
 struct ThemeParkTimesApp: App {
     @StateObject private var viewModel = WaitTimeViewModel()
 
-    // FIXED: Simplified the background task registration.
     static func registerBackgroundTasks() {
-        BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: WaitTimeViewModel.backgroundAppRefreshTaskId,
+        let identifier = WaitTimeViewModel.backgroundAppRefreshTaskId
+        let registered = BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: identifier,
             using: nil
         ) { task in
-            // Ensure we have the correct task type.
+            print("🔄 BG task fired: \(identifier) at \(Date())")
             guard let refreshTask = task as? BGAppRefreshTask else {
                 task.setTaskCompleted(success: false)
                 return
             }
 
-            // Schedule the next refresh task to run in the future.
+            // Re-arm the next slot immediately — if we don't, the chain
+            // ends here and iOS never wakes us again.
             WaitTimeViewModel.scheduleNextAppRefresh()
 
-            // Create a temporary view model instance to perform the data fetch.
-            // This instance will be retained by the `operation` Task below.
+            // Spin up a transient view model for the fetch. State that
+            // matters across invocations (dedup, Live Activity, cache)
+            // is persisted via UserDefaults / ActivityKit, not held on
+            // the view model, so a fresh instance is fine.
             let viewModel = WaitTimeViewModel()
-            
-            // Create the async operation that will fetch the data.
             let operation = Task {
                 await viewModel.loadInitialData()
-                // After fetching, complete the background task.
-                // Success is determined by whether an error message was set.
                 let success = viewModel.errorMessage == nil
+                print("🔄 BG task completed: success=\(success)")
                 refreshTask.setTaskCompleted(success: success)
             }
-
-            // Set an expiration handler. If the task takes too long,
-            // the system will call this, and we should cancel our work.
             refreshTask.expirationHandler = {
+                print("⏱️ BG task expired before completion")
                 operation.cancel()
             }
         }
+        // If registration fails, submit() will *crash* later. Almost
+        // always means the identifier isn't in Info.plist's
+        // BGTaskSchedulerPermittedIdentifiers, or register() ran twice.
+        print(registered
+              ? "✅ Registered BG task handler: \(identifier)"
+              : "❌ Failed to register BG task handler: \(identifier) — check Info.plist BGTaskSchedulerPermittedIdentifiers")
     }
 
     init() {
