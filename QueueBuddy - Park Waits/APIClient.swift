@@ -2,10 +2,31 @@
 
 import Foundation
 
+/// Feature flags for incremental rollout of the ThemeParks.wiki backend.
+/// Each park ID listed here will fetch from `api.themeparks.wiki` first
+/// and fall back to queue-times.com on failure. All other parks continue
+/// to fetch directly from queue-times.
+enum FeatureFlags {
+    /// Park IDs that should attempt ThemeParks.wiki before queue-times.
+    /// Magic Kingdom (6) is the initial rollout — expand as we validate
+    /// per-park parity. Override at runtime via the user defaults key
+    /// `qb.themeparkswiki.enabledParks` (comma-separated int list).
+    static var useThemeParksWikiForParks: Set<Int> {
+        let defaults: Set<Int> = [6]
+        guard let raw = UserDefaults.standard.string(forKey: "qb.themeparkswiki.enabledParks") else {
+            return defaults
+        }
+        let overrides = raw.split(separator: ",")
+            .compactMap { Int($0.trimmingCharacters(in: .whitespaces)) }
+        return overrides.isEmpty ? defaults : Set(overrides)
+    }
+}
+
 class ThemeParkAPI {
     static let shared = ThemeParkAPI()
 
     private let queueTimesBaseURL = URL(string: "https://queue-times.com")!
+    private let themeParksWiki = ThemeParksWikiClient.shared
     private var lastWeatherFetch: [Int: Date] = [:] // parkId : last fetch date
 
     private init() {}
@@ -15,6 +36,25 @@ class ThemeParkAPI {
     }
 
     func fetchWaitTimes(for parkId: Int) async throws -> [Attraction] {
+        // Route through ThemeParks.wiki when the park is in the rollout set;
+        // any error falls through to the queue-times path below so we never
+        // strand the user on a 404 / decoding bump from the new backend.
+        if FeatureFlags.useThemeParksWikiForParks.contains(parkId) {
+            do {
+                let attractions = try await themeParksWiki.fetchWaitTimes(forParkId: parkId)
+                if !attractions.isEmpty {
+                    print("✅ ThemeParks.wiki returned \(attractions.count) attractions for park \(parkId)")
+                    return attractions
+                }
+                print("⚠️ ThemeParks.wiki returned empty list for park \(parkId), falling back to queue-times")
+            } catch {
+                print("⚠️ ThemeParks.wiki failed for park \(parkId): \(error). Falling back to queue-times.")
+            }
+        }
+        return try await fetchWaitTimesFromQueueTimes(for: parkId)
+    }
+
+    private func fetchWaitTimesFromQueueTimes(for parkId: Int) async throws -> [Attraction] {
         let url = queueTimesBaseURL.appendingPathComponent("parks/\(parkId)/queue_times.json")
         var request = URLRequest(url: url)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")

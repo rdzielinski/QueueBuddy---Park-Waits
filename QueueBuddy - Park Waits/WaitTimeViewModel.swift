@@ -4,6 +4,9 @@ import Combine
 import BackgroundTasks
 import UserNotifications
 import CoreLocation
+#if canImport(ActivityKit)
+import ActivityKit
+#endif
 
 @MainActor
 class WaitTimeViewModel: ObservableObject {
@@ -48,10 +51,12 @@ class WaitTimeViewModel: ObservableObject {
     static let backgroundAppRefreshTaskId = "Dzielinski.QueueBuddy---Park-Waits.apprefresh"
     static let backgroundDataRefreshTaskId = "Dzielinski.QueueBuddy---Park-Waits.datarefresh"
     private var timerTask: Task<Void, Error>?
+    private var foregroundRefreshTask: Task<Void, Never>?
+    /// How often to auto-refresh while the app is foregrounded. Lower than
+    /// the BG refresh cadence so an active Live Activity stays current.
+    private static let foregroundRefreshInterval: TimeInterval = 5 * 60
     private let api = ThemeParkAPI.shared
     private let aiClient = ClaudeAIClient.shared
-    private var lastNotificationTimes: [Int: Date] = [:]
-    private let notificationCooldown: TimeInterval = 30 * 60
 
     init() {
         loadFavorites()
@@ -165,9 +170,11 @@ class WaitTimeViewModel: ObservableObject {
                 updateSharedCache()
             }
 
-            // After loading, check for notification triggers
+            // After loading, check for notification triggers and push the
+            // freshest wait into any running in-line Live Activity.
             await checkAndSendAttractionNotifications()
             AttractionDataAudit.logReport()
+            refreshActiveLiveActivity()
         } catch is CancellationError {
             // Refresh was cancelled (user navigated away). Not an error.
         } catch {
@@ -184,6 +191,10 @@ class WaitTimeViewModel: ObservableObject {
             let liveAttractions = try await api.fetchWaitTimes(for: park.id)
             AttractionDataAudit.record(parkId: park.id, liveAttractions: liveAttractions)
             processAndStoreAttractions(liveAttractions, for: park.id, isUpdating: true)
+            recordHistory(liveAttractions)
+            updateSharedCache()
+            await checkAndSendAttractionNotifications()
+            refreshActiveLiveActivity()
         } catch is CancellationError {
             // Ignore — user left the view.
         } catch {
@@ -277,6 +288,7 @@ class WaitTimeViewModel: ObservableObject {
         }
 
         await checkAndSendAttractionNotifications()
+        refreshActiveLiveActivity()
     }
 
     private func processAndStoreAttractions(_ attractions: [Attraction], for parkId: Int, isUpdating: Bool) {
@@ -307,40 +319,72 @@ class WaitTimeViewModel: ObservableObject {
 
     // MARK: - Notification Logic
 
+    /// Fire notifications only on the *transition* from above-threshold to
+    /// at-or-below-threshold per attraction. Without dedup, every BG
+    /// refresh that catches a low wait would re-spam the user. State is
+    /// persisted via `NotificationDedupStore` so it survives both app
+    /// relaunches and background-task invocations.
     private func checkAndSendAttractionNotifications() async {
         let center = UNUserNotificationCenter.current()
-        let now = Date()
         for preference in notificationPreferences {
-            if let lastSent = lastNotificationTimes[preference.id],
-               now.timeIntervalSince(lastSent) < notificationCooldown {
+            guard let attraction = attractionsByPark.values
+                .flatMap({ $0 })
+                .first(where: { $0.id == preference.id }) else { continue }
+
+            // Closed / unknown rides re-arm the notification: when they
+            // reopen with a low wait, the user should be alerted again.
+            guard let wait = attraction.wait_time, attraction.is_open == true else {
+                NotificationDedupStore.resetState(attractionId: preference.id)
                 continue
             }
 
-            if let attraction = attractionsByPark.values.flatMap({ $0 }).first(where: { $0.id == preference.id }),
-               let wait = attraction.wait_time,
-               attraction.is_open == true,
-               wait <= preference.thresholdMinutes {
+            guard NotificationDedupStore.shouldFire(
+                attractionId: preference.id,
+                currentWait: wait,
+                threshold: preference.thresholdMinutes
+            ) else { continue }
 
-                #if !os(tvOS)
-                let content = UNMutableNotificationContent()
-                content.title = "QueueBuddy Alert"
-                content.body = "\(attraction.name) is now at \(wait) min wait — go now!"
-                content.sound = .default
-
-                let request = UNNotificationRequest(
-                    identifier: "wait-\(attraction.id)-\(now.timeIntervalSince1970)",
-                    content: content,
-                    trigger: nil
-                )
-                do {
-                    try await center.add(request)
-                    lastNotificationTimes[preference.id] = now
-                } catch {
-                    print("Failed to schedule notification: \(error)")
-                }
-                #endif
+            #if !os(tvOS)
+            let content = UNMutableNotificationContent()
+            content.title = "QueueBuddy Alert"
+            content.body = "\(attraction.name) is now at \(wait) min wait or less!"
+            content.sound = .default
+            // Stable identifier per attraction means a stale pending alert
+            // is replaced rather than stacking — extra defense if the OS
+            // delivers a queued notification after a separate refresh.
+            let request = UNNotificationRequest(
+                identifier: "wait-\(attraction.id)",
+                content: content,
+                trigger: nil
+            )
+            do {
+                try await center.add(request)
+            } catch {
+                print("Failed to schedule notification: \(error)")
             }
+            #endif
         }
+    }
+
+    // MARK: - Live Activity sync
+
+    /// Push the latest cached wait into any running in-line Live Activity.
+    /// Called after every load path (initial, foreground refresh, BG task).
+    /// Without this, the user's lock-screen pin never updates.
+    private func refreshActiveLiveActivity() {
+        #if canImport(ActivityKit)
+        if #available(iOS 16.2, *) {
+            guard let activity = Activity<InLineAttributes>.activities.first else { return }
+            let id = activity.attributes.attractionId
+            let attraction = attractionsByPark.values
+                .flatMap({ $0 })
+                .first(where: { $0.id == id })
+            InLineActivityController.update(
+                attractionId: id,
+                currentWait: attraction?.wait_time
+            )
+        }
+        #endif
     }
 
     // MARK: - Background Refresh
@@ -356,14 +400,41 @@ class WaitTimeViewModel: ObservableObject {
         }
     }
 
+    /// Submit the next BG refresh request. Idempotent — calling repeatedly
+    /// just resets the earliest-begin window. Must be called on launch
+    /// (the in-handler reschedule alone never fires the *first* task).
     static func scheduleNextAppRefresh() {
         let request = BGAppRefreshTaskRequest(identifier: backgroundAppRefreshTaskId)
-        request.earliestBeginDate = Date(timeIntervalSinceNow: 10 * 60) // every 10 minutes
+        request.earliestBeginDate = Date(timeIntervalSinceNow: 10 * 60)
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
+            // BGTaskSchedulerErrorDomain code 1 ("unavailable") fires on
+            // simulators and when running unsigned — not actionable.
             print("Could not schedule next app refresh: \(error)")
         }
+    }
+
+    // MARK: - Foreground auto-refresh
+
+    /// Start a repeating foreground refresh while the app is active. The
+    /// background task only fires every 10+ minutes at the OS's discretion,
+    /// so without this an in-line Live Activity displayed while the app is
+    /// open would only refresh on user pull-to-refresh.
+    func startForegroundAutoRefresh() {
+        foregroundRefreshTask?.cancel()
+        foregroundRefreshTask = Task { @MainActor in
+            while !Task.isCancelled {
+                try? await Task.sleep(nanoseconds: UInt64(Self.foregroundRefreshInterval * 1_000_000_000))
+                if Task.isCancelled { return }
+                await self.refreshAllWaits()
+            }
+        }
+    }
+
+    func stopForegroundAutoRefresh() {
+        foregroundRefreshTask?.cancel()
+        foregroundRefreshTask = nil
     }
 
     // MARK: - Attractions By Land (Public Function Needed for ParkDetailView)
@@ -496,6 +567,8 @@ class WaitTimeViewModel: ObservableObject {
 
     func removeNotification(for attractionId: Int) {
         notificationPreferences.removeAll { $0.id == attractionId }
+        // Forget the dedup edge state too so a future re-add starts fresh.
+        NotificationDedupStore.clear(attractionId: attractionId)
         saveNotificationPreferences()
     }
 

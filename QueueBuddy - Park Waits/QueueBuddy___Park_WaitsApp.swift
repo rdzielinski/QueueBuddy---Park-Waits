@@ -60,14 +60,36 @@ struct ThemeParkTimesApp: App {
         #endif
     }
 
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some Scene {
         WindowGroup {
             // The RootView is the main view of the app.
             RootView()
                 .environmentObject(viewModel)
                 .task {
-                    // Load initial data when the app starts.
+                    // Load initial data when the app starts, then schedule
+                    // the first BG refresh and start the foreground timer.
+                    // The BG handler reschedules itself, but the *first*
+                    // request only ever gets submitted from here — without
+                    // it iOS never fires the periodic refresh at all.
                     await viewModel.loadInitialData()
+                    WaitTimeViewModel.scheduleNextAppRefresh()
+                    viewModel.startForegroundAutoRefresh()
+                }
+                .onChange(of: scenePhase) { _, newPhase in
+                    switch newPhase {
+                    case .active:
+                        viewModel.startForegroundAutoRefresh()
+                    case .background, .inactive:
+                        viewModel.stopForegroundAutoRefresh()
+                        // Re-arm the BG refresh — submitting on background
+                        // is the documented place to ensure the next slot
+                        // is queued before the OS suspends us.
+                        WaitTimeViewModel.scheduleNextAppRefresh()
+                    @unknown default:
+                        break
+                    }
                 }
         }
     }
