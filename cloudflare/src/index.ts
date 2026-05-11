@@ -35,6 +35,13 @@ export default {
     if (request.method === "GET" && url.pathname === "/health") {
       return Response.json({ ok: true });
     }
+    if (request.method === "GET" && url.pathname === "/debug") {
+      // Dev-only sanity check: dumps all active activities so we can
+      // verify register actually persisted what we expected. Public —
+      // no PII, just push tokens + ride names + timestamps.
+      const activities = await storage.listActivities();
+      return Response.json({ count: activities.length, activities });
+    }
     if (request.method === "POST" && url.pathname === "/register") {
       return handleRegister(request, storage);
     }
@@ -54,7 +61,10 @@ export default {
 
 async function handleRegister(request: Request, storage: Storage): Promise<Response> {
   const body = await safeJson<Partial<RegisteredActivity>>(request);
-  if (!body) return badRequest("invalid JSON");
+  if (!body) {
+    console.warn("register: invalid JSON");
+    return badRequest("invalid JSON");
+  }
 
   const missing = [
     "attractionId",
@@ -65,9 +75,22 @@ async function handleRegister(request: Request, storage: Storage): Promise<Respo
     "parkAccentHex",
     "startedAt",
   ].filter((k) => body[k as keyof RegisteredActivity] === undefined);
-  if (missing.length) return badRequest(`missing fields: ${missing.join(", ")}`);
+  if (missing.length) {
+    console.warn(`register: missing fields ${missing.join(", ")}`);
+    return badRequest(`missing fields: ${missing.join(", ")}`);
+  }
+  // Push tokens can technically be empty strings if ActivityKit hadn't
+  // emitted one yet — fail loudly rather than silently storing junk.
+  if (!body.pushToken || body.pushToken.length < 32) {
+    console.warn(`register: suspicious pushToken length ${body.pushToken?.length}`);
+    return badRequest("pushToken too short");
+  }
 
   await storage.putActivity(body as RegisteredActivity);
+  console.log(
+    `register ok: attractionId=${body.attractionId} park=${body.parkUUID} ` +
+    `name="${body.attractionName}" tokenLen=${body.pushToken.length} activityId=${body.activityId}`,
+  );
   return Response.json({ ok: true });
 }
 
@@ -91,6 +114,7 @@ async function safeJson<T>(request: Request): Promise<T | null> {
 async function runCronTick(env: Env): Promise<void> {
   const storage = new Storage(env.PUSH_KV);
   const activities = await storage.listActivities();
+  console.log(`cron tick: ${activities.length} active activit${activities.length === 1 ? "y" : "ies"}`);
   if (activities.length === 0) return;
 
   // Group by parkUUID so each park is fetched once, no matter how many
@@ -157,6 +181,11 @@ async function pushIfChanged(
     event: "update",
     staleAfterSeconds: 30 * 60,
   });
+  console.log(
+    `push ${result.ok ? "ok" : "FAIL"} ${result.status}` +
+    `${result.reason ? ` (${result.reason})` : ""} ` +
+    `attractionId=${activity.attractionId} wait=${live.waitMinutes ?? "—"} status=${live.status}`,
+  );
 
   if (!result.ok) {
     // 410 Gone = token retired (user ended the activity or it expired).
