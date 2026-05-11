@@ -21,6 +21,11 @@ struct AttractionDetailView: View {
 
     @State private var activeSheet: ActiveSheet? = nil
     @State private var inLineActivityRunning: Bool = false
+    /// Selected window for the trending sparkline. 24h is served locally;
+    /// 7d / 30d fetch from the worker's D1-backed history endpoint.
+    @State private var historyRange: WaitHistoryClient.Range = .day
+    @State private var rangeSamples: [WaitHistoryStore.Sample] = []
+    @State private var isLoadingExtendedHistory: Bool = false
 
     private var parkId: Int? {
         viewModel.attractionsByPark.first(where: { $0.value.contains(where: { $0.id == attraction.id }) })?.key
@@ -424,13 +429,18 @@ struct AttractionDetailView: View {
 
     @ViewBuilder
     private var trendingBlock: some View {
-        let history = WaitHistoryStore.shared.history(for: attraction.id)
-        if history.count >= 2 {
+        // Local 24h samples are always available (no network); use those
+        // as the floor regardless of the selected range, so the sparkline
+        // doesn't ever collapse to empty while a 7d/30d fetch is in flight.
+        let local = WaitHistoryStore.shared.history(for: attraction.id)
+        let display = historyRange == .day ? local : rangeSamples
+        if display.count >= 2 || local.count >= 2 {
             VStack(alignment: .leading, spacing: 10) {
-                HStack {
-                    MonoLabel(text: "→ TRENDING · LAST 24 HOURS", color: DB.muted)
+                HStack(alignment: .center) {
+                    MonoLabel(text: "→ TRENDING · LAST \(historyRange.label)", color: DB.muted)
                     Spacer()
-                    if let delta = WaitHistoryStore.shared.trendDelta(for: attraction.id) {
+                    if historyRange == .day,
+                       let delta = WaitHistoryStore.shared.trendDelta(for: attraction.id) {
                         HStack(spacing: 4) {
                             Image(systemName: delta > 0 ? "arrow.up" : (delta < 0 ? "arrow.down" : "minus"))
                             Text(delta == 0 ? "FLAT" : "\(abs(delta))M vs 1H AGO")
@@ -438,9 +448,12 @@ struct AttractionDetailView: View {
                         .font(DB.mono(10, weight: .bold))
                         .tracking(1.5)
                         .foregroundStyle(delta > 0 ? DB.red : (delta < 0 ? DB.green : DB.muted))
+                    } else if isLoadingExtendedHistory {
+                        ProgressView().controlSize(.small)
                     }
                 }
-                Sparkline(samples: history, tone: waitTone)
+                historyRangePicker
+                Sparkline(samples: display.count >= 2 ? display : local, tone: waitTone)
                     .frame(height: 80)
                     .padding(12)
                     .background(
@@ -452,7 +465,55 @@ struct AttractionDetailView: View {
                             )
                     )
             }
+            .task(id: historyRangeTaskID) { await loadHistoryForCurrentRange() }
         }
+    }
+
+    /// Segmented control for 24H / 7D / 30D. The 24h tab always has data
+    /// (local ring buffer); the others fetch from the worker on first tap
+    /// and cache for ~5 minutes.
+    private var historyRangePicker: some View {
+        HStack(spacing: 6) {
+            ForEach(WaitHistoryClient.Range.allCases) { range in
+                Button {
+                    historyRange = range
+                } label: {
+                    Text(range.label)
+                        .font(DB.mono(10, weight: .bold))
+                        .tracking(1.5)
+                        .foregroundStyle(historyRange == range ? DB.bg : DB.muted)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 5)
+                        .background(
+                            Capsule().fill(historyRange == range ? waitTone : Color.white.opacity(0.06))
+                        )
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel("Show last \(range.label.lowercased())")
+            }
+            Spacer()
+        }
+    }
+
+    /// Stable identifier for the task that loads extended history. Encodes
+    /// both the attraction and the selected range so changes to either
+    /// re-trigger the load.
+    private var historyRangeTaskID: String {
+        "\(attraction.id):\(historyRange.rawValue)"
+    }
+
+    private func loadHistoryForCurrentRange() async {
+        guard historyRange != .day else {
+            rangeSamples = []
+            return
+        }
+        isLoadingExtendedHistory = true
+        defer { isLoadingExtendedHistory = false }
+        rangeSamples = await WaitHistoryStore.shared.extendedHistory(
+            for: attraction.id,
+            attractionName: attraction.name,
+            range: historyRange,
+        )
     }
 
     @ViewBuilder

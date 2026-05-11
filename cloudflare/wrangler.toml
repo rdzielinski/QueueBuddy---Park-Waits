@@ -10,11 +10,23 @@ compatibility_flags = ["nodejs_compat"]
 binding = "PUSH_KV"
 id = "57eae629a7974190934fdd6734c54179"
 
-# Run the push fan-out every minute. Apple recommends keeping Live
-# Activity push frequency at-or-under once per minute; cron's "* * * * *"
-# is the tightest the free tier allows and lines up with that ceiling.
+# Long-form wait history (weeks/months). One row per attraction sample,
+# inserted by the every-5-minutes cron. Read on demand by the iOS app
+# to backfill sparklines beyond what the on-device 24h cap retains.
+[[d1_databases]]
+binding = "HISTORY_DB"
+database_name = "queuebuddy_history"
+database_id = "384e23b4-e104-44b5-9447-60dbe4f4c51e"
+
+# Two cron schedules:
+#   *      / minute  → fan out Live Activity pushes to active tokens
+#   */5    / minute  → sample every park's live data into D1 history
+# The handler dispatches on `event.cron` to pick which job to run.
+# Apple recommends ≤1 push/min so the per-minute schedule is the floor;
+# */5 for history sampling is plenty for hourly-resolution charts and
+# keeps D1 writes well under the free-tier 100k/day cap.
 [triggers]
-crons = ["* * * * *"]
+crons = ["* * * * *", "*/5 * * * *"]
 
 # Non-secret env. Real APNs key (.p8 contents) lives in Workers Secrets:
 #   wrangler secret put APNS_KEY

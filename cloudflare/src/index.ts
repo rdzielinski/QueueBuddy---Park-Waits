@@ -1,6 +1,7 @@
 import { Storage } from "./storage";
 import { fetchPark, type LiveAttraction } from "./themeparks";
 import { sendLiveActivityUpdate, type ApnsEnv } from "./apns";
+import { sampleAllParks, queryHistory } from "./history";
 import type { ContentState, RegisteredActivity } from "./types";
 
 /**
@@ -24,6 +25,7 @@ import type { ContentState, RegisteredActivity } from "./types";
 
 export interface Env extends ApnsEnv {
   PUSH_KV: KVNamespace;
+  HISTORY_DB: D1Database;
 }
 
 export default {
@@ -48,12 +50,24 @@ export default {
     if (request.method === "POST" && url.pathname === "/unregister") {
       return handleUnregister(request, storage);
     }
+    if (request.method === "GET" && url.pathname === "/history") {
+      return handleHistory(url, env);
+    }
     return new Response("Not found", { status: 404 });
   },
 
   // ----- Cron -----
-  async scheduled(_event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
-    ctx.waitUntil(runCronTick(env));
+  async scheduled(event: ScheduledEvent, env: Env, ctx: ExecutionContext): Promise<void> {
+    // Two crons share this handler; dispatch on the schedule string.
+    //   "* * * * *"   — push fan-out, every minute
+    //   "*/5 * * * *" — sample all parks into D1 history
+    // Both fire on the same minute every 5 minutes; that's fine, the
+    // jobs are independent and run concurrently inside waitUntil.
+    if (event.cron === "*/5 * * * *") {
+      ctx.waitUntil(runHistoryTick(env));
+    } else {
+      ctx.waitUntil(runCronTick(env));
+    }
   },
 };
 
@@ -101,6 +115,34 @@ async function handleUnregister(request: Request, storage: Storage): Promise<Res
   return Response.json({ ok: true });
 }
 
+/**
+ * GET /history?name=<encoded>&since=<unixSeconds>&limit=<n>
+ *
+ * Returns a chronological sample list (oldest first) for one attraction.
+ * The iOS app calls this when its on-device 24h ring buffer isn't deep
+ * enough to render the requested window (e.g. user picks 7-day view).
+ * Reads are bounded to 5000 rows; 30 days of 5-min samples ≈ 8640, but
+ * 2000 (the default) is plenty for sparkline-quality detail.
+ */
+async function handleHistory(url: URL, env: Env): Promise<Response> {
+  const name = url.searchParams.get("name");
+  if (!name) return badRequest("missing name");
+
+  const sinceRaw = url.searchParams.get("since");
+  const since = sinceRaw ? parseInt(sinceRaw, 10) : Math.floor(Date.now() / 1000) - 7 * 86400;
+  if (!Number.isFinite(since)) return badRequest("bad since");
+
+  const limitRaw = url.searchParams.get("limit");
+  const limit = limitRaw ? parseInt(limitRaw, 10) : undefined;
+
+  const samples = await queryHistory(env.HISTORY_DB, {
+    attractionName: name,
+    sinceUnixSeconds: since,
+    limit,
+  });
+  return Response.json({ ok: true, samples });
+}
+
 function badRequest(msg: string): Response {
   return Response.json({ ok: false, error: msg }, { status: 400 });
 }
@@ -110,6 +152,23 @@ async function safeJson<T>(request: Request): Promise<T | null> {
 }
 
 // --------------- Cron logic ---------------
+
+/**
+ * Every-5-minutes cron job: sample every known park into D1 so the iOS
+ * app can ask for arbitrary-length wait history beyond what the local
+ * 24h ring buffer retains.
+ */
+async function runHistoryTick(env: Env): Promise<void> {
+  try {
+    const result = await sampleAllParks(env.HISTORY_DB);
+    console.log(
+      `history tick: ${result.samples} samples across ${result.parks} parks` +
+      (result.failures.length ? ` (failures: ${result.failures.join("; ")})` : ""),
+    );
+  } catch (err) {
+    console.error("history tick failed:", err);
+  }
+}
 
 async function runCronTick(env: Env): Promise<void> {
   const storage = new Storage(env.PUSH_KV);

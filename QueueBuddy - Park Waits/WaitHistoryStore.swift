@@ -18,6 +18,17 @@ final class WaitHistoryStore: ObservableObject {
 
     @Published private(set) var samples: [Int: [Sample]] = [:]
 
+    /// In-memory cache of extended history pulled from the worker
+    /// (`WaitHistoryClient`). Keyed by attractionId then range; never
+    /// persisted to disk — the worker is the source of truth for
+    /// anything beyond 24h, and the cache exists only to avoid
+    /// re-hitting it on every chart redraw.
+    @Published private(set) var extendedSamples: [Int: [WaitHistoryClient.Range: [Sample]]] = [:]
+    private var extendedFetchedAt: [Int: [WaitHistoryClient.Range: Date]] = [:]
+    /// How long an extended fetch stays fresh. Server samples every 5
+    /// minutes, so refetching faster than that is a waste.
+    private let extendedCacheTTL: TimeInterval = 5 * 60
+
     init() {
         load()
     }
@@ -38,6 +49,53 @@ final class WaitHistoryStore: ObservableObject {
     /// All samples for an attraction, oldest first.
     func history(for attractionId: Int) -> [Sample] {
         samples[attractionId, default: []]
+    }
+
+    /// History over an arbitrary range. 24h is served from the on-device
+    /// ring buffer (no network); 7d/30d fetch from the Cloudflare worker's
+    /// D1-backed `/history` endpoint and cache the result in memory for
+    /// the next ~5 minutes.
+    func extendedHistory(
+        for attractionId: Int,
+        attractionName: String,
+        range: WaitHistoryClient.Range
+    ) async -> [Sample] {
+        if range == .day {
+            return history(for: attractionId)
+        }
+        if let cached = cachedExtended(attractionId: attractionId, range: range) {
+            return cached
+        }
+        let remote = await WaitHistoryClient.fetchHistory(attractionName: attractionName, range: range)
+        // Drop samples with nil minutes — sparkline can't render closed
+        // periods as a numeric value, and our existing Sample type doesn't
+        // support nil. Status-aware charting can come later.
+        let mapped: [Sample] = remote.compactMap { r in
+            guard let m = r.wait else { return nil }
+            return Sample(at: Date(timeIntervalSince1970: TimeInterval(r.at)), minutes: m)
+        }
+        cacheExtended(mapped, attractionId: attractionId, range: range)
+        return mapped
+    }
+
+    private func cachedExtended(
+        attractionId: Int, range: WaitHistoryClient.Range
+    ) -> [Sample]? {
+        guard let fetched = extendedFetchedAt[attractionId]?[range],
+              Date().timeIntervalSince(fetched) < extendedCacheTTL,
+              let cached = extendedSamples[attractionId]?[range] else { return nil }
+        return cached
+    }
+
+    private func cacheExtended(
+        _ samples: [Sample], attractionId: Int, range: WaitHistoryClient.Range
+    ) {
+        var byRange = extendedSamples[attractionId] ?? [:]
+        byRange[range] = samples
+        extendedSamples[attractionId] = byRange
+        var tsByRange = extendedFetchedAt[attractionId] ?? [:]
+        tsByRange[range] = Date()
+        extendedFetchedAt[attractionId] = tsByRange
     }
 
     func trendDelta(for attractionId: Int) -> Int? {

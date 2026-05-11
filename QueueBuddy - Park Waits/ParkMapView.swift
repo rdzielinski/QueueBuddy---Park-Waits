@@ -138,7 +138,8 @@ struct ParkMapView: View {
         .padding(.vertical, 8)
         .sheet(item: $selectedAttraction) { attraction in
             AttractionDetailSheet(attraction: attraction)
-                .presentationDetents([.height(280), .medium])
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
         }
     }
 
@@ -321,64 +322,175 @@ private struct AttractionPin: View {
 private struct AttractionDetailSheet: View {
     let attraction: Attraction
 
+    private var forecastTone: Color {
+        guard let w = attraction.wait_time else { return .gray }
+        return WaitBucket(minutes: w).color
+    }
+
     var body: some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Image(systemName: StaticData.symbol(
-                    for: attraction.id,
-                    type: attraction.type
-                ))
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                header
+                badgeRow
+                liveChips
+
+                if let desc = attraction.description, !desc.isEmpty {
+                    Text(desc)
+                        .font(.body)
+                        .foregroundStyle(.secondary)
+                }
+
+                forecastSection
+
+                if let lat = attraction.latitude, let lon = attraction.longitude {
+                    Link(destination: URL(string:
+                        "https://maps.apple.com/?ll=\(lat),\(lon)&q=\(attraction.name.urlEncoded)")!
+                    ) {
+                        Label("Open in Maps", systemImage: "map")
+                    }
+                    .padding(.top, 4)
+                }
+            }
+            .padding()
+        }
+    }
+
+    // MARK: - Sections
+
+    private var header: some View {
+        HStack(spacing: 10) {
+            Image(systemName: StaticData.symbol(for: attraction.id, type: attraction.type))
                 .font(.title2)
                 .foregroundStyle(.tint)
                 .frame(width: 32, height: 32)
-                Text(attraction.name)
-                    .font(.title3.weight(.semibold))
-                    .lineLimit(2)
-            }
-
-            HStack(spacing: 8) {
-                StatusBadge(status: attraction.status,
-                            isOpen: attraction.is_open ?? false)
-                if let wait = attraction.wait_time {
-                    HStack(spacing: 4) {
-                        Image(systemName: "clock")
-                        Text("\(wait) min")
-                    }
-                    .font(.subheadline.weight(.medium))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(.tertiary))
-                }
-                if let h = attraction.min_height_inches {
-                    HStack(spacing: 4) {
-                        Image(systemName: "ruler")
-                        Text("\(h)\"")
-                    }
-                    .font(.subheadline.weight(.medium))
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 4)
-                    .background(Capsule().fill(.tertiary))
-                }
-            }
-
-            if let desc = attraction.description {
-                Text(desc)
-                    .font(.body)
-                    .foregroundStyle(.secondary)
-            }
-
-            if let lat = attraction.latitude, let lon = attraction.longitude {
-                Link(destination: URL(string:
-                    "https://maps.apple.com/?ll=\(lat),\(lon)&q=\(attraction.name.urlEncoded)")!
-                ) {
-                    Label("Open in Maps", systemImage: "map")
-                }
-                .padding(.top, 4)
-            }
-
-            Spacer()
+            Text(attraction.name)
+                .font(.title3.weight(.semibold))
+                .lineLimit(2)
         }
-        .padding()
+    }
+
+    private var badgeRow: some View {
+        HStack(spacing: 8) {
+            StatusBadge(status: attraction.status,
+                        isOpen: attraction.is_open ?? false)
+            if let wait = attraction.wait_time {
+                HStack(spacing: 4) {
+                    Image(systemName: "clock")
+                    Text("\(wait) min")
+                }
+                .font(.subheadline.weight(.medium))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(.tertiary))
+            }
+            if let h = attraction.min_height_inches {
+                HStack(spacing: 4) {
+                    Image(systemName: "ruler")
+                    Text("\(h)\"")
+                }
+                .font(.subheadline.weight(.medium))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 4)
+                .background(Capsule().fill(.tertiary))
+            }
+        }
+    }
+
+    /// Live operating window and Lightning Lane / return-time chips, drawn
+    /// from the ThemeParks.wiki live payload. Hidden when neither applies
+    /// (e.g. queue-times parks still in fallback mode).
+    @ViewBuilder
+    private var liveChips: some View {
+        let hasHours = attraction.operatingStart != nil || attraction.operatingEnd != nil
+        let hasReturnTime = attraction.returnTime != nil
+        if hasHours || hasReturnTime {
+            HStack(spacing: 8) {
+                if hasHours { operatingHoursChip }
+                if hasReturnTime { returnTimeChip }
+                Spacer()
+            }
+        }
+    }
+
+    @ViewBuilder
+    private var operatingHoursChip: some View {
+        let formatter: DateFormatter = {
+            let f = DateFormatter()
+            f.dateFormat = "h:mma"
+            return f
+        }()
+        let startText = attraction.operatingStart.map { formatter.string(from: $0).lowercased() }
+        let endText = attraction.operatingEnd.map { formatter.string(from: $0).lowercased() }
+        let timeText: String = {
+            switch (startText, endText) {
+            case let (.some(s), .some(e)): return "\(s)–\(e)"
+            case let (.some(s), .none):    return "from \(s)"
+            case let (.none, .some(e)):    return "until \(e)"
+            default:                       return ""
+            }
+        }()
+        let closingSoon = attraction.closesSoon
+        let tone: Color = closingSoon ? .red : .primary
+        HStack(spacing: 4) {
+            Image(systemName: closingSoon ? "clock.badge.exclamationmark" : "clock")
+            Text(closingSoon ? "Closes \(endText ?? "soon")" : timeText)
+        }
+        .font(.subheadline.weight(.medium))
+        .foregroundStyle(tone)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 4)
+        .background(Capsule().fill(closingSoon ? Color.red.opacity(0.15) : Color.secondary.opacity(0.15)))
+    }
+
+    @ViewBuilder
+    private var returnTimeChip: some View {
+        if let rt = attraction.returnTime {
+            let label: String = {
+                switch rt.state {
+                case .available:
+                    if let start = rt.returnStart {
+                        let f = DateFormatter()
+                        f.dateFormat = "h:mma"
+                        return "LL · return \(f.string(from: start).lowercased())"
+                    }
+                    return "LL available"
+                case .temporarilyFull: return "LL paused"
+                case .finished: return "LL sold out"
+                }
+            }()
+            let tone: Color = rt.state == .available ? .green : .secondary
+            HStack(spacing: 4) {
+                Image(systemName: rt.state == .available ? "bolt.fill" : "bolt.slash")
+                Text(label)
+            }
+            .font(.subheadline.weight(.medium))
+            .foregroundStyle(tone)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 4)
+            .background(Capsule().fill(tone.opacity(0.15)))
+        }
+    }
+
+    /// 14-hour hourly forecast chart, when the API gave us one. We
+    /// already render this on the full detail view; on the map sheet it
+    /// gives a "should I bother walking over there?" answer at a glance.
+    @ViewBuilder
+    private var forecastSection: some View {
+        if let forecast = attraction.forecast, forecast.count >= 3 {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("FORECAST · NEXT 14 HOURS")
+                    .font(.caption.weight(.semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(.secondary)
+                ForecastChart(points: forecast, tone: forecastTone)
+                    .frame(height: 110)
+                    .padding(12)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(Color.secondary.opacity(0.08))
+                    )
+            }
+        }
     }
 }
 
