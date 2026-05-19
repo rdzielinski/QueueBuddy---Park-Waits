@@ -1,4 +1,5 @@
 import Foundation
+import Security
 
 /// Anthropic API client for QueueBuddy's AI Assistant.
 ///
@@ -11,6 +12,9 @@ actor ClaudeAIClient {
 
     static let apiKeyDefaultsKey = "anthropicAPIKey"
     static let modelDefaultsKey = "anthropicModel"
+
+    private static let keychainService = "com.queuebuddy.anthropic"
+    private static let keychainAccount = "apiKey"
 
     static let availableModels: [Model] = [
         Model(id: "claude-haiku-4-5-20251001",
@@ -117,16 +121,73 @@ actor ClaudeAIClient {
     // MARK: - Configuration helpers
 
     nonisolated static func readAPIKey() -> String? {
-        UserDefaults.standard.string(forKey: apiKeyDefaultsKey)
+        if let key = keychainReadAPIKey() {
+            return key
+        }
+        // One-time migration: pre-Keychain builds stashed the key in
+        // UserDefaults. Move it over and wipe the plaintext copy.
+        if let legacy = UserDefaults.standard.string(forKey: apiKeyDefaultsKey),
+           !legacy.isEmpty {
+            keychainWriteAPIKey(legacy)
+            UserDefaults.standard.removeObject(forKey: apiKeyDefaultsKey)
+            return legacy
+        }
+        return nil
     }
 
     nonisolated static func storeAPIKey(_ key: String) {
         let trimmed = key.trimmingCharacters(in: .whitespacesAndNewlines)
+        UserDefaults.standard.removeObject(forKey: apiKeyDefaultsKey)
         if trimmed.isEmpty {
-            UserDefaults.standard.removeObject(forKey: apiKeyDefaultsKey)
+            keychainDeleteAPIKey()
         } else {
-            UserDefaults.standard.set(trimmed, forKey: apiKeyDefaultsKey)
+            keychainWriteAPIKey(trimmed)
         }
+    }
+
+    private nonisolated static func keychainBaseQuery() -> [String: Any] {
+        [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: keychainService,
+            kSecAttrAccount as String: keychainAccount
+        ]
+    }
+
+    private nonisolated static func keychainReadAPIKey() -> String? {
+        var query = keychainBaseQuery()
+        query[kSecReturnData as String] = true
+        query[kSecMatchLimit as String] = kSecMatchLimitOne
+
+        var item: CFTypeRef?
+        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        guard status == errSecSuccess,
+              let data = item as? Data,
+              let key = String(data: data, encoding: .utf8),
+              !key.isEmpty else {
+            return nil
+        }
+        return key
+    }
+
+    private nonisolated static func keychainWriteAPIKey(_ key: String) {
+        guard let data = key.data(using: .utf8) else { return }
+
+        let query = keychainBaseQuery()
+        let attributes: [String: Any] = [
+            kSecValueData as String: data,
+            kSecAttrAccessible as String: kSecAttrAccessibleAfterFirstUnlockThisDeviceOnly
+        ]
+
+        let updateStatus = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
+        if updateStatus == errSecItemNotFound {
+            var insert = query
+            insert.merge(attributes) { _, new in new }
+            SecItemAdd(insert as CFDictionary, nil)
+        }
+    }
+
+    private nonisolated static func keychainDeleteAPIKey() {
+        SecItemDelete(keychainBaseQuery() as CFDictionary)
     }
 
     nonisolated static func currentModelID() -> String {

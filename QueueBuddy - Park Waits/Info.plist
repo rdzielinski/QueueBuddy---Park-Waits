@@ -2,8 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSHealthShareUsageDescription</key>
-	<string>This app reads your step and distance data to display your daily activity.&quot;</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>QueueBuddy uses your location to detect when you arrive at a park and to show wait times for the closest attractions. Your location stays on this device.</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>Dzielinski.QueueBuddy---Park-Waits.apprefresh</string>

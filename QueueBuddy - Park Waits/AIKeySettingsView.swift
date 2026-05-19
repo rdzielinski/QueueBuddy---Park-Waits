@@ -1,9 +1,7 @@
 import SwiftUI
 
 /// Sheet for entering the Anthropic API key and picking a Claude model.
-/// The key is stored in `UserDefaults` via `ClaudeAIClient`; for production
-/// shipping you'd want to move it into the Keychain, but for a single-user
-/// side-loaded app this is the simplest path.
+/// The key is persisted in the Keychain via `ClaudeAIClient`.
 struct AIKeySettingsView: View {
     @Environment(\.dismiss) private var dismiss
 
