@@ -501,8 +501,7 @@ struct ForecastChart: View {
     }
 
     private static func hourLabel(_ date: Date) -> String {
-        let f = DateFormatter()
-        f.dateFormat = "ha"
+        let f = UserPreferences.timeFormatter(compact: true)
         return f.string(from: date).lowercased()
     }
 

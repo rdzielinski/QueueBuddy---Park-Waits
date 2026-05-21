@@ -20,6 +20,12 @@ struct ParkDetailView: View {
     @State private var tipIndex: Int = 0
     @State private var landOverrides: [String: Bool] = [:]
 
+    // Observers so the temperature/time display re-renders the instant
+    // the user flips the preference in Settings. The values themselves
+    // come from `UserPreferences` formatters.
+    @AppStorage(UserPreferences.Key.tempUnit) private var observedTempUnit: String = UserPreferences.TempUnit.fahrenheit.rawValue
+    @AppStorage(UserPreferences.Key.timeFormat) private var observedTimeFormat: String = UserPreferences.TimeFormat.twelveHour.rawValue
+
     private var accent: Color { DB.accent(for: park.id) }
     private var landOverridesKey: String { "landOverrides-\(park.id)" }
 
@@ -432,7 +438,7 @@ struct ParkDetailView: View {
         parts.append("\(open) of \(total) attractions open")
         if let hours = viewModel.parkHoursText(for: park.id) { parts.append("Hours \(hours)") }
         if let crowd = viewModel.crowdLevel(for: park.id) { parts.append("Crowd level \(crowd.label.lowercased())") }
-        if let wx = viewModel.weatherByPark[park.id] { parts.append("\(Int(wx.temperature)) degrees, \(wx.description)") }
+        if let wx = viewModel.weatherByPark[park.id] { parts.append("\(UserPreferences.formatTemperature(wx.temperature)), \(wx.description)") }
         return parts.joined(separator: ". ")
     }
 
@@ -520,10 +526,10 @@ struct ParkDetailView: View {
             }
             if let wx = viewModel.weatherByPark[park.id] {
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
-                    Text("\(Int(wx.temperature))°")
+                    Text(UserPreferences.formatTemperature(wx.temperature, includeUnit: false))
                         .font(DB.mono(22, weight: .bold))
                         .foregroundStyle(DB.text)
-                    Text("F")
+                    Text(UserPreferences.tempUnit.shortLabel)
                         .font(DB.mono(13))
                         .foregroundStyle(DB.muted)
                 }
@@ -608,8 +614,7 @@ struct ParkDetailView: View {
     /// Entry ticketed event today. Resort-guest users use this to plan
     /// arrival; everyone else gets a heads-up to skip the queue.
     private func earlyEntryPill(start: Date) -> some View {
-        let f = DateFormatter()
-        f.dateFormat = "h:mm a"
+        let f = UserPreferences.timeFormatter()
         return HStack(spacing: 4) {
             Image(systemName: "sunrise.fill")
                 .font(.system(size: 10))

@@ -47,6 +47,7 @@ struct ThemeParkTimesApp: App {
     }
 
     init() {
+        UserPreferences.registerDefaults()
         ThemeParkTimesApp.registerBackgroundTasks()
         #if !os(tvOS)
         // All your global appearance settings for UINavigationBar and UITabBar are great.

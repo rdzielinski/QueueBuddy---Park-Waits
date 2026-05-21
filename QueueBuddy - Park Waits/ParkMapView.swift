@@ -414,11 +414,7 @@ private struct AttractionDetailSheet: View {
 
     @ViewBuilder
     private var operatingHoursChip: some View {
-        let formatter: DateFormatter = {
-            let f = DateFormatter()
-            f.dateFormat = "h:mma"
-            return f
-        }()
+        let formatter = UserPreferences.timeFormatter()
         let startText = attraction.operatingStart.map { formatter.string(from: $0).lowercased() }
         let endText = attraction.operatingEnd.map { formatter.string(from: $0).lowercased() }
         let timeText: String = {
@@ -449,8 +445,7 @@ private struct AttractionDetailSheet: View {
                 switch rt.state {
                 case .available:
                     if let start = rt.returnStart {
-                        let f = DateFormatter()
-                        f.dateFormat = "h:mma"
+                        let f = UserPreferences.timeFormatter()
                         return "LL · return \(f.string(from: start).lowercased())"
                     }
                     return "LL available"

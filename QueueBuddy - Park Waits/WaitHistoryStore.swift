@@ -135,4 +135,9 @@ final class WaitHistoryStore: ObservableObject {
               let dict = try? JSONDecoder().decode([Int: [Sample]].self, from: data) else { return }
         samples = dict
     }
+
+    func clearAll() {
+        samples = [:]
+        UserDefaults.standard.removeObject(forKey: storageKey)
+    }
 }

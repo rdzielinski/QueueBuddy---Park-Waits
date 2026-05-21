@@ -86,4 +86,8 @@ enum NotificationDedupStore {
         guard let data = try? JSONEncoder().encode(dict) else { return }
         UserDefaults.standard.set(data, forKey: storageKey)
     }
+
+    static func clearAll() {
+        UserDefaults.standard.removeObject(forKey: storageKey)
+    }
 }

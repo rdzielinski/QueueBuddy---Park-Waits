@@ -477,8 +477,7 @@ class WaitTimeViewModel: ObservableObject {
         guard !isFirstSample, edge else { return }
         let when: String = {
             guard let start = attraction.returnTime?.returnStart else { return "is available now" }
-            let f = DateFormatter()
-            f.dateFormat = "h:mm a"
+            let f = UserPreferences.timeFormatter()
             return "is available · return at \(f.string(from: start))"
         }()
         await postNotification(
@@ -490,6 +489,11 @@ class WaitTimeViewModel: ObservableObject {
 
     private func postNotification(title: String, body: String, identifier: String) async {
         #if !os(tvOS)
+        // Respect master toggle + quiet hours. We still log to the
+        // in-app alerts list (caller writes there separately); we just
+        // suppress the OS-level banner / sound.
+        guard UserPreferences.shouldDeliverNotification() else { return }
+
         let content = UNMutableNotificationContent()
         content.title = title
         content.body = body
@@ -547,6 +551,12 @@ class WaitTimeViewModel: ObservableObject {
     /// just resets the earliest-begin window. Must be called on launch
     /// (the in-handler reschedule alone never fires the *first* task).
     static func scheduleNextAppRefresh() {
+        // Honor the in-app toggle. Also cancels any previously-queued
+        // request so the OS won't wake us if the user just turned it off.
+        guard UserPreferences.backgroundRefreshEnabled else {
+            BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: backgroundAppRefreshTaskId)
+            return
+        }
         let request = BGAppRefreshTaskRequest(identifier: backgroundAppRefreshTaskId)
         let earliest = Date(timeIntervalSinceNow: 10 * 60)
         request.earliestBeginDate = earliest
@@ -811,7 +821,7 @@ class WaitTimeViewModel: ObservableObject {
                 parts.append("Note: this park appears to be closed or nearly closed right now.")
             }
             if let weather = weatherByPark[park.id] {
-                parts.append("Weather: \(Int(weather.temperature))°F, \(weather.description).")
+                parts.append("Weather: \(UserPreferences.formatTemperature(weather.temperature)), \(weather.description).")
             }
             if let attractions = attractionsByPark[park.id], !attractions.isEmpty {
                 // Group by land so the AI sees each ride under its correct
@@ -882,8 +892,7 @@ class WaitTimeViewModel: ObservableObject {
     /// for parks still on queue-times.
     func parkHoursText(for parkId: Int) -> String? {
         if let live = scheduleByPark[parkId]?.today {
-            let f = DateFormatter()
-            f.dateFormat = "h:mm a"
+            let f = UserPreferences.timeFormatter()
             f.timeZone = scheduleByPark[parkId]?.timezone.flatMap(TimeZone.init(identifier:)) ?? .current
             return "\(f.string(from: live.openingTime)) – \(f.string(from: live.closingTime))"
         }

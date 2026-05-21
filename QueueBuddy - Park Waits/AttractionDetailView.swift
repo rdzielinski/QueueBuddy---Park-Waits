@@ -27,6 +27,10 @@ struct AttractionDetailView: View {
     @State private var rangeSamples: [WaitHistoryStore.Sample] = []
     @State private var isLoadingExtendedHistory: Bool = false
 
+    // Observe time-format prefs so the operating hours / LL return / peak
+    // chips redraw the instant the user flips the toggle in Settings.
+    @AppStorage(UserPreferences.Key.timeFormat) private var observedTimeFormat: String = UserPreferences.TimeFormat.twelveHour.rawValue
+
     private var parkId: Int? {
         viewModel.attractionsByPark.first(where: { $0.value.contains(where: { $0.id == attraction.id }) })?.key
     }
@@ -549,8 +553,7 @@ struct AttractionDetailView: View {
     private func forecastSummary(_ points: [ForecastPoint]) -> String? {
         let upcoming = points.filter { $0.time >= Date() }
         guard let peak = upcoming.max(by: { $0.waitMinutes < $1.waitMinutes }) else { return nil }
-        let f = DateFormatter()
-        f.dateFormat = "ha"
+        let f = UserPreferences.timeFormatter(compact: true)
         return "PEAK \(peak.waitMinutes)M · \(f.string(from: peak.time).uppercased())"
     }
 
@@ -574,11 +577,7 @@ struct AttractionDetailView: View {
 
     @ViewBuilder
     private var operatingHoursChip: some View {
-        let formatter: DateFormatter = {
-            let f = DateFormatter()
-            f.dateFormat = "h:mma"
-            return f
-        }()
+        let formatter = UserPreferences.timeFormatter()
         let startText = attraction.operatingStart.map { formatter.string(from: $0).lowercased() }
         let endText = attraction.operatingEnd.map { formatter.string(from: $0).lowercased() }
         let timeText: String = {
@@ -611,8 +610,7 @@ struct AttractionDetailView: View {
                 switch rt.state {
                 case .available:
                     if let start = rt.returnStart {
-                        let f = DateFormatter()
-                        f.dateFormat = "h:mma"
+                        let f = UserPreferences.timeFormatter()
                         return "LL available · return \(f.string(from: start).lowercased())"
                     }
                     return "LL available"

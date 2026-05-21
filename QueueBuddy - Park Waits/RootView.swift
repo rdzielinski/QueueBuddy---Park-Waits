@@ -48,6 +48,7 @@ enum QBTab: Int, CaseIterable, Identifiable {
 }
 
 struct MainTabView: View {
+    @AppStorage(UserPreferences.Key.defaultTab) private var defaultTabRaw: Int = QBTab.parks.rawValue
     @State private var selectedTab: QBTab = .parks
     @State private var searchText: String = ""
     @EnvironmentObject var viewModel: WaitTimeViewModel
@@ -82,6 +83,11 @@ struct MainTabView: View {
                 .padding(.bottom, 10)
         }
         .preferredColorScheme(.dark)
+        .onAppear {
+            // Honor the saved "launch on" preference, falling back to
+            // Parks when the persisted value isn't a valid tab.
+            selectedTab = QBTab(rawValue: defaultTabRaw) ?? .parks
+        }
     }
 }
 

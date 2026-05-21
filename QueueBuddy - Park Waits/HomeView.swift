@@ -12,7 +12,7 @@ struct HomeView: View {
     @Binding var selectedTab: Int
     @AppStorage("userDisplayName") private var userDisplayName: String = ""
     @State private var showOnboarding = false
-    @State private var showAbout = false
+    @State private var showSettings = false
     @State private var autoOpenedParkId: Int? = nil
 
     private var isSearching: Bool {
@@ -156,8 +156,8 @@ struct HomeView: View {
             .sheet(isPresented: $showOnboarding) {
                 OnboardingView(userDisplayName: $userDisplayName, isPresented: $showOnboarding)
             }
-            .sheet(isPresented: $showAbout) {
-                AboutView()
+            .sheet(isPresented: $showSettings) {
+                SettingsView()
             }
         }
         .onAppear {
@@ -213,16 +213,16 @@ struct HomeView: View {
                     .foregroundStyle(DB.amber)
                 Spacer()
                 Button {
-                    showAbout = true
+                    showSettings = true
                 } label: {
-                    Image(systemName: "info.circle")
+                    Image(systemName: "gearshape")
                         .font(.system(size: 20, weight: .regular))
                         .foregroundStyle(DB.muted)
                         .padding(8)
                         .contentShape(Rectangle())
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel("About QueueBuddy")
+                .accessibilityLabel("Settings")
             }
             if !userDisplayName.isEmpty {
                 Text("Good \(greetingTime()), \(userDisplayName).")

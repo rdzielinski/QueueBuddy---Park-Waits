@@ -42,6 +42,11 @@ enum WaitCacheStore {
         defaults.set(date.timeIntervalSince1970, forKey: lastSyncKey)
     }
 
+    static func clearAll() {
+        defaults.removeObject(forKey: parksKey)
+        defaults.removeObject(forKey: lastSyncKey)
+    }
+
     static func loadParks() -> [CachedPark] {
         guard let data = defaults.data(forKey: parksKey),
               let parks = try? JSONDecoder().decode([CachedPark].self, from: data) else {

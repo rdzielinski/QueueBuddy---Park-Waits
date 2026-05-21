@@ -5,7 +5,7 @@ struct NotificationSettingView: View {
     @Environment(\.dismiss) var dismiss
 
     let attraction: Attraction
-    @State private var thresholdMinutes: Double = 15
+    @State private var thresholdMinutes: Double = Double(UserPreferences.defaultThresholdMinutes)
 
     var body: some View {
         NavigationStack {
