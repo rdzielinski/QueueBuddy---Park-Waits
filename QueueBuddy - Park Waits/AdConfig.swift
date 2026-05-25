@@ -2,22 +2,16 @@ import Foundation
 
 /// Google AdMob identifiers.
 ///
-/// These are seeded with Google's official *test* IDs so the app runs
-/// (the SDK throws on launch if `GADApplicationIdentifier` is missing or
-/// invalid) without risk of serving live ads to yourself during
-/// development. Before shipping:
+/// The companion `GADApplicationIdentifier` (the AdMob App ID) lives in
+/// Info.plist; the SDK throws on launch if it's missing or invalid.
 ///
-///   1. Replace `bannerUnitID` below with the banner unit you create for
-///      QueueBuddy in the AdMob console.
-///   2. Replace `GADApplicationIdentifier` in Info.plist with this app's
-///      AdMob App ID.
-///
-/// AdMob App IDs and ad unit IDs are per-app — do not reuse IDs from
-/// another app, or AdMob may flag the account for invalid traffic.
+/// These are live production IDs. During development, register your test
+/// devices (see `QueueBuddy___Park_WaitsApp`) so you never serve billable
+/// ads to yourself — clicking your own live ads flags the account for
+/// invalid traffic.
 enum AdConfig {
-    /// Google's public test banner unit. Always shows a "Test Ad".
-    /// TODO: replace with the real QueueBuddy banner unit ID.
-    static let bannerUnitID = "ca-app-pub-3940256099942544/2934735716"
+    /// QueueBuddy banner ad unit.
+    static let bannerUnitID = "ca-app-pub-4715603786314162/6303223159"
 
     /// Whether ad code should run at all. Lets you kill ads app-wide
     /// from one place (e.g. a future "remove ads" purchase).

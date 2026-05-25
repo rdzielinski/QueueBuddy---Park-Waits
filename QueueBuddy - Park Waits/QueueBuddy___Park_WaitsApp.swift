@@ -53,6 +53,13 @@ struct ThemeParkTimesApp: App {
         UserPreferences.registerDefaults()
         #if canImport(GoogleMobileAds)
         if AdConfig.adsEnabled {
+            #if DEBUG
+            // Serve test ads in debug builds so development never triggers
+            // billable impressions / clicks on the live unit. The simulator
+            // is a test device automatically; for a physical device, copy
+            // the identifier the SDK logs on first ad load and add it here.
+            MobileAds.shared.requestConfiguration.testDeviceIdentifiers = ["SIMULATOR"]
+            #endif
             MobileAds.shared.start(completionHandler: nil)
         }
         #endif
