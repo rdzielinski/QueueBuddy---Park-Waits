@@ -143,9 +143,13 @@ QueueBuddy makes network requests to a small number of third-party services to d
 - The AI assistant sends prompts directly from your device to api.anthropic.com using your own API key.
 - A small Cloudflare Worker relays APNs push tokens for Live Activity updates. The worker stores only the APNs token needed to deliver notifications you have opted into.
 
-## Analytics, Advertising, and Tracking
+## Advertising
 
-QueueBuddy includes no third-party analytics, advertising, or tracking SDKs. We do not use the Identifier for Advertisers (IDFA) and do not require App Tracking Transparency consent.
+QueueBuddy displays banner ads served by Google AdMob. We request non-personalized ads only, which means ads are not targeted using your personal data or cross-app activity. To serve these ads and prevent fraud, Google's Mobile Ads SDK may process limited device and diagnostic information as described in Google's own privacy disclosures. We do not request App Tracking Transparency permission and do not use the Identifier for Advertisers (IDFA) for tracking.
+
+## Analytics and Tracking
+
+QueueBuddy includes no third-party analytics SDKs. We do not track you across other apps or websites.
 
 ## Children
 

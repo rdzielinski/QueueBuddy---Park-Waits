@@ -78,9 +78,12 @@ struct MainTabView: View {
             .transition(.opacity)
             .environmentObject(viewModel)
 
-            DepartureTabBar(selected: $selectedTab)
-                .padding(.horizontal, 12)
-                .padding(.bottom, 10)
+            VStack(spacing: 0) {
+                BottomAdBanner()
+                DepartureTabBar(selected: $selectedTab)
+                    .padding(.horizontal, 12)
+                    .padding(.bottom, 10)
+            }
         }
         .preferredColorScheme(.dark)
         .onAppear {

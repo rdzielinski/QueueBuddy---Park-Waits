@@ -1,6 +1,9 @@
 import SwiftUI
 import BackgroundTasks
 import UIKit
+#if canImport(GoogleMobileAds)
+import GoogleMobileAds
+#endif
 
 @main
 struct ThemeParkTimesApp: App {
@@ -48,6 +51,11 @@ struct ThemeParkTimesApp: App {
 
     init() {
         UserPreferences.registerDefaults()
+        #if canImport(GoogleMobileAds)
+        if AdConfig.adsEnabled {
+            MobileAds.shared.start(completionHandler: nil)
+        }
+        #endif
         ThemeParkTimesApp.registerBackgroundTasks()
         #if !os(tvOS)
         // All your global appearance settings for UINavigationBar and UITabBar are great.
