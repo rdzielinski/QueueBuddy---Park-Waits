@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2108D93B2FC8AFDB003E7E98 /* GoogleMobileAds in Frameworks */ = {isa = PBXBuildFile; productRef = 2108D93A2FC8AFDB003E7E98 /* GoogleMobileAds */; };
+		2108D9402FC8B768003E7E98 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 2108D93F2FC8B768003E7E98 /* FirebaseAnalytics */; };
 		21700EE32FAA6A78008A52FC /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21700EA12FAA6988008A52FC /* WidgetKit.framework */; };
 		21700EE42FAA6A78008A52FC /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21700EA32FAA6989008A52FC /* SwiftUI.framework */; };
 		21700EF32FAA6A79008A52FC /* QueueBuddyWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 21700EE22FAA6A78008A52FC /* QueueBuddyWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -836,6 +838,8 @@
 		21D04F202DF7652C00526ECA /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			files = (
+				2108D9402FC8B768003E7E98 /* FirebaseAnalytics in Frameworks */,
+				2108D93B2FC8AFDB003E7E98 /* GoogleMobileAds in Frameworks */,
 			);
 		};
 /* End PBXFrameworksBuildPhase section */
@@ -1442,6 +1446,10 @@
 				21D04F252DF7652C00526ECA /* QueueBuddy - Park Waits */,
 			);
 			name = "QueueBuddy - Park Waits";
+			packageProductDependencies = (
+				2108D93A2FC8AFDB003E7E98 /* GoogleMobileAds */,
+				2108D93F2FC8B768003E7E98 /* FirebaseAnalytics */,
+			);
 			productName = "QueueBuddy - Park Waits";
 			productReference = 21D04F232DF7652C00526ECA /* QueueBuddy - Park Waits.app */;
 			productType = "com.apple.product-type.application";
@@ -1478,6 +1486,8 @@
 			mainGroup = 21D04F1A2DF7652C00526ECA;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
+				2108D9392FC8AFDB003E7E98 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */,
+				2108D93E2FC8B768003E7E98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 90;
 			productRefGroup = 21D04F242DF7652C00526ECA /* Products */;
@@ -2034,6 +2044,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "QueueBuddy - Park Waits/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "QueueBuddy - Park Waits";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app uses Health data to show your steps and distance walked in the park.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app uses Health data to show your steps and distance walked in the park.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to track your park visit and show your route on the map.";
@@ -2077,6 +2088,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "QueueBuddy - Park Waits/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "QueueBuddy - Park Waits";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
 				INFOPLIST_KEY_NSHealthShareUsageDescription = "This app uses Health data to show your steps and distance walked in the park.";
 				INFOPLIST_KEY_NSHealthUpdateUsageDescription = "This app uses Health data to show your steps and distance walked in the park.";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to track your park visit and show your route on the map.";
@@ -2266,6 +2278,38 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		2108D9392FC8AFDB003E7E98 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/googleads/swift-package-manager-google-mobile-ads";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 13.4.0;
+			};
+		};
+		2108D93E2FC8B768003E7E98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.14.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2108D93A2FC8AFDB003E7E98 /* GoogleMobileAds */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2108D9392FC8AFDB003E7E98 /* XCRemoteSwiftPackageReference "swift-package-manager-google-mobile-ads" */;
+			productName = GoogleMobileAds;
+		};
+		2108D93F2FC8B768003E7E98 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 2108D93E2FC8B768003E7E98 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 21D04F1B2DF7652C00526ECA /* Project object */;
 }

@@ -133,7 +133,7 @@ struct SettingsView: View {
     // MARK: - Notifications
 
     private var notificationsSection: some View {
-        Section("Notifications") {
+        Section {
             Toggle("Allow notifications", isOn: $notificationsEnabled)
 
             HStack {
@@ -157,6 +157,8 @@ struct SettingsView: View {
                 quietHourPicker(label: "From", binding: $quietHoursStart)
                 quietHourPicker(label: "To", binding: $quietHoursEnd)
             }
+        } header: {
+            Text("Notifications")
         } footer: {
             Text(notificationsEnabled
                  ? "Quiet hours silence push banners during the chosen window. The in-app Alerts feed still records events."
@@ -182,7 +184,7 @@ struct SettingsView: View {
     // MARK: - App Behavior
 
     private var appBehaviorSection: some View {
-        Section("App Behavior") {
+        Section {
             Toggle("Background refresh", isOn: $backgroundRefreshEnabled)
                 .onChange(of: backgroundRefreshEnabled) { _, _ in
                     WaitTimeViewModel.scheduleNextAppRefresh()
@@ -205,6 +207,8 @@ struct SettingsView: View {
                 Label("Cache cleared", systemImage: "checkmark.seal.fill")
                     .foregroundStyle(.green)
             }
+        } header: {
+            Text("App Behavior")
         } footer: {
             Text("Background refresh lets QueueBuddy fetch new wait times while the app is closed.")
         }

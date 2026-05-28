@@ -11,7 +11,7 @@ import Foundation
 /// invalid traffic.
 enum AdConfig {
     /// QueueBuddy banner ad unit.
-    static let bannerUnitID = "ca-app-pub-4715603786314162/6303223159"
+    static let bannerUnitID = "ca-app-pub-4715603786314162/6156825752"
 
     /// Whether ad code should run at all. Lets you kill ads app-wide
     /// from one place (e.g. a future "remove ads" purchase).

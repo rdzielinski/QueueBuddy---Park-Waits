@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDLXdwxNWFmnS9qNtQ8qeHCYIsp6iKxN6Q</string>
+	<key>GCM_SENDER_ID</key>
+	<string>767356417350</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>Dzielinski.QueueBuddy---Park-Waits</string>
+	<key>PROJECT_ID</key>
+	<string>queue-buddy-b8b8a</string>
+	<key>STORAGE_BUCKET</key>
+	<string>queue-buddy-b8b8a.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:767356417350:ios:7a46e77f58bacb2d3a2147</string>
+</dict>
+</plist>
