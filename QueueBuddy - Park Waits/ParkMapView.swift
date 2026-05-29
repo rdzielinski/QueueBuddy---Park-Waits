@@ -1,56 +1,53 @@
 //
 //  ParkMapView.swift
-//  Theme park map with live wait-time overlays.
+//  Theme park map with live wait-time overlays in the Departure Board style.
 //
 //  Drop this file into your project and present it like:
 //
 //      ParkMapView(parkId: 7, attractions: liveAttractions)
 //
-//  Requires iOS 17+ for the new MapKit content-builder syntax. If you need
-//  iOS 16 support, see the legacy Map() init noted at the bottom of the file.
+//  Requires iOS 17+ for the new MapKit content-builder syntax.
 //
 
 import SwiftUI
 import MapKit
 
 // MARK: - Wait Time Bucket
+//
+// Mirrors DB.waitTone's three-tier breakpoints (≤15 green, ≤45 amber,
+// >45 red) so the map speaks the same color language as every other
+// surface in the app.
 
-/// Wait-time category that drives marker color. Mirrors the buckets used on
-/// themeparks.wiki's interactive map (Short / Medium / Long / Very Long).
 enum WaitBucket: Int, CaseIterable {
-    case short      // 0-29 min
-    case medium     // 30-59 min
-    case long       // 60-89 min
-    case veryLong   // 90+ min
-    case unknown    // no wait time / closed
+    case short      // 0–15 min
+    case medium     // 16–45 min
+    case long       // 46+ min
+    case unknown    // no wait / closed
 
     init(minutes: Int?) {
         guard let m = minutes else { self = .unknown; return }
         switch m {
-        case ..<30:  self = .short
-        case 30..<60: self = .medium
-        case 60..<90: self = .long
-        default:     self = .veryLong
+        case ...15:  self = .short
+        case ...45:  self = .medium
+        default:     self = .long
         }
     }
 
     var color: Color {
         switch self {
-        case .short:    return .green
-        case .medium:   return .blue
-        case .long:     return Color(red: 0.55, green: 0.30, blue: 0.85) // purple
-        case .veryLong: return .red
-        case .unknown:  return .gray
+        case .short:   return DB.green
+        case .medium:  return DB.amber
+        case .long:    return DB.red
+        case .unknown: return DB.muted
         }
     }
 
     var label: String {
         switch self {
-        case .short: "Short"
-        case .medium: "Medium"
-        case .long: "Long"
-        case .veryLong: "Very Long"
-        case .unknown: "—"
+        case .short:   return "SHORT"
+        case .medium:  return "MED"
+        case .long:    return "LONG"
+        case .unknown: return "—"
         }
     }
 }
@@ -85,10 +82,10 @@ enum StatusFilter: String, CaseIterable, Identifiable {
 
     var color: Color {
         switch self {
-        case .open:   .green
-        case .down:   .red
-        case .closed: .gray
-        case .refurb: .orange
+        case .open:   return DB.green
+        case .down:   return DB.red
+        case .closed: return DB.muted
+        case .refurb: return DB.amber
         }
     }
 
@@ -114,12 +111,12 @@ struct ParkMapView: View {
     @State private var selectedTypes: Set<TypeFilter> = [.attractions, .shows, .dining]
     @State private var selectedStatuses: Set<StatusFilter> = [.open]
     @State private var selectedAttraction: Attraction?
+    @State private var selectedAttractionId: Int?
     @State private var cameraPosition: MapCameraPosition
 
     init(parkId: Int, attractions: [Attraction]) {
         self.parkId = parkId
         self.attractions = attractions
-        // Center camera on the park
         let center = StaticData.parkCoordinates[parkId]
             .map { CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lon) }
             ?? CLLocationCoordinate2D(latitude: 28.4, longitude: -81.55)
@@ -130,20 +127,21 @@ struct ParkMapView: View {
     }
 
     var body: some View {
-        VStack(spacing: 12) {
-            filterBar
-            legendStrip
+        VStack(spacing: 14) {
+            filterRow
+            legend
             mapView
         }
         .padding(.vertical, 8)
         .sheet(item: $selectedAttraction) { attraction in
-            AttractionDetailSheet(attraction: attraction)
+            AttractionDetailSheet(parkId: parkId, attraction: attraction)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
+                .presentationBackground(DB.bg)
         }
     }
 
-    // MARK: - Subviews
+    // MARK: - Filtering
 
     private var filteredAttractions: [Attraction] {
         attractions.filter { a in
@@ -156,65 +154,72 @@ struct ParkMapView: View {
         }
     }
 
-    private var filterBar: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: "line.3.horizontal.decrease")
-                    .foregroundStyle(.secondary)
-                Text("Filter by Type").font(.caption).foregroundStyle(.secondary)
-            }
+    // MARK: - Filter row
+    // Single horizontal-scrolling row: type chips, a hairline divider, then
+    // status chips. Replaces the previous two-row layout with explicit
+    // "Filter by Type" / "Filter by Status" headers.
+
+    private var filterRow: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
                 ForEach(TypeFilter.allCases) { type in
                     let count = attractions.filter {
                         TypeFilter.bucket(for: $0.type) == type && $0.latitude != nil
                     }.count
                     FilterChip(
-                        label: type.rawValue.uppercased(),
+                        label: type.rawValue,
                         count: count,
-                        isOn: selectedTypes.contains(type),
-                        countColor: countColorForType(type)
+                        tone: DB.accent(for: parkId),
+                        isOn: selectedTypes.contains(type)
                     ) { toggle(type) }
                 }
-            }
 
-            HStack {
-                Image(systemName: "line.3.horizontal.decrease")
-                    .foregroundStyle(.secondary)
-                Text("Filter by Status").font(.caption).foregroundStyle(.secondary)
-            }
-            HStack(spacing: 6) {
+                Rectangle()
+                    .fill(DB.line)
+                    .frame(width: 1, height: 22)
+                    .padding(.horizontal, 4)
+
                 ForEach(StatusFilter.allCases) { status in
                     let count = attractions.filter {
                         StatusFilter.bucket(for: $0.status,
                                             isOpen: $0.is_open ?? false) == status
                     }.count
                     FilterChip(
-                        label: status.rawValue.uppercased(),
+                        label: status.rawValue,
                         count: count,
-                        isOn: selectedStatuses.contains(status),
-                        countColor: status.color
+                        tone: status.color,
+                        isOn: selectedStatuses.contains(status)
                     ) { toggle(status) }
                 }
             }
+            .padding(.horizontal)
+        }
+    }
+
+    // MARK: - Legend
+    // Compact single-line wait-tone key in the departure-board voice.
+
+    private var legend: some View {
+        HStack(spacing: 14) {
+            MonoLabel(text: "WAITS", color: DB.muted, tracking: 2, size: 10)
+            ForEach(WaitBucket.allCases.dropLast(), id: \.rawValue) { bucket in
+                HStack(spacing: 5) {
+                    Circle()
+                        .fill(bucket.color)
+                        .frame(width: 6, height: 6)
+                        .shadow(color: bucket.color, radius: 3)
+                    Text(bucket.label)
+                        .font(DB.mono(10, weight: .semibold))
+                        .tracking(1.2)
+                        .foregroundStyle(bucket.color)
+                }
+            }
+            Spacer(minLength: 0)
         }
         .padding(.horizontal)
     }
 
-    private var legendStrip: some View {
-        HStack(spacing: 10) {
-            Image(systemName: "info.circle")
-                .foregroundStyle(.secondary)
-            ForEach(WaitBucket.allCases.dropLast(), id: \.rawValue) { bucket in
-                HStack(spacing: 4) {
-                    Circle().fill(bucket.color).frame(width: 8, height: 8)
-                    Text(bucket.label + " Wait")
-                        .font(.caption2)
-                        .foregroundStyle(bucket.color)
-                }
-            }
-        }
-        .padding(.horizontal)
-    }
+    // MARK: - Map
 
     @ViewBuilder
     private var mapView: some View {
@@ -234,16 +239,17 @@ struct ParkMapView: View {
                 .tag(attraction.id)
             }
         }
-        .mapStyle(.standard(elevation: .realistic, pointsOfInterest: .excludingAll))
+        .mapStyle(.standard(pointsOfInterest: .excludingAll))
         .frame(minHeight: 400)
-        .clipShape(RoundedRectangle(cornerRadius: 14))
+        .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+        .overlay(
+            RoundedRectangle(cornerRadius: 14, style: .continuous)
+                .stroke(DB.line, lineWidth: 1)
+        )
         .padding(.horizontal)
     }
 
-    // Selection state for Map's selection binding (separate from sheet state)
-    @State private var selectedAttractionId: Int?
-
-    // MARK: - Helpers
+    // MARK: - Toggle helpers
 
     private func toggle(_ type: TypeFilter) {
         if selectedTypes.contains(type) { selectedTypes.remove(type) }
@@ -256,16 +262,54 @@ struct ParkMapView: View {
         else { selectedStatuses.insert(status) }
         if selectedStatuses.isEmpty { selectedStatuses = [.open] }
     }
-    private func countColorForType(_ type: TypeFilter) -> Color {
-        switch type {
-        case .attractions: .blue
-        case .shows:       .purple
-        case .dining:      .orange
-        }
-    }
 }
 
-// MARK: - Pin View
+// MARK: - Filter Chip
+
+private struct FilterChip: View {
+    let label: String
+    let count: Int
+    let tone: Color
+    let isOn: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 6) {
+                Circle()
+                    .fill(tone)
+                    .frame(width: 6, height: 6)
+                    .shadow(color: tone, radius: isOn ? 3 : 0)
+                Text(label.uppercased())
+                    .font(DB.mono(10, weight: .semibold))
+                    .tracking(1.2)
+                    .foregroundStyle(isOn ? DB.text : DB.muted)
+                Text(displayCount)
+                    .font(DB.mono(10, weight: .bold))
+                    .foregroundStyle(tone)
+            }
+            .padding(.horizontal, 10)
+            .padding(.vertical, 6)
+            .background(
+                Capsule()
+                    .fill(isOn ? tone.opacity(0.08) : Color.white.opacity(0.02))
+                    .overlay(
+                        Capsule()
+                            .stroke(isOn ? tone.opacity(0.35) : DB.line, lineWidth: 1)
+                    )
+            )
+        }
+        .buttonStyle(.plain)
+    }
+
+    private var displayCount: String { count >= 99 ? "99+" : "\(count)" }
+}
+
+// MARK: - Attraction Pin
+//
+// LED-style pin: dark capsule/circle on the map, tone-tinted stroke,
+// monospace numerals. Reads cleanly against the standard map at the
+// current zoom levels.
 
 private struct AttractionPin: View {
     let attraction: Attraction
@@ -281,38 +325,37 @@ private struct AttractionPin: View {
 
     var body: some View {
         if statusFilter == .open, let wait = attraction.wait_time {
-            // Wait-time badge — colored circle with the number
-            ZStack {
-                Circle()
-                    .fill(bucket.color)
-                    .overlay(Circle().stroke(.white, lineWidth: 2))
-                    .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
-                Text("\(wait)")
-                    .font(.system(size: 11, weight: .semibold))
-                    .foregroundStyle(.white)
-            }
-            .frame(width: 30, height: 30)
+            Text("\(wait)")
+                .font(DB.mono(11, weight: .bold))
+                .foregroundStyle(bucket.color)
+                .frame(minWidth: 22, minHeight: 22)
+                .padding(.horizontal, 5)
+                .background(
+                    Capsule()
+                        .fill(DB.bg.opacity(0.92))
+                        .overlay(Capsule().stroke(bucket.color.opacity(0.75), lineWidth: 1.5))
+                )
+                .shadow(color: bucket.color.opacity(0.5), radius: 4)
         } else {
-            // Status pin for closed/down/refurb attractions
             ZStack {
                 Circle()
-                    .fill(statusFilter.color)
-                    .overlay(Circle().stroke(.white, lineWidth: 2))
-                    .shadow(color: .black.opacity(0.25), radius: 2, y: 1)
+                    .fill(DB.bg.opacity(0.92))
+                    .overlay(Circle().stroke(statusFilter.color.opacity(0.75), lineWidth: 1.5))
                 Image(systemName: iconForStatus)
                     .font(.system(size: 11, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(statusFilter.color)
             }
             .frame(width: 26, height: 26)
+            .shadow(color: statusFilter.color.opacity(0.5), radius: 4)
         }
     }
 
     private var iconForStatus: String {
         switch statusFilter {
-        case .down:   "exclamationmark"
-        case .closed: "xmark"
-        case .refurb: "hammer.fill"
-        case .open:   "checkmark"
+        case .down:   return "exclamationmark"
+        case .closed: return "xmark"
+        case .refurb: return "hammer.fill"
+        case .open:   return "checkmark"
         }
     }
 }
@@ -320,85 +363,125 @@ private struct AttractionPin: View {
 // MARK: - Detail Sheet
 
 private struct AttractionDetailSheet: View {
+    let parkId: Int
     let attraction: Attraction
 
-    private var forecastTone: Color {
-        guard let w = attraction.wait_time else { return .gray }
-        return WaitBucket(minutes: w).color
+    private var accent: Color { DB.accent(for: parkId) }
+    private var glyph: String { StaticData.symbol(for: attraction.id, type: attraction.type) }
+
+    private var statusFilter: StatusFilter {
+        StatusFilter.bucket(for: attraction.status,
+                            isOpen: attraction.is_open ?? false)
     }
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: 18) {
                 header
                 badgeRow
                 liveChips
 
                 if let desc = attraction.description, !desc.isEmpty {
-                    Text(desc)
-                        .font(.body)
-                        .foregroundStyle(.secondary)
+                    descriptionSection(desc)
                 }
 
                 forecastSection
 
                 if let lat = attraction.latitude, let lon = attraction.longitude {
-                    Link(destination: URL(string:
-                        "https://maps.apple.com/?ll=\(lat),\(lon)&q=\(attraction.name.urlEncoded)")!
-                    ) {
-                        Label("Open in Maps", systemImage: "map")
-                    }
-                    .padding(.top, 4)
+                    openInMapsLink(lat: lat, lon: lon)
                 }
             }
-            .padding()
+            .padding(20)
         }
+        .background(DB.bg)
     }
 
-    // MARK: - Sections
+    // MARK: - Header
 
     private var header: some View {
-        HStack(spacing: 10) {
-            Image(systemName: StaticData.symbol(for: attraction.id, type: attraction.type))
-                .font(.title2)
-                .foregroundStyle(.tint)
-                .frame(width: 32, height: 32)
-            Text(attraction.name)
-                .font(.title3.weight(.semibold))
-                .lineLimit(2)
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
+                RouteStripe(color: accent, width: 28)
+                MonoLabel(text: "TERMINAL · \(DB.terminalCode(for: parkId))",
+                          color: accent, tracking: 2, size: 11)
+            }
+            HStack(spacing: 12) {
+                Image(systemName: glyph)
+                    .font(.system(size: 22, weight: .semibold))
+                    .foregroundStyle(accent)
+                    .frame(width: 36, height: 36)
+                    .background(
+                        RoundedRectangle(cornerRadius: 10, style: .continuous)
+                            .fill(accent.opacity(0.12))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                                    .stroke(accent.opacity(0.30), lineWidth: 1)
+                            )
+                    )
+                Text(attraction.name)
+                    .font(DB.heading(20, weight: .semibold))
+                    .foregroundStyle(DB.text)
+                    .lineLimit(3)
+            }
         }
     }
+
+    // MARK: - Badge row
 
     private var badgeRow: some View {
         HStack(spacing: 8) {
-            StatusBadge(status: attraction.status,
-                        isOpen: attraction.is_open ?? false)
-            if let wait = attraction.wait_time {
-                HStack(spacing: 4) {
-                    Image(systemName: "clock")
-                    Text("\(wait) min")
-                }
-                .font(.subheadline.weight(.medium))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Capsule().fill(.tertiary))
+            if statusFilter == .open {
+                WaitChip(wait: attraction.wait_time,
+                         isOpen: attraction.is_open ?? false,
+                         status: attraction.status,
+                         style: .large)
+            } else {
+                statusPill
             }
-            if let h = attraction.min_height_inches {
-                HStack(spacing: 4) {
-                    Image(systemName: "ruler")
-                    Text("\(h)\"")
-                }
-                .font(.subheadline.weight(.medium))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 4)
-                .background(Capsule().fill(.tertiary))
-            }
+            if let h = attraction.min_height_inches { heightChip(h) }
+            Spacer(minLength: 0)
         }
     }
 
-    /// Live operating window and Lightning Lane / return-time chips, drawn
-    /// from the ThemeParks.wiki live payload. Hidden when neither applies
-    /// (e.g. queue-times parks still in fallback mode).
+    private var statusPill: some View {
+        HStack(spacing: 6) {
+            Circle()
+                .fill(statusFilter.color)
+                .frame(width: 7, height: 7)
+                .shadow(color: statusFilter.color, radius: 3)
+            Text(statusFilter.rawValue.uppercased())
+                .font(DB.mono(12, weight: .bold))
+                .tracking(1.5)
+        }
+        .foregroundStyle(statusFilter.color)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 7)
+        .background(
+            Capsule()
+                .fill(statusFilter.color.opacity(0.10))
+                .overlay(Capsule().stroke(statusFilter.color.opacity(0.30), lineWidth: 1))
+        )
+    }
+
+    private func heightChip(_ inches: Int) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: "ruler")
+                .font(.system(size: 11, weight: .medium))
+            Text("\(inches)\"")
+                .font(DB.mono(12, weight: .bold))
+        }
+        .foregroundStyle(DB.muted)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 6)
+        .background(
+            Capsule()
+                .fill(Color.white.opacity(0.04))
+                .overlay(Capsule().stroke(DB.line, lineWidth: 1))
+        )
+    }
+
+    // MARK: - Live chips (operating window + Lightning Lane)
+
     @ViewBuilder
     private var liveChips: some View {
         let hasHours = attraction.operatingStart != nil || attraction.operatingEnd != nil
@@ -407,7 +490,7 @@ private struct AttractionDetailSheet: View {
             HStack(spacing: 8) {
                 if hasHours { operatingHoursChip }
                 if hasReturnTime { returnTimeChip }
-                Spacer()
+                Spacer(minLength: 0)
             }
         }
     }
@@ -426,16 +509,12 @@ private struct AttractionDetailSheet: View {
             }
         }()
         let closingSoon = attraction.closesSoon
-        let tone: Color = closingSoon ? .red : .primary
-        HStack(spacing: 4) {
-            Image(systemName: closingSoon ? "clock.badge.exclamationmark" : "clock")
-            Text(closingSoon ? "Closes \(endText ?? "soon")" : timeText)
-        }
-        .font(.subheadline.weight(.medium))
-        .foregroundStyle(tone)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 4)
-        .background(Capsule().fill(closingSoon ? Color.red.opacity(0.15) : Color.secondary.opacity(0.15)))
+        let tone: Color = closingSoon ? DB.red : DB.muted
+        livePill(
+            icon: closingSoon ? "clock.badge.exclamationmark" : "clock",
+            text: closingSoon ? "Closes \(endText ?? "soon")" : timeText,
+            tone: tone
+        )
     }
 
     @ViewBuilder
@@ -453,93 +532,99 @@ private struct AttractionDetailSheet: View {
                 case .finished: return "LL sold out"
                 }
             }()
-            let tone: Color = rt.state == .available ? .green : .secondary
-            HStack(spacing: 4) {
-                Image(systemName: rt.state == .available ? "bolt.fill" : "bolt.slash")
-                Text(label)
-            }
-            .font(.subheadline.weight(.medium))
-            .foregroundStyle(tone)
-            .padding(.horizontal, 10)
-            .padding(.vertical, 4)
-            .background(Capsule().fill(tone.opacity(0.15)))
+            let tone: Color = rt.state == .available ? DB.green : DB.muted
+            livePill(
+                icon: rt.state == .available ? "bolt.fill" : "bolt.slash",
+                text: label,
+                tone: tone
+            )
         }
     }
 
-    /// 14-hour hourly forecast chart, when the API gave us one. We
-    /// already render this on the full detail view; on the map sheet it
-    /// gives a "should I bother walking over there?" answer at a glance.
+    private func livePill(icon: String, text: String, tone: Color) -> some View {
+        HStack(spacing: 5) {
+            Image(systemName: icon)
+                .font(.system(size: 11, weight: .medium))
+            Text(text)
+                .font(DB.mono(11, weight: .semibold))
+        }
+        .foregroundStyle(tone)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 5)
+        .background(
+            Capsule()
+                .fill(tone.opacity(0.10))
+                .overlay(Capsule().stroke(tone.opacity(0.30), lineWidth: 1))
+        )
+    }
+
+    // MARK: - Description
+
+    private func descriptionSection(_ desc: String) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            MonoLabel(text: "BRIEFING", color: DB.muted, tracking: 2, size: 11)
+            Text(desc)
+                .font(DB.heading(15, weight: .regular))
+                .foregroundStyle(DB.text.opacity(0.85))
+        }
+    }
+
+    // MARK: - Forecast
+
     @ViewBuilder
     private var forecastSection: some View {
         if let forecast = attraction.forecast, forecast.count >= 3 {
             VStack(alignment: .leading, spacing: 8) {
-                Text("FORECAST · NEXT 14 HOURS")
-                    .font(.caption.weight(.semibold))
-                    .tracking(1.2)
-                    .foregroundStyle(.secondary)
+                MonoLabel(text: "FORECAST · NEXT 14 HOURS",
+                          color: DB.muted, tracking: 2, size: 11)
                 ForecastChart(points: forecast, tone: forecastTone)
                     .frame(height: 110)
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 14, style: .continuous)
-                            .fill(Color.secondary.opacity(0.08))
+                            .fill(DB.card)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(DB.line, lineWidth: 1)
+                            )
                     )
             }
         }
     }
-}
 
-private struct StatusBadge: View {
-    let status: String?
-    let isOpen: Bool
-
-    var body: some View {
-        let f = StatusFilter.bucket(for: status, isOpen: isOpen)
-        HStack(spacing: 4) {
-            Circle().fill(f.color).frame(width: 8, height: 8)
-            Text(f.rawValue.uppercased())
-                .font(.caption.weight(.semibold))
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 4)
-        .background(Capsule().fill(f.color.opacity(0.15)))
+    private var forecastTone: Color {
+        guard let w = attraction.wait_time else { return DB.muted }
+        return WaitBucket(minutes: w).color
     }
-}
 
-// MARK: - Filter Chip
+    // MARK: - Open in Maps
 
-private struct FilterChip: View {
-    let label: String
-    let count: Int
-    let isOn: Bool
-    let countColor: Color
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 6) {
-                Text(label)
-                    .font(.caption.weight(.semibold))
-                Text(displayCount)
-                    .font(.caption2.weight(.bold))
-                    .padding(.horizontal, 6)
-                    .padding(.vertical, 2)
-                    .background(Capsule().fill(countColor))
-                    .foregroundStyle(.white)
+    private func openInMapsLink(lat: Double, lon: Double) -> some View {
+        Link(destination: URL(string:
+            "https://maps.apple.com/?ll=\(lat),\(lon)&q=\(attraction.name.urlEncoded)")!
+        ) {
+            HStack(spacing: 8) {
+                Image(systemName: "map")
+                Text("OPEN IN MAPS")
+                    .font(DB.mono(12, weight: .semibold))
+                    .tracking(1.5)
+                Spacer()
+                Image(systemName: "arrow.up.right")
             }
-            .padding(.horizontal, 12)
-            .padding(.vertical, 8)
+            .foregroundStyle(accent)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 12)
             .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .stroke(isOn ? AnyShapeStyle(.primary) : AnyShapeStyle(.secondary.opacity(0.3)),
-                            lineWidth: isOn ? 2 : 1)
+                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                    .fill(accent.opacity(0.10))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 12, style: .continuous)
+                            .stroke(accent.opacity(0.30), lineWidth: 1)
+                    )
             )
-            .opacity(isOn ? 1.0 : 0.5)
         }
-        .buttonStyle(.plain)
+        .padding(.top, 6)
     }
-
-    private var displayCount: String { count >= 99 ? "99+" : "\(count)" }
 }
 
 // MARK: - Helpers
@@ -579,6 +664,8 @@ private extension String {
                    latitude: 28.357500, longitude: -81.557400),
     ]
     return ParkMapView(parkId: 7, attractions: demo)
+        .preferredColorScheme(.dark)
+        .background(DB.bg)
 }
 #endif
 
