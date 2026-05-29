@@ -13,69 +13,56 @@ import SwiftUI
 #if canImport(GoogleMobileAds)
 import GoogleMobileAds
 
-/// SwiftUI container that pins an anchored adaptive banner above the tab
-/// bar. Collapses to zero height until an ad is actually loaded, so there
-/// is never an empty gap.
+/// SwiftUI container that pins a fixed 320×50 banner above the tab bar
+/// and centers it horizontally. Mirrors the AdBannerContainerView
+/// pattern from VillagesRemake, which has been stable in production.
 struct BottomAdBanner: View {
-    @State private var adHeight: CGFloat = 0
-
     var body: some View {
-        Group {
-            if AdConfig.adsEnabled {
-                GeometryReader { geo in
-                    AdBannerRepresentable(
-                        width: geo.size.width,
-                        adUnitID: AdConfig.bannerUnitID,
-                        onHeightChange: { adHeight = $0 }
-                    )
-                }
-                .frame(height: adHeight)
-            }
+        if AdConfig.adsEnabled {
+            AdBannerRepresentable(adUnitID: AdConfig.bannerUnitID)
+                .frame(width: 320, height: 50)
+                .frame(maxWidth: .infinity)
+                .background(DB.bg)
         }
-        .frame(maxWidth: .infinity)
-        .background(adHeight > 0 ? DB.bg : .clear)
-        .animation(.easeInOut(duration: 0.25), value: adHeight)
     }
 }
 
 private struct AdBannerRepresentable: UIViewRepresentable {
-    let width: CGFloat
     let adUnitID: String
-    let onHeightChange: (CGFloat) -> Void
 
     func makeCoordinator() -> Coordinator {
-        Coordinator(onHeightChange: onHeightChange)
+        Coordinator()
     }
 
     func makeUIView(context: Context) -> BannerView {
-        let size = adSize()
-        let banner = BannerView(adSize: size)
+        let banner = BannerView(adSize: AdSizeBanner)
         banner.adUnitID = adUnitID
         banner.delegate = context.coordinator
-        banner.rootViewController = Self.rootViewController()
-        banner.load(Self.nonPersonalizedRequest())
+        context.coordinator.bannerView = banner
         return banner
     }
 
     func updateUIView(_ banner: BannerView, context: Context) {
-        // Re-size + reload only on a real width change (e.g. rotation),
-        // not on sub-pixel layout jitter, to avoid reload loops.
-        let size = adSize()
-        if abs(banner.adSize.size.width - size.size.width) > 1 {
-            banner.adSize = size
+        // Set rootViewController lazily — on first updateUIView the key
+        // window isn't always attached yet.
+        if banner.rootViewController == nil {
+            banner.rootViewController = Self.rootViewController()
+        }
+        // One-shot load guard. SwiftUI calls updateUIView on every
+        // parent re-render; without this gate each one would call
+        // `.load()` again, every load spawns a fresh WKWebView, and a
+        // handful of those is enough for jetsam to kill the process
+        // with signal 9.
+        if banner.rootViewController != nil && !context.coordinator.hasLoadedOnce {
+            context.coordinator.hasLoadedOnce = true
             banner.load(Self.nonPersonalizedRequest())
         }
     }
 
-    private func adSize() -> AdSize {
-        let safeWidth = width > 0 ? width : UIScreen.main.bounds.width
-        return currentOrientationAnchoredAdaptiveBanner(width: safeWidth)
-    }
-
-    /// Non-personalized ad request — `npa=1` tells Google not to use the
-    /// user's data for ad personalization, so we don't need ATT or a
-    /// consent SDK.
-    private static func nonPersonalizedRequest() -> Request {
+    /// Non-personalized ad request — `npa=1` tells Google not to use
+    /// the user's data for ad personalization, so we don't need ATT or
+    /// a consent SDK.
+    static func nonPersonalizedRequest() -> Request {
         let request = Request()
         let extras = Extras()
         extras.additionalParameters = ["npa": "1"]
@@ -92,19 +79,20 @@ private struct AdBannerRepresentable: UIViewRepresentable {
     }
 
     final class Coordinator: NSObject, BannerViewDelegate {
-        let onHeightChange: (CGFloat) -> Void
-
-        init(onHeightChange: @escaping (CGFloat) -> Void) {
-            self.onHeightChange = onHeightChange
-        }
+        weak var bannerView: BannerView?
+        var hasLoadedOnce = false
 
         func bannerViewDidReceiveAd(_ bannerView: BannerView) {
-            onHeightChange(bannerView.adSize.size.height)
+            print("AdMob: Banner ad loaded successfully")
         }
 
         func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
-            print("AdMob banner failed to load: \(error.localizedDescription)")
-            onHeightChange(0)
+            print("AdMob: Failed to load banner — \(error.localizedDescription)")
+            // Retry after a delay.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 30) { [weak self] in
+                self?.hasLoadedOnce = false
+                bannerView.load(AdBannerRepresentable.nonPersonalizedRequest())
+            }
         }
     }
 }
