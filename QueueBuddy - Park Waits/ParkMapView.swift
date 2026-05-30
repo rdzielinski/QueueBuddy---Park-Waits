@@ -57,19 +57,56 @@ enum WaitBucket: Int, CaseIterable {
 enum TypeFilter: String, CaseIterable, Identifiable {
     case attractions = "Attractions"
     case shows       = "Shows"
-    case dining      = "Dining"
     var id: String { rawValue }
 
-    /// Maps your StaticData type strings into one of these three buckets.
+    /// Maps your StaticData type strings into one of these two buckets.
+    /// Dining-typed entries are filtered out of the map upstream in
+    /// `mapEligibleAttractions`, so this never sees them.
     static func bucket(for type: String?) -> TypeFilter {
         switch (type ?? "").lowercased() {
         case "show", "theater", "stage", "meet", "film", "3dfilm":
             return .shows
-        case "restaurant", "dining":
-            return .dining
         default:
             return .attractions
         }
+    }
+
+    /// True for restaurant / dining entries; the map drops these because
+    /// users mostly want ride pins, not table-service locations.
+    static func isDining(_ type: String?) -> Bool {
+        switch (type ?? "").lowercased() {
+        case "restaurant", "dining": return true
+        default: return false
+        }
+    }
+}
+
+// MARK: - Map display mode
+
+/// Whether the map shows the flat standard street view or a satellite
+/// image with road/label overlay. Stored in @AppStorage so the choice
+/// persists between launches and between the Map tab and the ParkDetail
+/// embedded map.
+enum MapDisplayMode: String, CaseIterable {
+    case standard
+    case satellite
+
+    var label: String {
+        switch self {
+        case .standard:  return "MAP"
+        case .satellite: return "SAT"
+        }
+    }
+
+    var icon: String {
+        switch self {
+        case .standard:  return "map"
+        case .satellite: return "globe.americas.fill"
+        }
+    }
+
+    var toggled: MapDisplayMode {
+        self == .standard ? .satellite : .standard
     }
 }
 
@@ -114,11 +151,19 @@ struct ParkMapView: View {
     /// can pan freely.
     let focusAttractionId: Int?
 
-    @State private var selectedTypes: Set<TypeFilter> = [.attractions, .shows, .dining]
+    @State private var selectedTypes: Set<TypeFilter> = [.attractions, .shows]
     @State private var selectedStatuses: Set<StatusFilter> = [.open]
     @State private var selectedAttraction: Attraction?
     @State private var selectedAttractionId: Int?
     @State private var cameraPosition: MapCameraPosition
+
+    /// Map base layer: `.standard` flat street map vs `.hybrid` satellite
+    /// imagery with park labels/roads. Persisted across launches and
+    /// shared with the ParkDetailView's embedded map.
+    @AppStorage("mapDisplayMode") private var displayModeRaw: String = MapDisplayMode.standard.rawValue
+    private var displayMode: MapDisplayMode {
+        MapDisplayMode(rawValue: displayModeRaw) ?? .standard
+    }
 
     init(parkId: Int, attractions: [Attraction], focusAttractionId: Int? = nil) {
         self.parkId = parkId
@@ -178,11 +223,15 @@ struct ParkMapView: View {
     /// Rider · 0 MIN" pin sitting next to a DOWN "Mummy" pin — easy to
     /// glance at, walk over, and find a closed queue. The main ride is
     /// still shown with its real status, so users get the truth.
+    ///
+    /// Dining-typed entries are also dropped — the map is meant for "what
+    /// ride should I head to next", not for finding restaurants.
     private var mapEligibleAttractions: [Attraction] {
         attractions.filter { a in
             a.latitude != nil
                 && a.longitude != nil
                 && !a.name.localizedCaseInsensitiveContains("single rider")
+                && !TypeFilter.isDining(a.type)
         }
     }
 
@@ -257,11 +306,51 @@ struct ParkMapView: View {
                 }
             }
             Spacer(minLength: 0)
+            displayModeToggle
         }
         .padding(.horizontal)
     }
 
+    private var displayModeToggle: some View {
+        Button {
+            #if os(iOS)
+            UIImpactFeedbackGenerator(style: .light).impactOccurred()
+            #endif
+            displayModeRaw = displayMode.toggled.rawValue
+        } label: {
+            HStack(spacing: 5) {
+                Image(systemName: displayMode.icon)
+                    .font(.system(size: 10, weight: .semibold))
+                Text(displayMode.label)
+                    .font(DB.mono(10, weight: .semibold))
+                    .tracking(1.2)
+            }
+            .foregroundStyle(DB.text)
+            .padding(.horizontal, 10)
+            .padding(.vertical, 5)
+            .background(
+                Capsule()
+                    .fill(Color.white.opacity(0.04))
+                    .overlay(Capsule().stroke(DB.line, lineWidth: 1))
+            )
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(displayMode == .standard ? "Switch to satellite view" : "Switch to standard map view")
+    }
+
     // MARK: - Map
+
+    /// MapKit base layer chosen by `displayMode`. `.hybrid` is satellite
+    /// imagery *with* roads + labels — chosen over pure `.imagery`
+    /// because unlabeled satellite is hard to navigate at park scale.
+    private var currentMapStyle: MapStyle {
+        switch displayMode {
+        case .standard:
+            return .standard(pointsOfInterest: .excludingAll)
+        case .satellite:
+            return .hybrid(pointsOfInterest: .excludingAll)
+        }
+    }
 
     @ViewBuilder
     private var mapView: some View {
@@ -281,7 +370,7 @@ struct ParkMapView: View {
                 .tag(attraction.id)
             }
         }
-        .mapStyle(.standard(pointsOfInterest: .excludingAll))
+        .mapStyle(currentMapStyle)
         .frame(minHeight: 400, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(
