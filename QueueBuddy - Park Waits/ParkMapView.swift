@@ -107,6 +107,12 @@ enum StatusFilter: String, CaseIterable, Identifiable {
 struct ParkMapView: View {
     let parkId: Int
     let attractions: [Attraction]
+    /// When non-nil and the attraction exists in `attractions` with a
+    /// known lat/lon, the camera starts tightly framed on that pin
+    /// instead of the whole-park overview. One-shot: only consulted at
+    /// init, since the camera position is @State after that and the user
+    /// can pan freely.
+    let focusAttractionId: Int?
 
     @State private var selectedTypes: Set<TypeFilter> = [.attractions, .shows, .dining]
     @State private var selectedStatuses: Set<StatusFilter> = [.open]
@@ -114,15 +120,34 @@ struct ParkMapView: View {
     @State private var selectedAttractionId: Int?
     @State private var cameraPosition: MapCameraPosition
 
-    init(parkId: Int, attractions: [Attraction]) {
+    init(parkId: Int, attractions: [Attraction], focusAttractionId: Int? = nil) {
         self.parkId = parkId
         self.attractions = attractions
-        let center = StaticData.parkCoordinates[parkId]
-            .map { CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lon) }
-            ?? CLLocationCoordinate2D(latitude: 28.4, longitude: -81.55)
+        self.focusAttractionId = focusAttractionId
+
+        let focused: (lat: Double, lon: Double)? = {
+            guard let fid = focusAttractionId,
+                  let attraction = attractions.first(where: { $0.id == fid }),
+                  let lat = attraction.latitude,
+                  let lon = attraction.longitude
+            else { return nil }
+            return (lat, lon)
+        }()
+
+        let center: CLLocationCoordinate2D
+        let span: MKCoordinateSpan
+        if let f = focused {
+            center = CLLocationCoordinate2D(latitude: f.lat, longitude: f.lon)
+            span = MKCoordinateSpan(latitudeDelta: 0.003, longitudeDelta: 0.003)
+        } else {
+            center = StaticData.parkCoordinates[parkId]
+                .map { CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lon) }
+                ?? CLLocationCoordinate2D(latitude: 28.4, longitude: -81.55)
+            span = MKCoordinateSpan(latitudeDelta: 0.012, longitudeDelta: 0.012)
+        }
+
         _cameraPosition = State(initialValue: .region(MKCoordinateRegion(
-            center: center,
-            span: MKCoordinateSpan(latitudeDelta: 0.012, longitudeDelta: 0.012)
+            center: center, span: span
         )))
     }
 

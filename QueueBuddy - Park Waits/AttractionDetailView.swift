@@ -419,7 +419,7 @@ struct AttractionDetailView: View {
                     NotificationCenter.default.post(
                         name: .openMapTab,
                         object: nil,
-                        userInfo: ["parkId": pid]
+                        userInfo: ["parkId": pid, "attractionId": attraction.id]
                     )
                 } label: {
                     Image(systemName: "map.fill")

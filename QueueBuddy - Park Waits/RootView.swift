@@ -4,8 +4,11 @@ import UIKit
 import CoreLocation
 
 /// Cross-tab navigation event posted when something deep in the view tree
-/// (e.g. an attraction detail) wants to switch to the Map tab. Optional
-/// `userInfo["parkId"]: Int` pre-selects the park to show.
+/// (e.g. an attraction detail) wants to switch to the Map tab.
+/// userInfo keys:
+///   - "parkId": Int (optional) — pre-selects the park to show
+///   - "attractionId": Int (optional) — pre-centers the map camera on
+///     that attraction with a tighter zoom, one-shot
 extension Notification.Name {
     static let openMapTab = Notification.Name("queuebuddy.openMapTab")
 }
@@ -106,9 +109,18 @@ struct MainTabView: View {
             // Deep link from anywhere in the app (e.g. an attraction's
             // "Find on Map" button). Pre-select the requested park before
             // flipping the tab so MapTabView's @AppStorage has the right
-            // value when it mounts.
+            // value when it mounts. If an attractionId came along, store
+            // it AND bump the focus generation counter so MapTabView's
+            // view-id changes even when the user requests a focus for an
+            // attraction in the park they're already viewing.
+            let defaults = UserDefaults.standard
             if let parkId = notif.userInfo?["parkId"] as? Int {
-                UserDefaults.standard.set(parkId, forKey: "mapTabParkId")
+                defaults.set(parkId, forKey: "mapTabParkId")
+            }
+            if let attractionId = notif.userInfo?["attractionId"] as? Int {
+                defaults.set(attractionId, forKey: "mapTabFocusAttractionId")
+                let gen = defaults.integer(forKey: "mapTabFocusGeneration")
+                defaults.set(gen &+ 1, forKey: "mapTabFocusGeneration")
             }
             selectedTab = .map
         }

@@ -9,6 +9,17 @@ struct MapTabView: View {
     @EnvironmentObject var viewModel: WaitTimeViewModel
     @AppStorage("mapTabParkId") private var selectedParkId: Int = 6 // Magic Kingdom
 
+    /// One-shot focus attraction. Written by MainTabView when a deep link
+    /// arrives with userInfo["attractionId"]. Cleared after this view
+    /// passes it to ParkMapView so re-visiting the Map tab doesn't keep
+    /// re-centering on the same pin.
+    @AppStorage("mapTabFocusAttractionId") private var focusAttractionId: Int = 0
+
+    /// Bumped on every focus request. Included in ParkMapView's `.id` so
+    /// the same park can be re-focused on a different attraction (which
+    /// would otherwise look like the same view to SwiftUI).
+    @AppStorage("mapTabFocusGeneration") private var focusGen: Int = 0
+
     private var allParks: [Park] {
         viewModel.resortGroups.flatMap { $0.parks }
     }
@@ -43,12 +54,17 @@ struct MapTabView: View {
                     } else if currentAttractions.isEmpty {
                         emptyParkState
                     } else {
-                        // `.id(selectedParkId)` forces ParkMapView to
-                        // rebuild when the user switches parks so the
-                        // camera re-centers on the new park.
-                        ParkMapView(parkId: selectedParkId,
-                                    attractions: currentAttractions)
-                            .id(selectedParkId)
+                        // `.id` combines parkId + focusGen so the camera
+                        // re-centers both when the user switches parks
+                        // (parkId changes) and when a deep link asks to
+                        // focus on a new attraction in the *same* park
+                        // (focusGen changes).
+                        ParkMapView(
+                            parkId: selectedParkId,
+                            attractions: currentAttractions,
+                            focusAttractionId: focusAttractionId > 0 ? focusAttractionId : nil
+                        )
+                        .id("\(selectedParkId)-\(focusGen)")
                     }
                 }
                 // Leave room for the BottomAdBanner (~50pt) and the
@@ -58,6 +74,19 @@ struct MapTabView: View {
             .onAppear { ensureSelectedParkIsValid() }
             .onChange(of: allParks.map(\.id)) { _, _ in
                 ensureSelectedParkIsValid()
+            }
+            .onChange(of: focusGen) { _, _ in
+                // ParkMapView captured the focused attraction in its init
+                // already (it's an init-only @State for the camera). Clear
+                // the marker shortly after so leaving the tab and coming
+                // back uses the default park-center zoom instead of
+                // re-focusing on the same pin. The delay is just enough
+                // to ensure ParkMapView's init has run.
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+                    if focusAttractionId != 0 {
+                        focusAttractionId = 0
+                    }
+                }
             }
         }
     }
