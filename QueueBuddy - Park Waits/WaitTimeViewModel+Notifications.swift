@@ -115,7 +115,7 @@ extension WaitTimeViewModel {
         do {
             try await UNUserNotificationCenter.current().add(request)
         } catch {
-            print("Failed to post notification \(identifier): \(error)")
+            dprint("Failed to post notification \(identifier): \(error)")
         }
         #endif
     }

@@ -59,13 +59,13 @@ enum WaitHistoryClient {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse, http.statusCode != 200 {
-                print("⚠️ /history HTTP \(http.statusCode) for \(attractionName)")
+                dprint("⚠️ /history HTTP \(http.statusCode) for \(attractionName)")
                 return []
             }
             let decoded = try JSONDecoder().decode(Response.self, from: data)
             return decoded.samples
         } catch {
-            print("⚠️ /history fetch failed: \(error.localizedDescription)")
+            dprint("⚠️ /history fetch failed: \(error.localizedDescription)")
             return []
         }
     }

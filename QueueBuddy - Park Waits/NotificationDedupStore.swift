@@ -25,7 +25,7 @@ enum NotificationDedupStore {
         let isBelow = currentWait <= threshold
         let fire = shouldFire(key: String(attractionId), isActive: isBelow)
         #if DEBUG
-        print("🔔 dedup \(attractionId): wait=\(currentWait) ≤ \(threshold)? \(isBelow), fire=\(fire)")
+        dprint("🔔 dedup \(attractionId): wait=\(currentWait) ≤ \(threshold)? \(isBelow), fire=\(fire)")
         #endif
         return fire
     }

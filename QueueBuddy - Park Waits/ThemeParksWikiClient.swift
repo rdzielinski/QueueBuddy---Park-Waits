@@ -81,7 +81,7 @@ final class ThemeParksWikiClient {
             // surfacing it with a synthetic ID would only be half-functional.
             guard let internalId = StaticData.internalAttractionId(forName: entity.name) else {
                 #if DEBUG
-                print("⚠️ ThemeParks.wiki attraction not in static catalog, skipping: \(entity.name)")
+                dprint("⚠️ ThemeParks.wiki attraction not in static catalog, skipping: \(entity.name)")
                 #endif
                 continue
             }

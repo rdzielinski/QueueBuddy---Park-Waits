@@ -83,11 +83,11 @@ private struct AdBannerRepresentable: UIViewRepresentable {
         var hasLoadedOnce = false
 
         func bannerViewDidReceiveAd(_ bannerView: BannerView) {
-            print("AdMob: Banner ad loaded successfully")
+            dprint("AdMob: Banner ad loaded successfully")
         }
 
         func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
-            print("AdMob: Failed to load banner — \(error.localizedDescription)")
+            dprint("AdMob: Failed to load banner — \(error.localizedDescription)")
             // Retry after a delay.
             DispatchQueue.main.asyncAfter(deadline: .now() + 30) { [weak self] in
                 self?.hasLoadedOnce = false

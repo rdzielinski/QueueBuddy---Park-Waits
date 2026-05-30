@@ -75,6 +75,6 @@ extension LocationManager: CLLocationManagerDelegate {
     }
 
     nonisolated func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
-        print("LocationManager error: \(error.localizedDescription)")
+        dprint("LocationManager error: \(error.localizedDescription)")
     }
 }

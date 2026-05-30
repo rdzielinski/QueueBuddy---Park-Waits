@@ -153,20 +153,20 @@ enum AttractionDataAudit {
         let r = report(now: now)
         guard !r.isEmpty else { return }
         let formatter = ISO8601DateFormatter()
-        print("Attraction data audit:")
+        dprint("Attraction data audit:")
         if !r.missingStatic.isEmpty {
-            print("  Static IDs not returned by API for 7+ days (consider retiring):")
+            dprint("  Static IDs not returned by API for 7+ days (consider retiring):")
             for e in r.missingStatic.sorted(by: { ($0.parkId ?? 0) < ($1.parkId ?? 0) }) {
                 let last = e.lastSeen.map { formatter.string(from: $0) } ?? "never"
                 let park = e.parkId.map(String.init) ?? "?"
-                print("    - \(e.id) \(e.name) (park \(park), last seen \(last))")
+                dprint("    - \(e.id) \(e.name) (park \(park), last seen \(last))")
             }
         }
         if !r.unknownLive.isEmpty {
-            print("  Live API IDs missing from StaticData (consider adding):")
+            dprint("  Live API IDs missing from StaticData (consider adding):")
             for e in r.unknownLive.sorted(by: { ($0.firstSeen ?? Date()) < ($1.firstSeen ?? Date()) }) {
                 let first = e.firstSeen.map { formatter.string(from: $0) } ?? "?"
-                print("    - \(e.id) \(e.name) - first seen \(first)")
+                dprint("    - \(e.id) \(e.name) - first seen \(first)")
             }
         }
     }

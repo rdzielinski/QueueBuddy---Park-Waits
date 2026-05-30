@@ -38,7 +38,7 @@ enum LiveActivityBackend {
         startedAt: Double
     ) async {
         guard let base = baseURL else {
-            print("ℹ️ LiveActivityBackend.baseURL not set — skipping register")
+            dprint("ℹ️ LiveActivityBackend.baseURL not set — skipping register")
             return
         }
         let body: [String: Any] = [
@@ -70,18 +70,18 @@ enum LiveActivityBackend {
         do {
             request.httpBody = try JSONSerialization.data(withJSONObject: body)
         } catch {
-            print("❌ \(name) JSON encode failed: \(error)")
+            dprint("❌ \(name) JSON encode failed: \(error)")
             return
         }
         do {
             let (_, response) = try await URLSession.shared.data(for: request)
             if let http = response as? HTTPURLResponse, http.statusCode >= 400 {
-                print("⚠️ \(name) returned HTTP \(http.statusCode)")
+                dprint("⚠️ \(name) returned HTTP \(http.statusCode)")
             } else {
-                print("✅ \(name) ok")
+                dprint("✅ \(name) ok")
             }
         } catch {
-            print("⚠️ \(name) network failed: \(error.localizedDescription)")
+            dprint("⚠️ \(name) network failed: \(error.localizedDescription)")
         }
     }
 }

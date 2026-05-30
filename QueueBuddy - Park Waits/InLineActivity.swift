@@ -88,7 +88,7 @@ enum InLineActivityController {
             observePushToken(for: activity)
             observeLifecycle(for: activity)
         } catch {
-            print("Failed to start in-line Live Activity: \(error)")
+            dprint("Failed to start in-line Live Activity: \(error)")
         }
     }
 

@@ -47,12 +47,12 @@ class ThemeParkAPI {
             do {
                 let attractions = try await themeParksWiki.fetchWaitTimes(forParkId: parkId)
                 if !attractions.isEmpty {
-                    print("✅ ThemeParks.wiki returned \(attractions.count) attractions for park \(parkId)")
+                    dprint("✅ ThemeParks.wiki returned \(attractions.count) attractions for park \(parkId)")
                     return attractions
                 }
-                print("⚠️ ThemeParks.wiki returned empty list for park \(parkId), falling back to queue-times")
+                dprint("⚠️ ThemeParks.wiki returned empty list for park \(parkId), falling back to queue-times")
             } catch {
-                print("⚠️ ThemeParks.wiki failed for park \(parkId): \(error). Falling back to queue-times.")
+                dprint("⚠️ ThemeParks.wiki failed for park \(parkId): \(error). Falling back to queue-times.")
             }
         }
         return try await fetchWaitTimesFromQueueTimes(for: parkId)
@@ -67,7 +67,7 @@ class ThemeParkAPI {
         do {
             return try await themeParksWiki.fetchSchedule(forParkId: parkId)
         } catch {
-            print("⚠️ ThemeParks.wiki schedule failed for park \(parkId): \(error)")
+            dprint("⚠️ ThemeParks.wiki schedule failed for park \(parkId): \(error)")
             return nil
         }
     }
@@ -79,41 +79,41 @@ class ThemeParkAPI {
         request.setValue("Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148", forHTTPHeaderField: "User-Agent")
         request.timeoutInterval = 20
 
-        print("✅ Fetching REAL wait times from: \(url.absoluteString)")
+        dprint("✅ Fetching REAL wait times from: \(url.absoluteString)")
 
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
                 let errorString = String(data: data, encoding: .utf8) ?? "No error body"
-                print("❌ Invalid response from wait time server for park ID \(parkId). Error: \(errorString)")
+                dprint("❌ Invalid response from wait time server for park ID \(parkId). Error: \(errorString)")
                 return StaticData.getStaticAttractions(for: parkId)
             }
             let liveResponse = try JSONDecoder().decode(LiveParkDataResponse.self, from: data)
             let allLiveAttractions = liveResponse.lands.flatMap { $0.rides } + liveResponse.rides
             if allLiveAttractions.isEmpty {
-                print("⚠️ Live API returned no attractions for park ID \(parkId). Falling back to static data.")
+                dprint("⚠️ Live API returned no attractions for park ID \(parkId). Falling back to static data.")
                 return StaticData.getStaticAttractions(for: parkId)
             }
             return allLiveAttractions.map { Attraction(id: $0.id, name: $0.name, wait_time: $0.wait_time, status: $0.is_open ? "Operating" : "Closed", is_open: $0.is_open) }
         } catch {
-            print("❗️ Network request for live data failed for park ID \(parkId). Error: \(error.localizedDescription). Retrying once after delay...")
+            dprint("❗️ Network request for live data failed for park ID \(parkId). Error: \(error.localizedDescription). Retrying once after delay...")
             try? await Task.sleep(nanoseconds: 2_000_000_000)
             do {
                 let (data, response) = try await URLSession.shared.data(for: request)
                 if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
                     let errorString = String(data: data, encoding: .utf8) ?? "No error body"
-                    print("❌ Second attempt failed for park ID \(parkId). Error: \(errorString)")
+                    dprint("❌ Second attempt failed for park ID \(parkId). Error: \(errorString)")
                     return StaticData.getStaticAttractions(for: parkId)
                 }
                 let liveResponse = try JSONDecoder().decode(LiveParkDataResponse.self, from: data)
                 let allLiveAttractions = liveResponse.lands.flatMap { $0.rides } + liveResponse.rides
                 if allLiveAttractions.isEmpty {
-                    print("⚠️ Second attempt: Live API returned no attractions for park ID \(parkId). Falling back to static data.")
+                    dprint("⚠️ Second attempt: Live API returned no attractions for park ID \(parkId). Falling back to static data.")
                     return StaticData.getStaticAttractions(for: parkId)
                 }
                 return allLiveAttractions.map { Attraction(id: $0.id, name: $0.name, wait_time: $0.wait_time, status: $0.is_open ? "Operating" : "Closed", is_open: $0.is_open) }
             } catch {
-                print("❗️ Second network request for live data failed for park ID \(parkId). Error: \(error.localizedDescription). Falling back to static data.")
+                dprint("❗️ Second network request for live data failed for park ID \(parkId). Error: \(error.localizedDescription). Falling back to static data.")
                 return StaticData.getStaticAttractions(for: parkId)
             }
         }
@@ -124,32 +124,32 @@ class ThemeParkAPI {
     func fetchWeatherForecast(for parkId: Int) async throws -> WeatherForecast? {
         // Rate limit: only fetch if 10 minutes have passed since last fetch for this park
         if let lastFetch = lastWeatherFetch[parkId], Date().timeIntervalSince(lastFetch) < 600 {
-            print("⏳ Weather for park \(parkId) fetched less than 10 minutes ago. Skipping API call.")
+            dprint("⏳ Weather for park \(parkId) fetched less than 10 minutes ago. Skipping API call.")
             return nil
         }
 
         guard let coords = StaticData.parkCoordinates[parkId] else {
-            print("❌ No coordinates found for park ID \(parkId)")
+            dprint("❌ No coordinates found for park ID \(parkId)")
             return nil
         }
 
         // Open-Meteo API: No API key required
         let urlString = "https://api.open-meteo.com/v1/forecast?latitude=\(coords.lat)&longitude=\(coords.lon)&current=temperature_2m,weathercode,wind_speed_10m&temperature_unit=fahrenheit"
         guard let url = URL(string: urlString) else {
-            print("❌ Invalid Open-Meteo weather URL.")
+            dprint("❌ Invalid Open-Meteo weather URL.")
             return nil
         }
 
         let (data, response) = try await URLSession.shared.data(from: url)
         if let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode != 200 {
             let errorString = String(data: data, encoding: .utf8) ?? "No error body"
-            print("Open-Meteo API error: \(errorString)")
+            dprint("Open-Meteo API error: \(errorString)")
             return nil
         }
 
         let apiResponse = try JSONDecoder().decode(OpenMeteoWeatherResponse.self, from: data)
         guard let current = apiResponse.current else {
-            print("No current weather data in Open-Meteo response.")
+            dprint("No current weather data in Open-Meteo response.")
             return nil
         }
 

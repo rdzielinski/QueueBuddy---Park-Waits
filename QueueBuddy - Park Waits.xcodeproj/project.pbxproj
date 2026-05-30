@@ -2042,7 +2042,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "QueueBuddy - Park Waits/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "QueueBuddy - Park Waits";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to track your park visit and show your route on the map.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to track your park visit and show your route on the map.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -2081,7 +2081,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "QueueBuddy - Park Waits/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "QueueBuddy - Park Waits";
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.utilities";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.travel";
 				INFOPLIST_KEY_NSLocationAlwaysAndWhenInUseUsageDescription = "We use your location to track your park visit and show your route on the map.";
 				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "We use your location to track your park visit and show your route on the map.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;

@@ -78,12 +78,12 @@ class WaitTimeViewModel: ObservableObject {
         #endif
         UNUserNotificationCenter.current().requestAuthorization(options: options) { granted, error in
             if let error = error {
-                print("Notification authorization error: \(error)")
+                dprint("Notification authorization error: \(error)")
             }
             if granted {
-                print("Notification authorization granted.")
+                dprint("Notification authorization granted.")
             } else {
-                print("Notification authorization denied.")
+                dprint("Notification authorization denied.")
             }
         }
     }
@@ -147,7 +147,7 @@ class WaitTimeViewModel: ObservableObject {
                         } catch is CancellationError {
                             return nil
                         } catch {
-                            print("Error fetching for park \(park.id): \(error)")
+                            dprint("Error fetching for park \(park.id): \(error)")
                             return nil
                         }
                     }
@@ -186,7 +186,7 @@ class WaitTimeViewModel: ObservableObject {
         } catch is CancellationError {
             // Refresh was cancelled (user navigated away). Not an error.
         } catch {
-            print("❌ ERROR during initial data load: \(error.localizedDescription)")
+            dprint("❌ ERROR during initial data load: \(error.localizedDescription)")
             self.errorMessage = "Failed to load park data. Please check your internet connection and try again."
         }
         isLoading = false
@@ -209,7 +209,7 @@ class WaitTimeViewModel: ObservableObject {
         } catch is CancellationError {
             // Ignore — user left the view.
         } catch {
-            print("Error refreshing park \(park.id): \(error.localizedDescription)")
+            dprint("Error refreshing park \(park.id): \(error.localizedDescription)")
         }
     }
 
@@ -275,7 +275,7 @@ class WaitTimeViewModel: ObservableObject {
                     } catch is CancellationError {
                         return nil
                     } catch {
-                        print("Error refreshing park \(park.id): \(error.localizedDescription)")
+                        dprint("Error refreshing park \(park.id): \(error.localizedDescription)")
                         return nil
                     }
                 }
@@ -404,13 +404,13 @@ class WaitTimeViewModel: ObservableObject {
         request.earliestBeginDate = earliest
         do {
             try BGTaskScheduler.shared.submit(request)
-            print("📅 BG refresh queued, earliest: \(earliest)")
+            dprint("📅 BG refresh queued, earliest: \(earliest)")
         } catch {
             // Common failures:
             //   - BGTaskSchedulerErrorDomain code 1 (unavailable): iOS
             //     simulator or Background App Refresh disabled in Settings
             //   - code 3 (tooManyPendingTaskRequests): already queued
-            print("❌ Could not schedule BG refresh: \(error.localizedDescription)")
+            dprint("❌ Could not schedule BG refresh: \(error.localizedDescription)")
         }
     }
 
@@ -463,7 +463,7 @@ class WaitTimeViewModel: ObservableObject {
                 self.weatherByPark[park.id] = forecast
             }
         } catch {
-            print("Error fetching weather for park \(park.id): \(error.localizedDescription)")
+            dprint("Error fetching weather for park \(park.id): \(error.localizedDescription)")
         }
     }
 
@@ -515,7 +515,7 @@ class WaitTimeViewModel: ObservableObject {
 
     func addWaitTime(_ seconds: Double, forEntityId id: Int) {
         let minutes = Int(seconds / 60)
-        print("✅ Manually adding a wait time of \(minutes) minutes for entity ID: \(id).")
+        dprint("✅ Manually adding a wait time of \(minutes) minutes for entity ID: \(id).")
         WaitHistoryStore.shared.record(attractionId: id, minutes: minutes)
     }
 

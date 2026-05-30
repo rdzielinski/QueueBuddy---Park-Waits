@@ -25,7 +25,7 @@ struct ThemeParkTimesApp: App {
             forTaskWithIdentifier: identifier,
             using: nil
         ) { task in
-            print("🔄 BG task fired: \(identifier) at \(Date())")
+            dprint("🔄 BG task fired: \(identifier) at \(Date())")
             guard let refreshTask = task as? BGAppRefreshTask else {
                 task.setTaskCompleted(success: false)
                 return
@@ -43,18 +43,18 @@ struct ThemeParkTimesApp: App {
             let operation = Task {
                 await viewModel.loadInitialData()
                 let success = viewModel.errorMessage == nil
-                print("🔄 BG task completed: success=\(success)")
+                dprint("🔄 BG task completed: success=\(success)")
                 refreshTask.setTaskCompleted(success: success)
             }
             refreshTask.expirationHandler = {
-                print("⏱️ BG task expired before completion")
+                dprint("⏱️ BG task expired before completion")
                 operation.cancel()
             }
         }
         // If registration fails, submit() will *crash* later. Almost
         // always means the identifier isn't in Info.plist's
         // BGTaskSchedulerPermittedIdentifiers, or register() ran twice.
-        print(registered
+        dprint(registered
               ? "✅ Registered BG task handler: \(identifier)"
               : "❌ Failed to register BG task handler: \(identifier) — check Info.plist BGTaskSchedulerPermittedIdentifiers")
     }
