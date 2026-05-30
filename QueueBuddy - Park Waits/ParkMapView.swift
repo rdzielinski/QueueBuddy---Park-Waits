@@ -167,9 +167,27 @@ struct ParkMapView: View {
 
     // MARK: - Filtering
 
-    private var filteredAttractions: [Attraction] {
+    /// Attractions eligible to ever show as a pin on the map. Applies the
+    /// universal rules once so both the visible pins and the chip counts
+    /// stay in sync.
+    ///
+    /// Single-rider entries are dropped on purpose: they're variants of a
+    /// main attraction (often co-located within a few feet), and their
+    /// reported wait time can stay at "0 min" even while the parent ride
+    /// is DOWN. The result on the map used to be a green "Mummy Single
+    /// Rider · 0 MIN" pin sitting next to a DOWN "Mummy" pin — easy to
+    /// glance at, walk over, and find a closed queue. The main ride is
+    /// still shown with its real status, so users get the truth.
+    private var mapEligibleAttractions: [Attraction] {
         attractions.filter { a in
-            guard a.latitude != nil, a.longitude != nil else { return false }
+            a.latitude != nil
+                && a.longitude != nil
+                && !a.name.localizedCaseInsensitiveContains("single rider")
+        }
+    }
+
+    private var filteredAttractions: [Attraction] {
+        mapEligibleAttractions.filter { a in
             let typeOK = selectedTypes.contains(TypeFilter.bucket(for: a.type))
             let statusOK = selectedStatuses.contains(
                 StatusFilter.bucket(for: a.status, isOpen: a.is_open ?? false)
@@ -187,8 +205,8 @@ struct ParkMapView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 6) {
                 ForEach(TypeFilter.allCases) { type in
-                    let count = attractions.filter {
-                        TypeFilter.bucket(for: $0.type) == type && $0.latitude != nil
+                    let count = mapEligibleAttractions.filter {
+                        TypeFilter.bucket(for: $0.type) == type
                     }.count
                     FilterChip(
                         label: type.rawValue,
@@ -204,7 +222,7 @@ struct ParkMapView: View {
                     .padding(.horizontal, 4)
 
                 ForEach(StatusFilter.allCases) { status in
-                    let count = attractions.filter {
+                    let count = mapEligibleAttractions.filter {
                         StatusFilter.bucket(for: $0.status,
                                             isOpen: $0.is_open ?? false) == status
                     }.count

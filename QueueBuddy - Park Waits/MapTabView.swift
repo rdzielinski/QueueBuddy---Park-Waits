@@ -33,7 +33,11 @@ struct MapTabView: View {
     }
 
     private var mappableCount: Int {
-        currentAttractions.filter { $0.latitude != nil && $0.longitude != nil }.count
+        currentAttractions.filter {
+            $0.latitude != nil
+                && $0.longitude != nil
+                && !$0.name.localizedCaseInsensitiveContains("single rider")
+        }.count
     }
 
     private var accent: Color {
