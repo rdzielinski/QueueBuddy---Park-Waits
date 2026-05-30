@@ -152,12 +152,11 @@ struct ParkMapView: View {
     }
 
     var body: some View {
-        VStack(spacing: 14) {
+        VStack(spacing: 8) {
             filterRow
             legend
             mapView
         }
-        .padding(.vertical, 8)
         .sheet(item: $selectedAttraction) { attraction in
             AttractionDetailSheet(parkId: parkId, attraction: attraction)
                 .presentationDetents([.medium, .large])
@@ -265,7 +264,7 @@ struct ParkMapView: View {
             }
         }
         .mapStyle(.standard(pointsOfInterest: .excludingAll))
-        .frame(minHeight: 400)
+        .frame(minHeight: 400, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(
             RoundedRectangle(cornerRadius: 14, style: .continuous)

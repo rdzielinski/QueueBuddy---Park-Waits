@@ -45,8 +45,7 @@ struct MapTabView: View {
             ZStack {
                 DB.bg.ignoresSafeArea()
 
-                VStack(spacing: 14) {
-                    header
+                VStack(spacing: 8) {
                     parkPicker
 
                     if allParks.isEmpty {
@@ -67,9 +66,10 @@ struct MapTabView: View {
                         .id("\(selectedParkId)-\(focusGen)")
                     }
                 }
+                .padding(.top, 8)
                 // Leave room for the BottomAdBanner (~50pt) and the
-                // floating DepartureTabBar (~60pt incl. padding).
-                .padding(.bottom, 110)
+                // floating DepartureTabBar (~50pt incl. padding).
+                .padding(.bottom, 100)
             }
             .onAppear { ensureSelectedParkIsValid() }
             .onChange(of: allParks.map(\.id)) { _, _ in
@@ -91,30 +91,10 @@ struct MapTabView: View {
         }
     }
 
-    // MARK: - Header
-
-    private var header: some View {
-        VStack(alignment: .leading, spacing: 6) {
-            MonoLabel(
-                text: "\(mappableCount) PINNED · CHOOSE TERMINAL",
-                color: DB.muted
-            )
-            HStack(alignment: .firstTextBaseline, spacing: 2) {
-                Text("Map")
-                    .font(DB.displayTitle(34))
-                    .foregroundStyle(DB.text)
-                    .tracking(-0.8)
-                Text(".")
-                    .font(DB.displayTitle(34))
-                    .foregroundStyle(accent)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(.horizontal, 20)
-        .padding(.top, 8)
-    }
-
     // MARK: - Park picker
+    // Doubles as the screen's only header — the tab bar already says
+    // "Map", so a separate display title would just steal vertical space
+    // from the actual map.
 
     private var parkPicker: some View {
         Menu {
@@ -139,12 +119,18 @@ struct MapTabView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(accent)
                 MonoLabel(
-                    text: "VIEWING · \(currentPark?.name.uppercased() ?? "—")",
+                    text: currentPark?.name.uppercased() ?? "—",
                     color: accent,
                     tracking: 1.8,
                     size: 12
                 )
                 Spacer(minLength: 0)
+                MonoLabel(
+                    text: "\(mappableCount) PINNED",
+                    color: DB.muted,
+                    tracking: 1.2,
+                    size: 10
+                )
                 Image(systemName: "chevron.up.chevron.down")
                     .font(.system(size: 11, weight: .semibold))
                     .foregroundStyle(DB.muted)
