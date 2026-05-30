@@ -411,8 +411,17 @@ struct AttractionDetailView: View {
             .disabled(homePark == nil || planStore.contains(attractionId: attraction.id))
             .accessibilityLabel(planStore.contains(attractionId: attraction.id) ? "\(attraction.name) is in My Day" : "Add \(attraction.name) to My Day")
 
-            if let latitude = attraction.latitude, let longitude = attraction.longitude {
-                Link(destination: URL(string: "http://maps.apple.com/?ll=\(latitude),\(longitude)&q=\(attraction.name.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? attraction.name)")!) {
+            if attraction.latitude != nil, attraction.longitude != nil, let pid = parkId {
+                Button {
+                    #if os(iOS)
+                    UIImpactFeedbackGenerator(style: .light).impactOccurred()
+                    #endif
+                    NotificationCenter.default.post(
+                        name: .openMapTab,
+                        object: nil,
+                        userInfo: ["parkId": pid]
+                    )
+                } label: {
                     Image(systemName: "map.fill")
                         .font(.system(size: 15, weight: .semibold))
                         .foregroundStyle(DB.text)
@@ -426,7 +435,8 @@ struct AttractionDetailView: View {
                                 )
                         )
                 }
-                .accessibilityLabel("Open \(attraction.name) in Maps")
+                .buttonStyle(.plain)
+                .accessibilityLabel("Find \(attraction.name) on the map")
             }
         }
     }

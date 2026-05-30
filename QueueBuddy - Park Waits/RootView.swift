@@ -3,6 +3,13 @@ import UserNotifications
 import UIKit
 import CoreLocation
 
+/// Cross-tab navigation event posted when something deep in the view tree
+/// (e.g. an attraction detail) wants to switch to the Map tab. Optional
+/// `userInfo["parkId"]: Int` pre-selects the park to show.
+extension Notification.Name {
+    static let openMapTab = Notification.Name("queuebuddy.openMapTab")
+}
+
 struct RootView: View {
     @EnvironmentObject var viewModel: WaitTimeViewModel
     @StateObject private var notificationDelegate = NotificationDelegate()
@@ -23,14 +30,15 @@ struct RootView: View {
     }
 }
 
-/// The four primary destinations as named in the departure-board design.
+/// The primary destinations as named in the departure-board design.
 enum QBTab: Int, CaseIterable, Identifiable {
-    case parks, favorites, alerts, plan
+    case parks, map, favorites, alerts, plan
     var id: Int { rawValue }
 
     var label: String {
         switch self {
         case .parks:     return "Parks"
+        case .map:       return "Map"
         case .favorites: return "Favorites"
         case .alerts:    return "Alerts"
         case .plan:      return "Plan"
@@ -40,6 +48,7 @@ enum QBTab: Int, CaseIterable, Identifiable {
     var systemImage: String {
         switch self {
         case .parks:     return "square.grid.2x2.fill"
+        case .map:       return "map.fill"
         case .favorites: return "star.fill"
         case .alerts:    return "bell.badge.fill"
         case .plan:      return "sparkles"
@@ -67,6 +76,8 @@ struct MainTabView: View {
                             set: { selectedTab = QBTab(rawValue: $0) ?? .parks }
                         )
                     )
+                case .map:
+                    MapTabView()
                 case .favorites:
                     FavoritedAttractionsView(searchText: $searchText)
                 case .alerts:
@@ -90,6 +101,16 @@ struct MainTabView: View {
             // Honor the saved "launch on" preference, falling back to
             // Parks when the persisted value isn't a valid tab.
             selectedTab = QBTab(rawValue: defaultTabRaw) ?? .parks
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .openMapTab)) { notif in
+            // Deep link from anywhere in the app (e.g. an attraction's
+            // "Find on Map" button). Pre-select the requested park before
+            // flipping the tab so MapTabView's @AppStorage has the right
+            // value when it mounts.
+            if let parkId = notif.userInfo?["parkId"] as? Int {
+                UserDefaults.standard.set(parkId, forKey: "mapTabParkId")
+            }
+            selectedTab = .map
         }
     }
 }

@@ -386,10 +386,6 @@ private struct AttractionDetailSheet: View {
                 }
 
                 forecastSection
-
-                if let lat = attraction.latitude, let lon = attraction.longitude {
-                    openInMapsLink(lat: lat, lon: lon)
-                }
             }
             .padding(20)
         }
@@ -595,43 +591,6 @@ private struct AttractionDetailSheet: View {
     private var forecastTone: Color {
         guard let w = attraction.wait_time else { return DB.muted }
         return WaitBucket(minutes: w).color
-    }
-
-    // MARK: - Open in Maps
-
-    private func openInMapsLink(lat: Double, lon: Double) -> some View {
-        Link(destination: URL(string:
-            "https://maps.apple.com/?ll=\(lat),\(lon)&q=\(attraction.name.urlEncoded)")!
-        ) {
-            HStack(spacing: 8) {
-                Image(systemName: "map")
-                Text("OPEN IN MAPS")
-                    .font(DB.mono(12, weight: .semibold))
-                    .tracking(1.5)
-                Spacer()
-                Image(systemName: "arrow.up.right")
-            }
-            .foregroundStyle(accent)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 12)
-            .background(
-                RoundedRectangle(cornerRadius: 12, style: .continuous)
-                    .fill(accent.opacity(0.10))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 12, style: .continuous)
-                            .stroke(accent.opacity(0.30), lineWidth: 1)
-                    )
-            )
-        }
-        .padding(.top, 6)
-    }
-}
-
-// MARK: - Helpers
-
-private extension String {
-    var urlEncoded: String {
-        addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? self
     }
 }
 
