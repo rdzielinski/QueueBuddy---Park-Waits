@@ -5,6 +5,7 @@ struct AIPlaygroundView: View {
     @StateObject private var planStore = ParkDayPlanStore.shared
     @AppStorage("preferredParkId") private var preferredParkId: Int = 0
     @AppStorage("childHeightInches") private var childHeightInches: Int = 0
+    @AppStorage(AIProviderRegistry.activeProviderKey) private var activeProviderRaw: String = AIProviderKind.claude.rawValue
     @State private var query: String = ""
     @State private var selectedParkID: Int = 0
     @State private var showSettings: Bool = false
@@ -26,6 +27,13 @@ struct AIPlaygroundView: View {
 
     private var selectedPark: Park? {
         parksForPicker.first { $0.id == selectedParkID && $0.id != 0 }
+    }
+
+    /// The AI provider the user picked in Settings. Read through @AppStorage
+    /// so the "Powered by" label and the chat byline track provider changes
+    /// live (e.g. switching from Claude to ChatGPT in Settings).
+    private var currentProvider: AIProviderKind {
+        AIProviderKind(rawValue: activeProviderRaw) ?? .claude
     }
 
     private var accent: Color {
@@ -107,7 +115,7 @@ struct AIPlaygroundView: View {
     private var header: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
-                MonoLabel(text: "POWERED BY CLAUDE", color: DB.muted)
+                MonoLabel(text: "Powered by \(currentProvider.shortName)", color: DB.muted)
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
                     Text("Plan")
                         .font(DB.displayTitle(34))
@@ -477,7 +485,7 @@ struct AIPlaygroundView: View {
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         MonoLabel(
-                            text: message.speaker == .user ? "YOU" : "CLAUDE",
+                            text: message.speaker == .user ? "YOU" : currentProvider.shortName,
                             color: message.speaker == .user ? DB.muted : accent,
                             tracking: 1.5, size: 9
                         )
