@@ -36,8 +36,10 @@ extension WaitTimeViewModel {
     /// background optimization, not a feature users get told about when
     /// it can't run.
     func evaluateRouteIfNeeded() async {
-        // Don't bother building a context if we can't possibly call out.
-        guard ClaudeAIClient.readAPIKey()?.isEmpty == false else { return }
+        // Don't bother building a context if the active provider isn't
+        // configured (no key for cloud providers, unsupported device for
+        // Apple Intelligence).
+        guard AIProviderRegistry.currentIsConfigured() else { return }
 
         // Throttle. Use UserDefaults so BG refresh and foreground refresh
         // share the same clock across viewModel lifetimes.

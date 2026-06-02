@@ -16,7 +16,10 @@ struct AIPlaygroundView: View {
     }
 
     private var hasAPIKey: Bool {
-        (ClaudeAIClient.readAPIKey() ?? "").isEmpty == false
+        // True when the currently-selected AI provider is ready to call.
+        // Cloud providers need a key; Apple Intelligence is "ready" once
+        // the device supports it.
+        AIProviderRegistry.currentIsConfigured()
     }
 
     private var selectedPark: Park? {
@@ -151,8 +154,8 @@ struct AIPlaygroundView: View {
                 .foregroundStyle(DB.amber)
                 .font(.title3)
             VStack(alignment: .leading, spacing: 4) {
-                MonoLabel(text: "CONNECT ANTHROPIC KEY", color: DB.amber)
-                Text("Paste a Claude API key in Settings. It stays on this device.")
+                MonoLabel(text: "CONNECT AI PROVIDER", color: DB.amber)
+                Text("Pick a provider (Claude, ChatGPT, Gemini, or Apple Intelligence) in Settings → AI Assistant.")
                     .font(.system(size: 12))
                     .foregroundStyle(DB.muted)
             }

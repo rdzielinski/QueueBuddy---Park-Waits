@@ -68,7 +68,11 @@ class WaitTimeViewModel: ObservableObject {
     /// the BG refresh cadence so an active Live Activity stays current.
     private static let foregroundRefreshInterval: TimeInterval = 5 * 60
     private let api = ThemeParkAPI.shared
-    let aiClient = ClaudeAIClient.shared
+    /// Resolves to whichever AI provider the user has selected in
+    /// Settings. Computed (not stored) so changing the active provider
+    /// at runtime takes effect on the very next `.complete(...)` call
+    /// without having to invalidate any caches.
+    var aiClient: any AIChatProvider { AIProviderRegistry.currentClient() }
 
     init() {
         loadFavorites()

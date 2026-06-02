@@ -99,20 +99,24 @@ EXPECTED JSON SCHEMA:
 }
 """
 
-    /// Evaluates the user's plan against current wait times.
-    /// - Returns: A typed `RouteDecision` on success, or `nil` if the user
-    ///   has no API key, the response wasn't valid JSON, or anything else
-    ///   went wrong. Routing is an optimization — never surface failures
-    ///   to the user as errors.
+    /// Evaluates the user's plan against current wait times using
+    /// whichever AI provider the user has selected (Claude / OpenAI /
+    /// Gemini / Apple Intelligence).
+    /// - Returns: A typed `RouteDecision` on success, or `nil` if the
+    ///   active provider isn't configured (no key for cloud providers,
+    ///   not available on this device for Apple), the response wasn't
+    ///   valid JSON, or anything else went wrong. Routing is an
+    ///   optimization — never surface failures to the user as errors.
     public static func evaluate(_ context: RouteContext,
-                                client: ClaudeAIClient = .shared) async -> RouteDecision? {
-        guard ClaudeAIClient.readAPIKey()?.isEmpty == false else { return nil }
+                                client: (any AIChatProvider)? = nil) async -> RouteDecision? {
+        guard AIProviderRegistry.currentIsConfigured() else { return nil }
 
+        let resolvedClient = client ?? AIProviderRegistry.currentClient()
         let userMessage = buildUserMessage(from: context)
 
         let raw: String
         do {
-            raw = try await client.complete(
+            raw = try await resolvedClient.complete(
                 systemPrompt: systemPrompt,
                 contextBlock: nil,
                 history: [],
@@ -120,7 +124,7 @@ EXPECTED JSON SCHEMA:
                 maxTokens: 600
             )
         } catch {
-            dprint("RouteEvaluator: Claude call failed — \(error)")
+            dprint("RouteEvaluator: AI call failed — \(error)")
             return nil
         }
 
@@ -207,11 +211,3 @@ EXPECTED JSON SCHEMA:
     }
 }
 
-// MARK: - Convenience: shared instance hook on ClaudeAIClient
-
-extension ClaudeAIClient {
-    /// Single shared client. The existing call sites instantiate
-    /// per-use, which is fine, but the routing evaluator runs on every
-    /// refresh and a shared instance saves the URLSession spin-up cost.
-    static let shared = ClaudeAIClient()
-}

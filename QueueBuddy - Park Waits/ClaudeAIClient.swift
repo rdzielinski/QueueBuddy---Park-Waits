@@ -34,11 +34,11 @@ actor ClaudeAIClient {
         let subtitle: String
     }
 
-    struct Turn: Codable, Hashable {
-        enum Role: String, Codable { case user, assistant }
-        let role: Role
-        let text: String
-    }
+    /// Provider-agnostic chat turn. Aliased from `AIChatTurn` so the
+    /// existing `ClaudeAIClient.Turn` call sites keep compiling after
+    /// the multi-provider refactor, while the underlying type is the
+    /// one the `AIChatProvider` protocol uses.
+    typealias Turn = AIChatTurn
 
     enum ClaudeError: LocalizedError {
         case missingAPIKey
@@ -252,3 +252,11 @@ actor ClaudeAIClient {
         let text: String?
     }
 }
+
+// MARK: - Multi-provider conformance
+//
+// ClaudeAIClient was the first AI client; everything else is adapted to
+// fit its `complete(...)` shape. Conformance is empty because the
+// existing method already matches the protocol exactly.
+
+extension ClaudeAIClient: AIChatProvider {}

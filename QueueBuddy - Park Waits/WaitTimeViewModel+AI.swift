@@ -60,7 +60,11 @@ extension WaitTimeViewModel {
             )
             aiConversation.append(AIMessage(speaker: .ai, text: reply))
             aiResponse = reply
+        } catch let error as AIProviderError {
+            aiError = error.errorDescription
         } catch let error as ClaudeAIClient.ClaudeError {
+            // Pre-multi-provider error type; kept so any code path still
+            // throwing it surfaces a friendly message.
             aiError = error.errorDescription
         } catch {
             aiError = "Failed to get a response. \(error.localizedDescription)"
