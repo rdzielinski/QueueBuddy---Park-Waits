@@ -247,12 +247,27 @@ struct AIPlaygroundView: View {
             }
 
             if visibleItems.isEmpty {
-                Text("Add rides from attraction details or auto-fill from the shortest waits.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(DB.muted)
-                    .padding(14)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(DB.card))
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Add rides from attraction details or auto-fill from the shortest waits.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(DB.muted)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if #available(iOS 16.1, *) {
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "dot.radiowaves.left.and.right")
+                                .font(.system(size: 11))
+                                .foregroundStyle(accent)
+                                .padding(.top, 1)
+                            Text("Once your plan has a ride, you can start a Live Activity to track your next stop and its wait on the Lock Screen.")
+                                .font(.system(size: 12))
+                                .foregroundStyle(DB.muted)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                }
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(DB.card))
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(visibleItems.enumerated()), id: \.element.id) { index, item in
