@@ -10,6 +10,8 @@ struct FlapDigits: View {
     var tone: Color = DB.amber
     var label: String? = "MIN"
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
     private var digits: [Character] {
         let txt: String
         if let value {
@@ -27,6 +29,7 @@ struct FlapDigits: View {
                     digitTile(ch)
                 }
             }
+            .animation(reduceMotion ? nil : Motion.flap, value: value)
             if let label {
                 Text(label)
                     .font(DB.mono(max(10, size * 0.18), weight: .regular))
@@ -69,6 +72,7 @@ struct FlapDigits: View {
                 .font(.system(size: size * 0.72, weight: .bold, design: .monospaced))
                 .foregroundStyle(tone)
                 .tracking(-1)
+                .contentTransition(.numericText())
                 .shadow(color: tone.opacity(0.5), radius: size * 0.18)
 
             // Center split line
@@ -132,11 +136,19 @@ struct WaitChip: View {
     private var activeChip: some View {
         let tone = DB.waitTone(for: wait)
         HStack(spacing: style == .large ? 10 : 8) {
-            Circle()
-                .fill(tone)
-                .frame(width: style == .large ? 8 : 6,
-                       height: style == .large ? 8 : 6)
-                .shadow(color: tone, radius: style == .large ? 4 : 3)
+            // Hero (large) chips breathe to signal "live"; per-row (small)
+            // chips keep a static glow so a long list isn't full of motion.
+            if style == .large {
+                Circle()
+                    .fill(tone)
+                    .frame(width: 8, height: 8)
+                    .livePulse(tone)
+            } else {
+                Circle()
+                    .fill(tone)
+                    .frame(width: 6, height: 6)
+                    .shadow(color: tone, radius: 3)
+            }
             Text("\(wait ?? 0)")
                 .font(DB.mono(style == .large ? 18 : 13, weight: .bold))
                 .foregroundStyle(tone)
@@ -197,7 +209,7 @@ struct StatusStrip: View {
                 Circle()
                     .fill(DB.green)
                     .frame(width: 6, height: 6)
-                    .shadow(color: DB.green, radius: 3)
+                    .livePulse(DB.green)
                 Text("LIVE").tracking(1.5)
             }
             Text("·").foregroundStyle(DB.dim)
@@ -541,5 +553,50 @@ struct ErrorBanner: View {
         )
         .accessibilityElement(children: .combine)
         .accessibilityLabel("Error: \(message)")
+    }
+}
+
+// MARK: - SkeletonBlock
+// Shimmering placeholder bar for loading states.
+
+struct SkeletonBlock: View {
+    var height: CGFloat = 14
+    var cornerRadius: CGFloat = 6
+
+    var body: some View {
+        RoundedRectangle(cornerRadius: cornerRadius, style: .continuous)
+            .fill(DB.card2)
+            .frame(height: height)
+            .shimmering()
+            .accessibilityHidden(true)
+    }
+}
+
+// MARK: - TypingDots
+// Three-dot "thinking" indicator shown while the AI is generating a reply.
+
+struct TypingDots: View {
+    var color: Color = DB.muted
+
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var animate = false
+
+    var body: some View {
+        HStack(spacing: 4) {
+            ForEach(0..<3, id: \.self) { i in
+                Circle()
+                    .fill(color)
+                    .frame(width: 5, height: 5)
+                    .opacity(animate ? 1 : 0.3)
+                    .scaleEffect(animate ? 1 : 0.7)
+                    .animation(
+                        reduceMotion ? nil
+                            : .easeInOut(duration: 0.6).repeatForever().delay(Double(i) * 0.18),
+                        value: animate
+                    )
+            }
+        }
+        .onAppear { animate = true }
+        .accessibilityLabel("Generating reply")
     }
 }

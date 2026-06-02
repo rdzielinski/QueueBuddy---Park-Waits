@@ -526,7 +526,33 @@ struct AIPlaygroundView: View {
                     )
                 }
             }
+
+            if viewModel.isAILoading {
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 13))
+                        .foregroundStyle(accent)
+                        .padding(.top, 10)
+                    VStack(alignment: .leading, spacing: 6) {
+                        MonoLabel(text: currentProvider.shortName, color: accent, tracking: 1.5, size: 9)
+                        TypingDots(color: accent)
+                            .padding(.vertical, 2)
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(DB.card)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
+                            )
+                    )
+                }
+                .transition(.opacity)
+            }
         }
+        .animation(.easeInOut(duration: 0.2), value: viewModel.isAILoading)
     }
 
     @ViewBuilder

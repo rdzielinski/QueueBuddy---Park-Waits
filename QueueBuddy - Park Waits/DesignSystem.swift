@@ -124,3 +124,110 @@ extension Color {
         self = Color(.sRGB, red: r, green: g, blue: b, opacity: opacity)
     }
 }
+
+// MARK: - Motion
+
+/// Subtle, centralized motion tokens for the Departure-Board UI. Pair these
+/// with the `livePulse`, `appearIn`, and `shimmering` modifiers below. Every
+/// modifier checks the system "Reduce Motion" setting and becomes a no-op
+/// (or an instant snap) when it's on.
+enum Motion {
+    /// Signature split-flap timing — quick, springy, settles fast.
+    static let flap = Animation.spring(response: 0.42, dampingFraction: 0.82)
+    /// Gentle fade + rise for rows and cards as they appear.
+    static let entrance = Animation.easeOut(duration: 0.38)
+    /// Slow breathing loop for "live" LED indicators.
+    static let breathe = Animation.easeInOut(duration: 1.7).repeatForever(autoreverses: true)
+
+    /// Per-item entrance delay, capped so long lists never feel laggy.
+    static func stagger(_ index: Int, step: Double = 0.045, cap: Double = 0.36) -> Double {
+        min(Double(max(0, index)) * step, cap)
+    }
+}
+
+// MARK: - Motion modifiers
+
+private struct LivePulseModifier: ViewModifier {
+    let color: Color
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var pulsing = false
+
+    func body(content: Content) -> some View {
+        content
+            .scaleEffect(reduceMotion ? 1 : (pulsing ? 1.0 : 0.82))
+            .shadow(color: color.opacity(reduceMotion ? 0.6 : (pulsing ? 0.9 : 0.3)),
+                    radius: reduceMotion ? 3 : (pulsing ? 5 : 2))
+            .onAppear {
+                guard !reduceMotion else { return }
+                withAnimation(Motion.breathe) { pulsing = true }
+            }
+    }
+}
+
+private struct AppearInModifier: ViewModifier {
+    let index: Int
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var shown = false
+
+    func body(content: Content) -> some View {
+        content
+            .opacity(shown ? 1 : 0)
+            .offset(y: shown ? 0 : 6)
+            .onAppear {
+                if reduceMotion {
+                    shown = true
+                    return
+                }
+                withAnimation(Motion.entrance.delay(Motion.stagger(index))) {
+                    shown = true
+                }
+            }
+    }
+}
+
+private struct ShimmerModifier: ViewModifier {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @State private var phase: CGFloat = -1
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if !reduceMotion {
+                    GeometryReader { geo in
+                        let w = geo.size.width
+                        LinearGradient(
+                            colors: [.clear, Color.white.opacity(0.16), .clear],
+                            startPoint: .leading, endPoint: .trailing
+                        )
+                        .frame(width: w * 0.55)
+                        .offset(x: phase * (w * 1.55))
+                        .onAppear {
+                            withAnimation(.linear(duration: 1.35).repeatForever(autoreverses: false)) {
+                                phase = 1.2
+                            }
+                        }
+                    }
+                    .allowsHitTesting(false)
+                }
+            }
+            .clipped()
+    }
+}
+
+extension View {
+    /// Gentle breathing glow for small "live" LED dots. No-op under Reduce Motion.
+    func livePulse(_ color: Color) -> some View {
+        modifier(LivePulseModifier(color: color))
+    }
+
+    /// Fade + slight rise on first appear, staggered by `index`. Snaps in
+    /// instantly under Reduce Motion.
+    func appearIn(_ index: Int = 0) -> some View {
+        modifier(AppearInModifier(index: index))
+    }
+
+    /// Sweeping highlight for skeleton placeholders. No-op under Reduce Motion.
+    func shimmering() -> some View {
+        modifier(ShimmerModifier())
+    }
+}

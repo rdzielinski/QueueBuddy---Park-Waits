@@ -492,12 +492,13 @@ struct HomeView: View {
             .padding(.horizontal, 20)
 
             VStack(spacing: 10) {
-                ForEach(group.parks) { park in
+                ForEach(Array(group.parks.enumerated()), id: \.element.id) { idx, park in
                     NavigationLink(value: park) {
                         ParkCardView(park: park)
                             .environmentObject(viewModel)
                     }
                     .buttonStyle(.plain)
+                    .appearIn(idx)
                 }
             }
             .padding(.horizontal, 16)
@@ -507,9 +508,12 @@ struct HomeView: View {
     private var loadingOverlay: some View {
         VStack(spacing: 14) {
             MonoLabel(text: "● SYNCING LIVE DATA", color: DB.amber)
-            ProgressView()
-                .progressViewStyle(.circular)
-                .tint(DB.amber)
+            VStack(spacing: 8) {
+                ForEach(0..<3, id: \.self) { _ in
+                    SkeletonBlock(height: 12)
+                }
+            }
+            .frame(width: 160)
         }
         .padding(24)
         .background(

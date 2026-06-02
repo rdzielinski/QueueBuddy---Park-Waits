@@ -803,6 +803,7 @@ struct ParkDetailView: View {
                             )
                         }
                         .buttonStyle(.plain)
+                        .appearIn(idx)
                         #if !os(tvOS)
                         .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                             Button {
