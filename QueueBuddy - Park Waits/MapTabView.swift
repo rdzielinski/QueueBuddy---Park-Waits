@@ -111,17 +111,19 @@ struct MapTabView: View {
                             #endif
                             selectedParkId = park.id
                         } label: {
-                            Label(park.name,
-                                  systemImage: DB.glyph(for: park.id))
+                            if let asset = ParkGlyph.assetName(for: park.id) {
+                                Label(park.name, image: asset)
+                            } else {
+                                Label(park.name,
+                                      systemImage: DB.glyph(for: park.id))
+                            }
                         }
                     }
                 }
             }
         } label: {
             HStack(spacing: 10) {
-                Image(systemName: DB.glyph(for: selectedParkId))
-                    .font(.system(size: 13, weight: .semibold))
-                    .foregroundStyle(accent)
+                ParkGlyph(parkId: selectedParkId, tint: accent, size: 18)
                 MonoLabel(
                     text: currentPark?.name.uppercased() ?? "—",
                     color: accent,

@@ -28,27 +28,6 @@
 				<key>NSIncludesSubdomains</key>
 				<true/>
 			</dict>
-			<key>api.open-meteo.com</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-			</dict>
-			<key>api.openweathermap.org</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-			</dict>
-			<key>queue-times.com</key>
-			<dict>
-				<key>NSExceptionAllowsInsecureHTTPLoads</key>
-				<true/>
-				<key>NSIncludesSubdomains</key>
-				<true/>
-			</dict>
 			<key>api.themeparks.wiki</key>
 			<dict>
 				<key>NSIncludesSubdomains</key>
@@ -65,7 +44,6 @@
 	<array>
 		<string>fetch</string>
 		<string>remote-notification</string>
-		<string>location</string>
 	</array>
 	<key>NSSupportsLiveActivities</key>
 	<true/>
