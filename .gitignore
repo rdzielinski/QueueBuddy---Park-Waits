@@ -1,1 +1,8 @@
 .claude/
+
+# Xcode archive/export artifacts
+*.ipa
+*.xcarchive/
+DistributionSummary.plist
+ExportOptions.plist
+Packaging.log
