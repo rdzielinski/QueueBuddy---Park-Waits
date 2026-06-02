@@ -273,19 +273,19 @@ struct AIPlaygroundView: View {
                     ForEach(Array(visibleItems.enumerated()), id: \.element.id) { index, item in
                         HStack(spacing: 10) {
                             Button {
-                                planStore.toggleDone(item)
+                                planStore.toggleSelected(item)
                             } label: {
-                                Image(systemName: item.isDone ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(item.isDone ? DB.green : DB.muted)
+                                Image(systemName: item.isSelected ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(item.isSelected ? accent : DB.muted)
                                     .frame(width: 28, height: 28)
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel(item.isDone ? "Mark \(item.attractionName) incomplete" : "Mark \(item.attractionName) complete")
+                            .accessibilityLabel(item.isSelected ? "Stop tracking \(item.attractionName)" : "Track \(item.attractionName)")
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(item.attractionName)
                                     .font(DB.heading(14, weight: .medium))
-                                    .foregroundStyle(item.isDone ? DB.muted : DB.text)
+                                    .foregroundStyle(item.isSelected ? DB.text : DB.muted)
                                     .lineLimit(1)
                                 Text(item.parkName.uppercased())
                                     .font(DB.mono(9))
@@ -321,7 +321,7 @@ struct AIPlaygroundView: View {
                 )
 
                 if let park = selectedPark,
-                   visibleItems.contains(where: { !$0.isDone }) {
+                   visibleItems.contains(where: { $0.isSelected }) {
                     liveActivityToggle(park: park)
                 }
             }

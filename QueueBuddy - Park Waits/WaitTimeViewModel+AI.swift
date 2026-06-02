@@ -137,9 +137,7 @@ extension WaitTimeViewModel {
         if let childHeight { parts.append("Traveling child height: \(childHeight) inches.") }
         let planItems = ParkDayPlanStore.shared.items(for: park?.id)
         if !planItems.isEmpty {
-            let names = planItems.map { item in
-                item.isDone ? "\(item.attractionName) (done)" : item.attractionName
-            }
+            let names = planItems.map { $0.attractionName }
             parts.append("My Day plan: \(names.joined(separator: ", ")).")
         }
         if let likes, !likes.isEmpty { parts.append("User likes: \(likes.joined(separator: ", ")).") }
