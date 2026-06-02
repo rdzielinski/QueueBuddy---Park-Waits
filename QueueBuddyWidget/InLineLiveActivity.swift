@@ -12,6 +12,11 @@ struct InLineAttributes: ActivityAttributes {
         var currentWait: Int?
         var startedAt: Double      // UNIX seconds — matches Cloudflare push payload
         var lastUpdatedAt: Double  // UNIX seconds — matches Cloudflare push payload
+        /// Latest Claude routing decision text. Optional + default-nil
+        /// so the field is backward-compatible with activities that
+        /// were started before the routing engine landed.
+        var routingMessage: String?
+        var nextDestinationName: String?
     }
 
     var attractionId: Int
@@ -126,6 +131,12 @@ struct InLineLiveActivity: Widget {
                 }
             }
 
+            if let routingMessage = state.routingMessage, !routingMessage.isEmpty {
+                routeBanner(message: routingMessage,
+                            nextName: state.nextDestinationName,
+                            accentHex: state.parkAccentHex)
+            }
+
             Divider().background(WidgetTheme.muted.opacity(0.2))
 
             HStack {
@@ -141,6 +152,48 @@ struct InLineLiveActivity: Widget {
             }
         }
         .padding(14)
+    }
+
+    /// Routing decision row pinned under the wait time when the Claude
+    /// evaluator has fired. Uses the park accent so it visually ties to
+    /// the rest of the activity instead of looking like a system alert.
+    @ViewBuilder
+    private func routeBanner(message: String, nextName: String?, accentHex: UInt32) -> some View {
+        let accent = WidgetTheme.color(fromHex: accentHex)
+        VStack(alignment: .leading, spacing: 4) {
+            HStack(spacing: 6) {
+                Image(systemName: "arrow.triangle.turn.up.right.diamond.fill")
+                    .font(.system(size: 10, weight: .semibold))
+                    .foregroundStyle(accent)
+                Text("REROUTE")
+                    .font(.system(size: 10, weight: .semibold, design: .monospaced))
+                    .tracking(2)
+                    .foregroundStyle(accent)
+                Spacer(minLength: 0)
+                if let nextName, !nextName.isEmpty {
+                    Text("→ \(nextName.uppercased())")
+                        .font(.system(size: 9, weight: .semibold, design: .monospaced))
+                        .tracking(1.2)
+                        .foregroundStyle(WidgetTheme.muted)
+                        .lineLimit(1)
+                }
+            }
+            Text(message)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundStyle(WidgetTheme.text)
+                .lineLimit(2)
+        }
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 10, style: .continuous)
+                .fill(accent.opacity(0.10))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 10, style: .continuous)
+                        .stroke(accent.opacity(0.35), lineWidth: 1)
+                )
+        )
     }
 }
 

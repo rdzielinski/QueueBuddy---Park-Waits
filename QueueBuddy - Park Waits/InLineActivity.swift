@@ -22,6 +22,14 @@ struct InLineAttributes: ActivityAttributes {
         var currentWait: Int?
         var startedAt: Double
         var lastUpdatedAt: Double
+        /// Latest routing decision from the Claude evaluator, when one
+        /// has fired. Optional + default-nil so existing activities
+        /// started before this field existed decode cleanly.
+        var routingMessage: String?
+        /// Name of the attraction the user is now being routed to.
+        /// Used by the widget to render a "→ X" line under the
+        /// routing message.
+        var nextDestinationName: String?
     }
 
     var attractionId: Int
@@ -73,7 +81,9 @@ enum InLineActivityController {
             parkAccentHex: parkAccentHex,
             currentWait: currentWait,
             startedAt: nowSeconds,
-            lastUpdatedAt: nowSeconds
+            lastUpdatedAt: nowSeconds,
+            routingMessage: nil,
+            nextDestinationName: nil
         )
 
         do {
@@ -99,6 +109,34 @@ enum InLineActivityController {
         guard let activity = current, activity.attributes.attractionId == attractionId else { return }
         var state = activity.content.state
         state.currentWait = currentWait
+        state.lastUpdatedAt = Date().timeIntervalSince1970
+        Task {
+            await activity.update(.init(state: state, staleDate: Date().addingTimeInterval(60 * 30)))
+        }
+    }
+
+    /// Push a routing decision onto whatever Live Activity is currently
+    /// running. The user sees a one-line "Rerouting to X" pinned to the
+    /// Lock Screen / Dynamic Island as soon as the call returns.
+    /// No-op if no activity is active.
+    static func updateRoute(message: String, nextDestinationName: String?) {
+        guard let activity = current else { return }
+        var state = activity.content.state
+        state.routingMessage = message
+        state.nextDestinationName = nextDestinationName
+        state.lastUpdatedAt = Date().timeIntervalSince1970
+        Task {
+            await activity.update(.init(state: state, staleDate: Date().addingTimeInterval(60 * 30)))
+        }
+    }
+
+    /// Clears the routing fields on the active Live Activity. Called
+    /// when the user dismisses the in-app banner.
+    static func clearRoute() {
+        guard let activity = current else { return }
+        var state = activity.content.state
+        state.routingMessage = nil
+        state.nextDestinationName = nil
         state.lastUpdatedAt = Date().timeIntervalSince1970
         Task {
             await activity.update(.init(state: state, staleDate: Date().addingTimeInterval(60 * 30)))

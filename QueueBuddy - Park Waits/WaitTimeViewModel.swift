@@ -43,6 +43,14 @@ class WaitTimeViewModel: ObservableObject {
     /// the user is currently viewing. Nil when no park is focused.
     @Published var activeParkId: Int? = nil
 
+    /// Most recent decision from the Claude routing engine. Drives the
+    /// in-app reroute banner. Cleared when the user dismisses the banner
+    /// (`acknowledgeRouteDecision()`) or a fresh evaluation replaces it.
+    @Published var latestRouteDecision: RouteDecision? = nil
+    /// Park the latest decision was made about, so the banner can deep-
+    /// link into the map / detail view for the right park.
+    @Published var latestRouteDecisionParkId: Int? = nil
+
     struct AIMessage: Identifiable, Hashable {
         enum Speaker { case user, ai }
         let id = UUID()
@@ -183,6 +191,12 @@ class WaitTimeViewModel: ObservableObject {
             await checkAndSendAttractionNotifications()
             AttractionDataAudit.logReport()
             refreshActiveLiveActivity()
+
+            // Now that waits are fresh, let the Claude routing engine
+            // decide whether to reroute the user's plan. Throttled and
+            // gated on having an API key + an undone plan item — see
+            // `evaluateRouteIfNeeded()` for the full preconditions.
+            await evaluateRouteIfNeeded()
         } catch is CancellationError {
             // Refresh was cancelled (user navigated away). Not an error.
         } catch {

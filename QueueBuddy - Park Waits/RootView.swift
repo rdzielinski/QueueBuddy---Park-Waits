@@ -98,6 +98,23 @@ struct MainTabView: View {
                     .padding(.horizontal, 12)
                     .padding(.bottom, 10)
             }
+
+            // Reroute banner overlay — anchored at top, hidden when the
+            // routing engine hasn't fired or the user has dismissed.
+            VStack {
+                if let decision = viewModel.latestRouteDecision,
+                   let pid = viewModel.latestRouteDecisionParkId {
+                    RouteBanner(
+                        decision: decision,
+                        parkId: pid,
+                        parkName: parkName(for: pid),
+                        onDismiss: { viewModel.acknowledgeRouteDecision() }
+                    )
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                }
+                Spacer(minLength: 0)
+            }
+            .animation(.easeInOut(duration: 0.25), value: viewModel.latestRouteDecision?.id)
         }
         .preferredColorScheme(.dark)
         .onAppear {
@@ -106,24 +123,35 @@ struct MainTabView: View {
             selectedTab = QBTab(rawValue: defaultTabRaw) ?? .parks
         }
         .onReceive(NotificationCenter.default.publisher(for: .openMapTab)) { notif in
-            // Deep link from anywhere in the app (e.g. an attraction's
-            // "Find on Map" button). Pre-select the requested park before
-            // flipping the tab so MapTabView's @AppStorage has the right
-            // value when it mounts. If an attractionId came along, store
-            // it AND bump the focus generation counter so MapTabView's
-            // view-id changes even when the user requests a focus for an
-            // attraction in the park they're already viewing.
-            let defaults = UserDefaults.standard
-            if let parkId = notif.userInfo?["parkId"] as? Int {
-                defaults.set(parkId, forKey: "mapTabParkId")
-            }
-            if let attractionId = notif.userInfo?["attractionId"] as? Int {
-                defaults.set(attractionId, forKey: "mapTabFocusAttractionId")
-                let gen = defaults.integer(forKey: "mapTabFocusGeneration")
-                defaults.set(gen &+ 1, forKey: "mapTabFocusGeneration")
-            }
-            selectedTab = .map
+            handleOpenMapTab(notif)
         }
+    }
+
+    private func parkName(for parkId: Int) -> String {
+        viewModel.resortGroups.flatMap(\.parks)
+            .first(where: { $0.id == parkId })?
+            .name ?? "Park"
+    }
+
+    /// Deep link from anywhere in the app (e.g. an attraction's
+    /// "Find on Map" button or the reroute banner). Pre-selects the
+    /// requested park before flipping the tab so MapTabView's
+    /// @AppStorage has the right value when it mounts. If an
+    /// attractionId came along, stores it AND bumps the focus
+    /// generation counter so MapTabView's view-id changes even when
+    /// the user requests a focus for an attraction in the park they're
+    /// already viewing.
+    private func handleOpenMapTab(_ notif: Notification) {
+        let defaults = UserDefaults.standard
+        if let parkId = notif.userInfo?["parkId"] as? Int {
+            defaults.set(parkId, forKey: "mapTabParkId")
+        }
+        if let attractionId = notif.userInfo?["attractionId"] as? Int {
+            defaults.set(attractionId, forKey: "mapTabFocusAttractionId")
+            let gen = defaults.integer(forKey: "mapTabFocusGeneration")
+            defaults.set(gen &+ 1, forKey: "mapTabFocusGeneration")
+        }
+        selectedTab = .map
     }
 }
 
