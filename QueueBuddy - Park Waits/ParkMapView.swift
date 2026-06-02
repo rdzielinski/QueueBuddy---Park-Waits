@@ -185,10 +185,41 @@ struct ParkMapView: View {
             center = CLLocationCoordinate2D(latitude: f.lat, longitude: f.lon)
             span = MKCoordinateSpan(latitudeDelta: 0.003, longitudeDelta: 0.003)
         } else {
-            center = StaticData.parkCoordinates[parkId]
+            // Frame the whole park: compute the bounding box of all
+            // mappable attraction coordinates (single-rider / dining
+            // entries excluded — they're never rendered as pins) and
+            // pad it so pins near the edges aren't right against the
+            // map border. Falls back to a sensible default span when
+            // the park has no attractions loaded yet.
+            let coords: [(lat: Double, lon: Double)] = attractions.compactMap {
+                guard let lat = $0.latitude, let lon = $0.longitude,
+                      !$0.name.localizedCaseInsensitiveContains("single rider"),
+                      !TypeFilter.isDining($0.type)
+                else { return nil }
+                return (lat, lon)
+            }
+            let fallbackCenter = StaticData.parkCoordinates[parkId]
                 .map { CLLocationCoordinate2D(latitude: $0.lat, longitude: $0.lon) }
                 ?? CLLocationCoordinate2D(latitude: 28.4, longitude: -81.55)
-            span = MKCoordinateSpan(latitudeDelta: 0.012, longitudeDelta: 0.012)
+            if coords.count >= 2 {
+                let lats = coords.map(\.lat)
+                let lons = coords.map(\.lon)
+                let minLat = lats.min()!, maxLat = lats.max()!
+                let minLon = lons.min()!, maxLon = lons.max()!
+                center = CLLocationCoordinate2D(
+                    latitude: (minLat + maxLat) / 2,
+                    longitude: (minLon + maxLon) / 2
+                )
+                // 1.4× padding keeps pins comfortably inside the
+                // viewport; floor prevents the camera collapsing on a
+                // park with very tightly-clustered pins.
+                let latDelta = max((maxLat - minLat) * 1.4, 0.015)
+                let lonDelta = max((maxLon - minLon) * 1.4, 0.015)
+                span = MKCoordinateSpan(latitudeDelta: latDelta, longitudeDelta: lonDelta)
+            } else {
+                center = fallbackCenter
+                span = MKCoordinateSpan(latitudeDelta: 0.025, longitudeDelta: 0.025)
+            }
         }
 
         _cameraPosition = State(initialValue: .region(MKCoordinateRegion(
