@@ -126,15 +126,19 @@ extension WaitTimeViewModel {
     func refreshActiveLiveActivity() {
         #if canImport(ActivityKit)
         if #available(iOS 16.2, *) {
-            guard let activity = Activity<InLineAttributes>.activities.first else { return }
-            let id = activity.attributes.attractionId
-            let attraction = attractionsByPark.values
-                .flatMap({ $0 })
-                .first(where: { $0.id == id })
-            InLineActivityController.update(
-                attractionId: id,
-                currentWait: attraction?.wait_time
-            )
+            if let activity = Activity<InLineAttributes>.activities.first {
+                let id = activity.attributes.attractionId
+                let attraction = attractionsByPark.values
+                    .flatMap({ $0 })
+                    .first(where: { $0.id == id })
+                InLineActivityController.update(
+                    attractionId: id,
+                    currentWait: attraction?.wait_time
+                )
+            }
+        }
+        if #available(iOS 16.1, *) {
+            ParkDayActivityController.refresh(attractionsByPark: attractionsByPark)
         }
         #endif
     }

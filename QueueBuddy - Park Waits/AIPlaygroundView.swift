@@ -8,6 +8,8 @@ struct AIPlaygroundView: View {
     @State private var query: String = ""
     @State private var selectedParkID: Int = 0
     @State private var showSettings: Bool = false
+    @State private var addedMessageIDs: Set<UUID> = []
+    @State private var parkDayActivityRunning: Bool = false
     @FocusState private var isTextFieldFocused: Bool
 
     private var parksForPicker: [Park] {
@@ -85,6 +87,10 @@ struct AIPlaygroundView: View {
                     else if let id = viewModel.activeParkId { selectedParkID = id }
                     else { selectedParkID = viewModel.resortGroups.first?.parks.first?.id ?? 0 }
                 }
+                syncParkDayActivityState()
+            }
+            .onChange(of: selectedParkID) { _, _ in
+                syncParkDayActivityState()
             }
             .toolbar {
                 ToolbarItemGroup(placement: .keyboard) {
@@ -290,7 +296,71 @@ struct AIPlaygroundView: View {
                                 .stroke(Color.white.opacity(0.05), lineWidth: 1)
                         )
                 )
+
+                if let park = selectedPark,
+                   visibleItems.contains(where: { !$0.isDone }) {
+                    liveActivityToggle(park: park)
+                }
             }
+        }
+        .onChange(of: planStore.items) { _, _ in
+            syncParkDayActivityState()
+            if #available(iOS 16.1, *) {
+                ParkDayActivityController.refresh(attractionsByPark: viewModel.attractionsByPark)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func liveActivityToggle(park: Park) -> some View {
+        if #available(iOS 16.1, *) {
+            Button {
+                toggleParkDayActivity(for: park)
+            } label: {
+                HStack(spacing: 8) {
+                    Image(systemName: parkDayActivityRunning ? "stop.circle.fill" : "dot.radiowaves.left.and.right")
+                        .font(.system(size: 13))
+                    Text(parkDayActivityRunning ? "STOP LIVE ACTIVITY" : "START LIVE ACTIVITY")
+                        .tracking(1.5)
+                }
+                .font(DB.mono(11, weight: .semibold))
+                .foregroundStyle(parkDayActivityRunning ? DB.red : accent)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 11)
+                .background(
+                    RoundedRectangle(cornerRadius: 12, style: .continuous)
+                        .fill((parkDayActivityRunning ? DB.red : accent).opacity(0.12))
+                        .overlay(
+                            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                .stroke((parkDayActivityRunning ? DB.red : accent).opacity(0.35), lineWidth: 1)
+                        )
+                )
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel(parkDayActivityRunning
+                                ? "Stop the Park Day Live Activity"
+                                : "Start the Park Day Live Activity")
+        }
+    }
+
+    private func toggleParkDayActivity(for park: Park) {
+        if #available(iOS 16.1, *) {
+            if parkDayActivityRunning {
+                ParkDayActivityController.stop()
+                parkDayActivityRunning = false
+            } else {
+                let attractions = viewModel.attractionsByPark[park.id] ?? []
+                let didStart = ParkDayActivityController.start(park: park, attractions: attractions)
+                parkDayActivityRunning = didStart
+            }
+        }
+    }
+
+    private func syncParkDayActivityState() {
+        if #available(iOS 16.1, *) {
+            parkDayActivityRunning = ParkDayActivityController.isRunning(forParkId: selectedParkID)
+        } else {
+            parkDayActivityRunning = false
         }
     }
 
@@ -415,6 +485,9 @@ struct AIPlaygroundView: View {
                             .font(.system(size: 14))
                             .foregroundStyle(DB.text)
                             .lineSpacing(3)
+                        if message.speaker == .ai {
+                            addToMyDayButton(for: message)
+                        }
                     }
                     .padding(12)
                     .frame(maxWidth: .infinity, alignment: .leading)
@@ -431,6 +504,64 @@ struct AIPlaygroundView: View {
                 }
             }
         }
+    }
+
+    @ViewBuilder
+    private func addToMyDayButton(for message: WaitTimeViewModel.AIMessage) -> some View {
+        if let park = selectedPark {
+            let mentioned = viewModel.attractionsMentioned(in: message.text, parkId: park.id)
+            let newOnes = mentioned.filter { !planStore.contains(attractionId: $0.id) }
+            let alreadyTapped = addedMessageIDs.contains(message.id)
+
+            if !mentioned.isEmpty {
+                if alreadyTapped || newOnes.isEmpty {
+                    HStack(spacing: 6) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 11))
+                        Text("ADDED TO MY DAY")
+                            .tracking(1.4)
+                    }
+                    .font(DB.mono(10, weight: .semibold))
+                    .foregroundStyle(DB.green)
+                    .padding(.top, 8)
+                } else {
+                    Button {
+                        addMentioned(newOnes, to: park, messageID: message.id)
+                    } label: {
+                        HStack(spacing: 6) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 11))
+                            Text("ADD \(newOnes.count) TO MY DAY")
+                                .tracking(1.4)
+                        }
+                        .font(DB.mono(10, weight: .semibold))
+                        .foregroundStyle(accent)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(
+                            Capsule().fill(accent.opacity(0.12))
+                                .overlay(Capsule().stroke(accent.opacity(0.35), lineWidth: 1))
+                        )
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.top, 8)
+                    .accessibilityLabel("Add \(newOnes.count) suggested rides to My Day")
+                }
+            }
+        }
+    }
+
+    private func addMentioned(_ attractions: [Attraction], to park: Park, messageID: UUID) {
+        let startDate = Date()
+        for (index, attraction) in attractions.enumerated() {
+            planStore.add(
+                attraction: attraction,
+                park: park,
+                note: "From Plan",
+                plannedDate: startDate.addingTimeInterval(Double(index) * 45 * 60)
+            )
+        }
+        addedMessageIDs.insert(messageID)
     }
 
     private func submitQuery() {

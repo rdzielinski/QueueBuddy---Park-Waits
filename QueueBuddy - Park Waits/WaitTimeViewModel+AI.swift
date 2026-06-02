@@ -56,7 +56,8 @@ extension WaitTimeViewModel {
                 systemPrompt: Self.systemPrompt,
                 contextBlock: contextBlock,
                 history: history,
-                userMessage: trimmedQuery
+                userMessage: trimmedQuery,
+                maxTokens: 1024
             )
             aiConversation.append(AIMessage(speaker: .ai, text: reply))
             aiResponse = reply
@@ -140,5 +141,40 @@ extension WaitTimeViewModel {
         aiConversation = []
         aiResponse = ""
         aiError = nil
+    }
+
+    /// Best-effort scan of an AI reply for ride mentions in the given
+    /// park. Used by Plan to surface an "Add to My Day" affordance under
+    /// AI suggestions — false negatives are fine, false positives are
+    /// what we work to avoid (hence the 5-char floor and full-name match
+    /// after normalization).
+    func attractionsMentioned(in reply: String, parkId: Int) -> [Attraction] {
+        guard let attractions = attractionsByPark[parkId] else { return [] }
+        let normalizedReply = Self.normalizeForRideMatch(reply)
+        var seen = Set<Int>()
+        var hits: [Attraction] = []
+        for attraction in attractions {
+            let normalizedName = Self.normalizeForRideMatch(attraction.name)
+            guard normalizedName.count >= 5 else { continue }
+            guard normalizedReply.contains(normalizedName) else { continue }
+            if seen.insert(attraction.id).inserted {
+                hits.append(attraction)
+            }
+        }
+        return hits
+    }
+
+    private static func normalizeForRideMatch(_ s: String) -> String {
+        let lowered = s.lowercased()
+        var buffer = ""
+        buffer.reserveCapacity(lowered.count)
+        for scalar in lowered.unicodeScalars {
+            if CharacterSet.alphanumerics.contains(scalar) {
+                buffer.unicodeScalars.append(scalar)
+            } else {
+                buffer.append(" ")
+            }
+        }
+        return buffer.split(separator: " ", omittingEmptySubsequences: true).joined(separator: " ")
     }
 }
