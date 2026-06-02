@@ -134,8 +134,8 @@ extension Color {
 enum Motion {
     /// Signature split-flap timing — quick, springy, settles fast.
     static let flap = Animation.spring(response: 0.42, dampingFraction: 0.82)
-    /// Gentle fade + rise for rows and cards as they appear.
-    static let entrance = Animation.easeOut(duration: 0.38)
+    /// Springy fade + rise for rows and cards as they appear.
+    static let entrance = Animation.spring(response: 0.42, dampingFraction: 0.72)
     /// Slow breathing loop for "live" LED indicators.
     static let breathe = Animation.easeInOut(duration: 1.7).repeatForever(autoreverses: true)
 
@@ -172,7 +172,8 @@ private struct AppearInModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .opacity(shown ? 1 : 0)
-            .offset(y: shown ? 0 : 6)
+            .scaleEffect(shown ? 1 : 0.96, anchor: .top)
+            .offset(y: shown ? 0 : 12)
             .onAppear {
                 if reduceMotion {
                     shown = true
@@ -230,4 +231,23 @@ extension View {
     func shimmering() -> some View {
         modifier(ShimmerModifier())
     }
+}
+
+// MARK: - Pressable card style
+
+/// Button style giving navigational cards/rows a subtle press-in scale, so
+/// every tap has a little tactile motion. Honors Reduce Motion (no scale).
+struct PressableScaleStyle: ButtonStyle {
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed && !reduceMotion ? 0.97 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.62), value: configuration.isPressed)
+    }
+}
+
+extension ButtonStyle where Self == PressableScaleStyle {
+    /// Subtle press-in scale for navigational cards/rows; drop-in for `.plain`.
+    static var pressable: PressableScaleStyle { PressableScaleStyle() }
 }

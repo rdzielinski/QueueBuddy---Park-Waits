@@ -86,8 +86,9 @@ struct FlapDigits: View {
 }
 
 // MARK: - WaitChip
-// Pill showing live wait time with a glowing LED dot. Handles Closed, Show
-// (wait==nil while open), and numeric states.
+// Split-flap wait readout: renders the live wait as departure-board flap
+// digits that roll on change. Closed and Show (wait==nil while open) states
+// use the same flap tiles ("--") under a status label.
 
 struct WaitChip: View {
     let wait: Int?
@@ -103,22 +104,16 @@ struct WaitChip: View {
         status?.lowercased() == "down"
     }
 
+    private var flapSize: CGFloat { style == .large ? 26 : 22 }
+
     var body: some View {
         Group {
             if isClosed {
-                label(text: "Closed", tone: DB.muted)
-                    .background(
-                        Capsule().fill(Color.white.opacity(0.04))
-                            .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
-                    )
+                FlapDigits(value: nil, size: flapSize, tone: DB.muted, label: "CLSD")
             } else if wait == nil {
-                label(text: "Show", tone: DB.amber)
-                    .background(
-                        Capsule().fill(DB.amber.opacity(0.10))
-                            .overlay(Capsule().stroke(DB.amber.opacity(0.30), lineWidth: 1))
-                    )
+                FlapDigits(value: nil, size: flapSize, tone: DB.amber, label: "SHOW")
             } else {
-                activeChip
+                FlapDigits(value: wait, size: flapSize, tone: DB.waitTone(for: wait), label: "MIN")
             }
         }
         .accessibilityElement(children: .ignore)
@@ -130,48 +125,6 @@ struct WaitChip: View {
         guard let wait else { return "Show attraction" }
         if wait == 0 { return "Walk-on, no wait" }
         return "\(wait) minute" + (wait == 1 ? "" : "s") + " wait"
-    }
-
-    @ViewBuilder
-    private var activeChip: some View {
-        let tone = DB.waitTone(for: wait)
-        HStack(spacing: style == .large ? 10 : 8) {
-            // Hero (large) chips breathe to signal "live"; per-row (small)
-            // chips keep a static glow so a long list isn't full of motion.
-            if style == .large {
-                Circle()
-                    .fill(tone)
-                    .frame(width: 8, height: 8)
-                    .livePulse(tone)
-            } else {
-                Circle()
-                    .fill(tone)
-                    .frame(width: 6, height: 6)
-                    .shadow(color: tone, radius: 3)
-            }
-            Text("\(wait ?? 0)")
-                .font(DB.mono(style == .large ? 18 : 13, weight: .bold))
-                .foregroundStyle(tone)
-            Text("MIN")
-                .font(DB.mono(style == .large ? 11 : 10, weight: .regular))
-                .tracking(style == .large ? 1.5 : 1.0)
-                .foregroundStyle(tone.opacity(0.8))
-        }
-        .padding(.vertical, style == .large ? 8 : 5)
-        .padding(.horizontal, style == .large ? 14 : 10)
-        .background(
-            Capsule().fill(tone.opacity(0.08))
-                .overlay(Capsule().stroke(tone.opacity(0.28), lineWidth: 1))
-        )
-    }
-
-    private func label(text: String, tone: Color) -> some View {
-        Text(text.uppercased())
-            .font(DB.mono(11, weight: .regular))
-            .tracking(1.5)
-            .foregroundStyle(tone)
-            .padding(.vertical, 4)
-            .padding(.horizontal, 10)
     }
 }
 

@@ -497,7 +497,7 @@ struct HomeView: View {
                         ParkCardView(park: park)
                             .environmentObject(viewModel)
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
                     .appearIn(idx)
                 }
             }
