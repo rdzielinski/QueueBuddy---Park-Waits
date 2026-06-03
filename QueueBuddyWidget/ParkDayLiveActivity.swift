@@ -81,7 +81,8 @@ struct ParkDayLiveActivity: Widget {
                         .font(.system(size: 12, weight: .bold, design: .monospaced))
                         .foregroundStyle(WidgetTheme.tone(for: w))
                 } else {
-                    Text(context.state.primaryIsOpen ? "•" : "×")
+                    Text(context.state.primaryIsOpen ? "OPEN" : "CLSD")
+                        .font(.system(size: 11, weight: .bold, design: .monospaced))
                         .foregroundStyle(WidgetTheme.muted)
                 }
             } minimal: {
@@ -90,8 +91,9 @@ struct ParkDayLiveActivity: Widget {
                         .font(.system(size: 11, weight: .bold, design: .monospaced))
                         .foregroundStyle(WidgetTheme.tone(for: w))
                 } else {
-                    Image(systemName: "sparkles")
-                        .foregroundStyle(WidgetTheme.amber)
+                    Image(systemName: context.state.primaryIsOpen ? "circle.fill" : "xmark")
+                        .font(.system(size: 9))
+                        .foregroundStyle(WidgetTheme.muted)
                 }
             }
             .keylineTint(WidgetTheme.color(fromHex: context.state.parkAccentHex))
@@ -140,6 +142,10 @@ struct ParkDayLiveActivity: Widget {
             if !state.secondaryLines.isEmpty {
                 Divider().background(WidgetTheme.muted.opacity(0.2))
                 VStack(alignment: .leading, spacing: 4) {
+                    Text("NEXT UP")
+                        .font(.system(size: 8, weight: .semibold, design: .monospaced))
+                        .tracking(1.5)
+                        .foregroundStyle(WidgetTheme.dim)
                     ForEach(state.secondaryLines.prefix(3), id: \.self) { line in
                         Text(line)
                             .font(.system(size: 11, weight: .regular, design: .monospaced))

@@ -89,12 +89,12 @@ extension WaitTimeViewModel {
     /// Builds the `RouteContext` if we have an actionable next plan item
     /// *and* the wait-time data needed to reason about it.
     private func buildRouteContext() -> (context: RouteContext, parkId: Int)? {
-        // Walk the user's undone plan items in order. Pick the first one
+        // Walk the user's selected plan items in order. Pick the first one
         // whose park has loaded waits — that's the one the routing
         // engine can usefully reason about.
-        let undone = ParkDayPlanStore.shared.items(for: nil).filter { !$0.isDone }
+        let selected = ParkDayPlanStore.shared.items(for: nil).filter { $0.isSelected }
 
-        for item in undone {
+        for item in selected {
             let attractions = attractionsByPark[item.parkId] ?? []
             guard !attractions.isEmpty else { continue }
 

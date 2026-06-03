@@ -179,19 +179,50 @@ struct StaticData {
         getAttractionDetails()[attractionId]?.tpwUuid
     }
 
+    /// Single-rider lanes that the data source returns as separate
+    /// attractions, mapped to their parent ride's id. Single-rider entries
+    /// inherit the parent's icon, description, and type/filter so they don't
+    /// surface as a different-looking attraction.
+    static let singleRiderParentId: [Int: Int] = [
+        10900: 160,    // Test Track
+        10901: 119,    // Rock 'n' Roller Coaster Starring The Muppets
+        10902: 6368,   // Millennium Falcon: Smugglers Run
+        10915: 10914,  // Remy's Ratatouille Adventure
+        13110: 6000,   // Revenge of the Mummy
+        13113: 5992,   // Harry Potter and the Forbidden Journey
+        14517: 5996,   // MEN IN BLACK Alien Attack!
+        14531: 6369,   // Star Wars: Rise of the Resistance
+        14533: 110,    // Expedition Everest - Legend of the Forbidden Mountain
+        14684: 14683,  // Mario Kart: Bowser's Challenge
+        14696: 14687,  // Harry Potter and the Battle at the Ministry
+        14697: 14686,  // Mine-Cart Madness
+        14698: 14692,  // Curse of the Werewolf
+        14699: 14694,  // Monsters Unchained: The Frankenstein Experiment
+        14740: 14690,  // Stardust Racers
+        14866: 6038,   // Fast & Furious - Supercharged
+        15384: 6004,   // The Incredible Hulk Coaster
+        15403: 6682,   // Hagrid's Magical Creatures Motorbike Adventure
+        15411: 5985,   // The Amazing Adventures of Spider-Man
+        15416: 6014,   // Harry Potter and the Escape from Gringotts
+    ]
+
     static func getStaticAttractions(for parkId: Int) -> [Attraction] {
         let allAttractionDetails = getAttractionDetails()
         let parkAttractions = allAttractionDetails.filter { $0.value.parkId == parkId }
         return parkAttractions.map { id, details in
-            Attraction(id: id,
+            // Single-rider lanes inherit the parent ride's type, description,
+            // and height so they share its icon, blurb, and filter category
+            // (the row keeps its own "… Single Rider" name and live wait).
+            let parent = singleRiderParentId[id].flatMap { allAttractionDetails[$0] }
+            return Attraction(id: id,
                        name: details.name,
                        wait_time: nil,
                        status: "N/A",
                        is_open: true,
                        last_updated: nil,
-                       type: details.type,
-                       description: details.description,
-                       min_height_inches: details.minHeight,
+                       type: parent?.type ?? details.type,
+                       description: parent?.description ?? details.description,
+                       min_height_inches: parent?.minHeight ?? details.minHeight,
                        latitude: details.lat,
                        longitude: details.lon)
         }

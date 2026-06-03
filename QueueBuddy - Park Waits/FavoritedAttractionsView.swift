@@ -99,7 +99,8 @@ struct FavoritedAttractionsView: View {
                             showMetaLine: true
                         )
                     }
-                    .buttonStyle(.plain)
+                    .buttonStyle(.pressable)
+                    .appearIn(idx)
                     #if !os(tvOS)
                     .swipeActions(edge: .trailing, allowsFullSwipe: false) {
                         Button {

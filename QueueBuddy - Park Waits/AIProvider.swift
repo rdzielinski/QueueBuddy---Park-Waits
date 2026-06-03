@@ -174,7 +174,10 @@ public struct AIModelOption: Identifiable, Hashable {
 /// key/model". Backed by UserDefaults for picks + Keychain for keys.
 public enum AIProviderRegistry {
 
-    private static let activeProviderKey = "ai.activeProvider"
+    /// UserDefaults key backing the active-provider choice. Exposed (not
+    /// private) so views can observe it directly via @AppStorage and update
+    /// the moment the user switches providers in Settings.
+    static let activeProviderKey = "ai.activeProvider"
 
     /// Currently-selected provider. Defaults to Claude for back-compat
     /// with the original Claude-only build.
