@@ -342,19 +342,21 @@ struct AttractionGlyph: View {
     var size: CGFloat = 24
 
     var body: some View {
-        if Self.pngAttractionIds.contains(attractionId) {
-            Image("Attraction_\(attractionId)")
+        // A single-rider lane uses the parent ride's icon, not a generic one.
+        let id = StaticData.singleRiderParentId[attractionId] ?? attractionId
+        if Self.pngAttractionIds.contains(id) {
+            Image("Attraction_\(id)")
                 .resizable()
                 .scaledToFit()
                 .frame(width: size, height: size)
                 .accessibilityHidden(true)
-        } else if let shape = Self.customShape(for: attractionId) {
+        } else if let shape = Self.customShape(for: id) {
             shape
                 .fill(tint)
                 .frame(width: size, height: size)
                 .accessibilityHidden(true)
         } else {
-            Image(systemName: StaticData.symbol(for: attractionId, type: attractionType))
+            Image(systemName: StaticData.symbol(for: id, type: attractionType))
                 .font(.system(size: size * 0.75, weight: .semibold))
                 .foregroundStyle(tint)
                 .frame(width: size, height: size)
