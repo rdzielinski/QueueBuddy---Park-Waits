@@ -201,7 +201,6 @@ struct StaticData {
         14740: 14690,  // Stardust Racers
         14866: 6038,   // Fast & Furious - Supercharged
         15384: 6004,   // The Incredible Hulk Coaster
-        15403: 6682,   // Hagrid's Magical Creatures Motorbike Adventure
         15411: 5985,   // The Amazing Adventures of Spider-Man
         15416: 6014,   // Harry Potter and the Escape from Gringotts
     ]
@@ -413,7 +412,6 @@ struct StaticData {
         6682: "The Wizarding World of Harry Potter - Hogsmeade",  // Hagrid's Magical Creatures Motorbike Adventure
         13098: "The Wizarding World of Harry Potter - Hogsmeade",  // Ollivanders Experience in Hogsmeade
         13113: "The Wizarding World of Harry Potter - Hogsmeade",  // Harry Potter and the Forbidden Journey Single Rider
-        15403: "The Wizarding World of Harry Potter - Hogsmeade",  // Hagrid's Magical Creatures Motorbike Adventure Single Rider
         // Toon Lagoon
         5989: "Toon Lagoon",  // Dudley Do-Right's Ripsaw Falls
         5998: "Toon Lagoon",  // Popeye & Bluto's Bilge-Rat Barges
@@ -476,6 +474,20 @@ struct StaticData {
         // The Wizarding World of Harry Potter - Ministry of Magic
         14687: "The Wizarding World of Harry Potter - Ministry of Magic",  // Harry Potter and the Battle at the Ministry
         14696: "The Wizarding World of Harry Potter - Ministry of Magic",  // Harry Potter and the Battle at the Ministry Single Rider
+        // ─── HALLOWEEN HORROR NIGHTS (Universal Studios Florida, seasonal) ───
+        14937: "Halloween Horror Nights",  // Terrifier
+        14938: "Halloween Horror Nights",  // WWE Presents: The Horrors of the Wyatt Sicks
+        14939: "Halloween Horror Nights",  // Dolls: Let's Play Dead
+        14945: "Halloween Horror Nights",  // JASON UN1V3RSE
+        14946: "Halloween Horror Nights",  // Five Nights At Freddy's
+        14947: "Halloween Horror Nights",  // Fallout
+        14948: "Halloween Horror Nights",  // El Artista: A Spanish Haunting
+        14949: "Halloween Horror Nights",  // Gálkn: Monsters of the North
+        14950: "Halloween Horror Nights",  // Grave of Flesh
+        14951: "Halloween Horror Nights",  // Hatchet and Chains: Demon Bounty Hunters
+        // ─── OTHER NEW ADDITIONS ───
+        16545: "Rafiki's Planet Watch",  // Bluey's Wild World at Conservation Station (Animal Kingdom)
+        16641: "Animation Courtyard",  // Disney Jr. Mickey Mouse Clubhouse Live! (Hollywood Studios)
 
     ]
 
@@ -649,7 +661,6 @@ struct StaticData {
         13098: "wand.and.stars",  // Ollivanders Experience in Hogsmeade
         13113: "book.closed.fill",  // Harry Potter and the Forbidden Journey Single Rider
         15384: "bolt.circle.fill",  // The Incredible Hulk Coaster Single Rider
-        15403: "bicycle",  // Hagrid's Magical Creatures Motorbike Adventure Single Rider
         15411: "circle.grid.cross.fill",  // The Amazing Adventures of Spider-Man Single Rider
 
         // ─── UNIVERSAL STUDIOS FLORIDA ───
@@ -695,6 +706,20 @@ struct StaticData {
         14698: "moon.stars.fill",  // Curse of the Werewolf Single Rider
         14699: "flame.fill",  // Monsters Unchained: The Frankenstein Experiment Single Rider
         14740: "sparkle.magnifyingglass",  // Stardust Racers Single Rider
+        // ─── HALLOWEEN HORROR NIGHTS houses ───
+        14937: "theatermasks.fill",  // Terrifier
+        14938: "theatermasks.fill",  // WWE Presents: The Horrors of the Wyatt Sicks
+        14939: "theatermasks.fill",  // Dolls: Let's Play Dead
+        14945: "theatermasks.fill",  // JASON UN1V3RSE
+        14946: "theatermasks.fill",  // Five Nights At Freddy's
+        14947: "theatermasks.fill",  // Fallout
+        14948: "theatermasks.fill",  // El Artista: A Spanish Haunting
+        14949: "theatermasks.fill",  // Gálkn: Monsters of the North
+        14950: "theatermasks.fill",  // Grave of Flesh
+        14951: "theatermasks.fill",  // Hatchet and Chains: Demon Bounty Hunters
+        // ─── OTHER NEW ADDITIONS ───
+        16545: "pawprint.fill",  // Bluey's Wild World at Conservation Station
+        16641: "music.mic",  // Disney Jr. Mickey Mouse Clubhouse Live!
 
     ]
 
@@ -878,7 +903,6 @@ struct StaticData {
     {"id": 8721, "parkId": 64, "name": "Jurassic World VelociCoaster", "type": "coaster", "description": "A high-speed launch coaster with a near-vertical 80-degree drop.", "minHeight": 51, "latitude": 28.471429, "longitude": -81.472284, "tpwUuid": "61079a31-4165-4fb0-b36f-c01c5971f80a"},
     {"id": 5991, "parkId": 64, "name": "Flight of the Hippogriff", "type": "coaster", "description": "A family-friendly roller coaster around Hagrid's hut.", "minHeight": 36, "latitude": 28.472416, "longitude": -81.473636, "tpwUuid": "23b613e0-ae83-455b-9163-231bdbd5c427"},
     {"id": 6682, "parkId": 64, "name": "Hagrid's Magical Creatures Motorbike Adventure", "type": "coaster", "description": "Race through the Forbidden Forest on a motorbike or sidecar.", "minHeight": 48, "latitude": 28.47308, "longitude": -81.472862, "tpwUuid": "578bbd12-1975-4ec3-9879-ea641c780342"},
-    {"id": 15403, "parkId": 64, "name": "Hagrid's Magical Creatures Motorbike Adventure Single Rider", "type": "coaster", "description": "Single rider line for Hagrid's Magical Creatures Motorbike Adventure.", "minHeight": 48, "latitude": 28.47308, "longitude": -81.472862, "tpwUuid": "578bbd12-1975-4ec3-9879-ea641c780342"},
     {"id": 5992, "parkId": 64, "name": "Harry Potter and the Forbidden Journey", "type": "darkride", "description": "Soar above Hogwarts on the magical bench through Quidditch and Dementor scenes.", "minHeight": 48, "latitude": 28.472265, "longitude": -81.4735195, "tpwUuid": "6af80308-647d-4d8b-bcf6-37517a93bdbc"},
     {"id": 13113, "parkId": 64, "name": "Harry Potter and the Forbidden Journey Single Rider", "type": "darkride", "description": "Single rider line for Harry Potter and the Forbidden Journey.", "minHeight": 48, "latitude": 28.472265, "longitude": -81.4735195, "tpwUuid": "6af80308-647d-4d8b-bcf6-37517a93bdbc"},
     {"id": 6015, "parkId": 64, "name": "Hogwarts Express - Hogsmeade Station", "type": "train", "description": "Ride from Hogsmeade Station to King's Cross Station (park-to-park ticket required).", "minHeight": null, "latitude": 28.47348, "longitude": -81.472594, "tpwUuid": "144450b9-4574-46be-abdf-4b1ca8974d9d"},
@@ -927,7 +951,19 @@ struct StaticData {
     {"id": 14686, "parkId": 334, "name": "Mine-Cart Madness", "type": "coaster", "description": "A family coaster through Donkey Kong Country with simulated jumping mine carts.", "minHeight": 36, "latitude": 28.43825, "longitude": -81.44875, "tpwUuid": "dd8c015d-511f-47d4-b98b-18ce15735588"},
     {"id": 14697, "parkId": 334, "name": "Mine-Cart Madness Single Rider", "type": "coaster", "description": "Single rider line for Mine-Cart Madness.", "minHeight": 36, "latitude": 28.43825, "longitude": -81.44875, "tpwUuid": "dd8c015d-511f-47d4-b98b-18ce15735588"},
     {"id": 14687, "parkId": 334, "name": "Harry Potter and the Battle at the Ministry", "type": "darkride", "description": "A multi-vehicle dark ride through the Ministry of Magic during the Death Eater era.", "minHeight": 48, "latitude": 28.44284, "longitude": -81.4481, "tpwUuid": "dbc4f0d8-fdef-4dfc-a1c2-33917f742f40"},
-    {"id": 14696, "parkId": 334, "name": "Harry Potter and the Battle at the Ministry Single Rider", "type": "darkride", "description": "Single rider line for Harry Potter and the Battle at the Ministry.", "minHeight": 48, "latitude": 28.44284, "longitude": -81.4481, "tpwUuid": "dbc4f0d8-fdef-4dfc-a1c2-33917f742f40"}
+    {"id": 14696, "parkId": 334, "name": "Harry Potter and the Battle at the Ministry Single Rider", "type": "darkride", "description": "Single rider line for Harry Potter and the Battle at the Ministry.", "minHeight": 48, "latitude": 28.44284, "longitude": -81.4481, "tpwUuid": "dbc4f0d8-fdef-4dfc-a1c2-33917f742f40"},
+    {"id": 14937, "parkId": 65, "name": "Terrifier", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14938, "parkId": 65, "name": "WWE Presents: The Horrors of the Wyatt Sicks", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14939, "parkId": 65, "name": "Dolls: Let’s Play Dead", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14945, "parkId": 65, "name": "JASON UN1V3RSE", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14946, "parkId": 65, "name": "Five Nights At Freddy’s", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14947, "parkId": 65, "name": "Fallout", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14948, "parkId": 65, "name": "El Artista: A Spanish Haunting", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14949, "parkId": 65, "name": "Gálkn: Monsters of the North", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14950, "parkId": 65, "name": "Grave of Flesh", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14951, "parkId": 65, "name": "Hatchet and Chains: Demon Bounty Hunters", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 16545, "parkId": 8, "name": "Bluey's Wild World at Conservation Station", "type": "experience", "description": "Meet Bluey and Bingo and play at Conservation Station.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 16641, "parkId": 7, "name": "Disney Jr. Mickey Mouse Clubhouse Live!", "type": "show", "description": "A live stage show starring Mickey Mouse and his friends.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null}
     ]
     """
 }
