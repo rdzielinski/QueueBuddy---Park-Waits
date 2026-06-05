@@ -19,6 +19,10 @@ enum DB {
     static let green   = Color(hex: 0x7FD4A0)
     static let red     = Color(hex: 0xFF6B6B)
 
+    /// Single-rider lane marker. A cool blue that reads as "alternate
+    /// queue" and stays distinct from the warm wait-time tiers above.
+    static let solo    = Color(hex: 0x7FB2FF)
+
     // MARK: - Type scale
 
     /// Large iOS-style title (Parks., park name on detail, hero ride name).

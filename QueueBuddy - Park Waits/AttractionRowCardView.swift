@@ -30,6 +30,13 @@ struct AttractionRowCardView: View {
         return wait >= 60
     }
 
+    /// Single-rider lanes are returned by the API as their own "… Single
+    /// Rider" rows. Match on the name so this works for both live data and
+    /// any single-rider entry not yet in StaticData.
+    private var isSingleRider: Bool {
+        attraction.name.localizedCaseInsensitiveContains("single rider")
+    }
+
     private var trendDelta: Int? {
         WaitHistoryStore.shared.recentTrend(for: attraction.id)
     }
@@ -70,6 +77,9 @@ struct AttractionRowCardView: View {
                         Text("▲")
                             .font(DB.mono(13, weight: .bold))
                             .foregroundStyle(DB.red)
+                    }
+                    if isSingleRider {
+                        SingleRiderBadge()
                     }
                     Text(attraction.name)
                         .font(DB.heading(15, weight: .medium))
@@ -128,5 +138,25 @@ struct AttractionRowCardView: View {
             parts.append("minimum height \(minH) inches")
         }
         return parts.joined(separator: ", ")
+    }
+}
+
+/// Compact "at a glance" marker for single-rider lanes. Sits next to the
+/// ride name so a single-rider row is distinguishable even when the long
+/// "… Single Rider" name truncates.
+private struct SingleRiderBadge: View {
+    var body: some View {
+        HStack(spacing: 2) {
+            Image(systemName: "person.fill")
+            Text("SOLO")
+        }
+        .font(DB.mono(9, weight: .bold))
+        .foregroundStyle(DB.solo)
+        .padding(.horizontal, 5)
+        .padding(.vertical, 2)
+        .background(Capsule().fill(DB.solo.opacity(0.16)))
+        .overlay(Capsule().stroke(DB.solo.opacity(0.45), lineWidth: 1))
+        .fixedSize()
+        .accessibilityLabel("Single rider line")
     }
 }
