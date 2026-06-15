@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { SplitFlap } from "./SplitFlap";
-import { formatBoardDate, formatClock } from "../lib/format";
+import { boardEyebrow } from "../lib/format";
 import { TONE_VAR, waitTone } from "../lib/wait";
 
 export interface GlobalHottest {
@@ -11,57 +11,77 @@ export interface GlobalHottest {
   waitMinutes: number;
 }
 
-export function BoardHeader({ now }: { now: Date }) {
+export function BoardHeader({ live = true }: { live?: boolean }) {
   return (
-    <header className="flex items-end justify-between gap-4 border-b border-board-line pb-5">
-      <Link to="/" className="block">
-        <div className="text-[11px] uppercase tracking-[0.2em] text-muted">QueueBuddy</div>
-        <h1 className="font-mono text-2xl font-bold tracking-tight text-flap-fg sm:text-3xl">
-          Park&nbsp;Waits
-        </h1>
-      </Link>
-      <div className="text-right">
-        <div className="tnum font-mono text-2xl text-flap-fg sm:text-3xl">
-          {formatClock(now)}
-        </div>
-        <div className="mt-0.5 text-[11px] uppercase tracking-wide text-muted">
-          {formatBoardDate(now)} · Park time
-        </div>
+    <header className="flex flex-col gap-1.5">
+      <div className="font-mono text-[11px] tracking-[0.18em] text-muted">
+        {boardEyebrow(new Date())} · {live ? "ALL SYSTEMS LIVE" : "SYNCING…"}
       </div>
+      <h1 className="text-[2.4rem] font-bold leading-none tracking-tight text-flap-fg sm:text-[2.75rem]">
+        Parks<span className="text-wait-med">.</span>
+      </h1>
     </header>
   );
 }
 
 export function HottestHero({ hottest }: { hottest: GlobalHottest | null }) {
-  if (!hottest) return null;
-  const tone = waitTone(hottest.waitMinutes);
-  const to =
-    `/attraction/${encodeURIComponent(hottest.id)}` +
-    `?park=${encodeURIComponent(hottest.parkSlug)}&name=${encodeURIComponent(hottest.name)}`;
-
   return (
-    <Link
-      to={to}
-      className="flex items-center justify-between gap-4 rounded-2xl border border-board-line bg-board-surface p-5 transition-colors hover:border-white/20 sm:p-6"
+    <div
+      className="relative overflow-hidden rounded-3xl border border-wait-med/25 p-5 sm:p-6"
+      style={{
+        backgroundImage:
+          "linear-gradient(135deg, var(--color-card2), var(--color-board-surface))",
+      }}
     >
-      <div className="min-w-0">
-        <div className="text-[11px] uppercase tracking-[0.18em] text-wait-high">
-          Hottest right now
+      {/* warm radial glow, top-right */}
+      <div
+        className="pointer-events-none absolute -right-12 -top-12 h-56 w-56 rounded-full"
+        style={{ background: "radial-gradient(circle, rgba(255,181,71,0.12), transparent 70%)" }}
+        aria-hidden="true"
+      />
+      <div className="relative">
+        <div className="font-mono text-[11px] tracking-[0.2em] text-wait-med">
+          ▲ HOTTEST RIGHT NOW
         </div>
-        <div className="mt-1.5 truncate text-xl font-semibold text-flap-fg sm:text-2xl">
-          {hottest.name}
-        </div>
-        <div className="text-sm text-muted">{hottest.parkShortName}</div>
+
+        {hottest ? (
+          <>
+            <h2 className="mt-2 line-clamp-2 text-xl font-semibold tracking-tight text-flap-fg sm:text-2xl">
+              {hottest.name}
+            </h2>
+            <div className="mt-0.5 font-mono text-[11px] tracking-wider text-muted">
+              {hottest.parkShortName.toUpperCase()}
+            </div>
+
+            <div className="mt-5 flex items-end justify-between gap-4">
+              <div className="flex items-center gap-2">
+                <SplitFlap
+                  value={String(hottest.waitMinutes)}
+                  width={2}
+                  pad="0"
+                  color={TONE_VAR[waitTone(hottest.waitMinutes)]}
+                  className="text-5xl"
+                />
+                <span className="text-xs uppercase tracking-wide text-muted">min</span>
+              </div>
+              <Link
+                to={
+                  `/attraction/${encodeURIComponent(hottest.id)}` +
+                  `?park=${encodeURIComponent(hottest.parkSlug)}&name=${encodeURIComponent(hottest.name)}`
+                }
+                className="rounded-full border border-white/10 bg-white/[0.06] px-4 py-2 font-mono text-[11px] font-semibold tracking-wider text-flap-fg transition-colors hover:bg-white/10"
+              >
+                VIEW →
+              </Link>
+            </div>
+          </>
+        ) : (
+          <>
+            <h2 className="mt-2 text-xl font-semibold text-flap-fg">Waits aren't in yet</h2>
+            <div className="mt-1 font-mono text-[11px] tracking-wider text-muted">SYNCING…</div>
+          </>
+        )}
       </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <SplitFlap
-          value={String(hottest.waitMinutes)}
-          width={3}
-          color={TONE_VAR[tone]}
-          className="text-4xl sm:text-5xl"
-        />
-        <span className="text-xs uppercase tracking-wide text-muted">min</span>
-      </div>
-    </Link>
+    </div>
   );
 }

@@ -23,6 +23,46 @@ export function formatBoardDate(d: Date): string {
   return dateFmt.format(d);
 }
 
+const eyebrowFmt = new Intl.DateTimeFormat("en-US", {
+  timeZone: PARK_TZ,
+  weekday: "short",
+  month: "short",
+  day: "numeric",
+});
+
+/** "MON · JUN 15" — the board header eyebrow, in park-local time. */
+export function boardEyebrow(d: Date): string {
+  // en-US gives "Mon, Jun 15"; reformat to the transit-board voice.
+  const [wd, rest] = eyebrowFmt.format(d).split(", ");
+  return `${wd} · ${rest}`.toUpperCase();
+}
+
+/** Minutes since local midnight, in park-local (Eastern) time. */
+function parkLocalMinutes(d: Date): number {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: PARK_TZ,
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(d);
+  const h = Number(parts.find((p) => p.type === "hour")?.value ?? "0");
+  const m = Number(parts.find((p) => p.type === "minute")?.value ?? "0");
+  return (h % 24) * 60 + m;
+}
+
+function hour12(h: number): string {
+  const twelve = h % 12 === 0 ? 12 : h % 12;
+  return `${twelve} ${h >= 12 && h < 24 ? "PM" : "AM"}`;
+}
+
+/** Dynamic park-hours line, mirroring the iOS card: OPENS / OPEN UNTIL / CLOSED. */
+export function parkHoursLine(openHour: number, closeHour: number, now: Date = new Date()): string {
+  const mins = parkLocalMinutes(now);
+  if (mins < openHour * 60) return `OPENS ${hour12(openHour)}`;
+  if (mins < closeHour * 60) return `OPEN UNTIL ${hour12(closeHour)}`;
+  return "CLOSED FOR THE DAY";
+}
+
 /** "Updated 2m ago" style relative time from an ISO string. */
 export function relativeTime(iso: string | undefined, now: number = Date.now()): string | null {
   if (!iso) return null;

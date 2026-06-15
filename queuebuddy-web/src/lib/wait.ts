@@ -2,11 +2,11 @@ import type { Attraction, WaitStatus } from "./types";
 
 export type WaitTone = "low" | "med" | "high" | "down";
 
-/** Minutes → tone. Thresholds match the build brief: ≤30 low, ≤60 med, >60 high. */
+/** Minutes → tone. Tiers match the iOS app (DB.waitTone): ≤15 green, ≤45 amber, else red. */
 export function waitTone(minutes: number | null | undefined): WaitTone {
   if (minutes == null) return "down";
-  if (minutes <= 30) return "low";
-  if (minutes <= 60) return "med";
+  if (minutes <= 15) return "low";
+  if (minutes <= 45) return "med";
   return "high";
 }
 

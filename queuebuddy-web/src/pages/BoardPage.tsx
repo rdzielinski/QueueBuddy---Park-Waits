@@ -1,22 +1,25 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../lib/api";
-import { useNow } from "../lib/hooks";
 import { RESORT_LABELS, RESORT_ORDER } from "../lib/parks";
 import { BoardHeader, HottestHero, type GlobalHottest } from "../components/BoardHeader";
 import { ParkCard } from "../components/ParkCard";
+import { SectionHead } from "../components/SectionHead";
+import { SearchBar, SearchResults } from "../components/BoardSearch";
 import { BoardMessage, LoadingFlaps } from "../components/States";
 
 export function BoardPage() {
-  const now = useNow();
-  const { data: parks, isPending, isError, refetch, isFetching } = useQuery({
+  const [query, setQuery] = useState("");
+  const searching = query.trim().length > 0;
+
+  const { data, isPending, isError, refetch, isFetching } = useQuery({
     queryKey: ["parks"],
     queryFn: ({ signal }) => api.getParks(signal),
     refetchInterval: 60_000,
   });
+  const parks = data ?? [];
 
   const hottest = useMemo<GlobalHottest | null>(() => {
-    if (!parks) return null;
     let best: GlobalHottest | null = null;
     for (const p of parks) {
       if (p.hottest && (!best || p.hottest.waitMinutes > best.waitMinutes)) {
@@ -34,7 +37,7 @@ export function BoardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <BoardHeader now={now} />
+      <BoardHeader live={!isError} />
 
       {isPending ? (
         <LoadingFlaps label="Reading the board…" />
@@ -44,28 +47,38 @@ export function BoardPage() {
         </BoardMessage>
       ) : (
         <>
-          <HottestHero hottest={hottest} />
+          {!searching && <HottestHero hottest={hottest} />}
 
-          {RESORT_ORDER.map((resort) => {
-            const group = parks.filter((p) => p.resort === resort);
-            if (group.length === 0) return null;
-            return (
-              <section key={resort} className="flex flex-col gap-3">
-                <h2 className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted">
-                  {RESORT_LABELS[resort]}
-                </h2>
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  {group.map((p) => (
-                    <ParkCard key={p.id} park={p} />
-                  ))}
-                </div>
-              </section>
-            );
-          })}
+          <SearchBar query={query} onChange={setQuery} />
 
-          <p className="pt-2 text-center text-xs text-muted">
-            {isFetching ? "Refreshing…" : "Live waits refresh every 60s · times shown in park-local time"}
-          </p>
+          {searching ? (
+            <SearchResults query={query} parks={parks} />
+          ) : (
+            <>
+              {RESORT_ORDER.map((resort) => {
+                const group = parks.filter((p) => p.resort === resort);
+                if (group.length === 0) return null;
+                const open = group.reduce((sum, p) => sum + (p.openCount ?? 0), 0);
+                return (
+                  <section key={resort} className="flex flex-col gap-2.5">
+                    <SectionHead
+                      label={`/ ${RESORT_LABELS[resort].toUpperCase()}`}
+                      right={`${open} OPEN`}
+                    />
+                    <div className="flex flex-col gap-2.5">
+                      {group.map((p) => (
+                        <ParkCard key={p.id} park={p} />
+                      ))}
+                    </div>
+                  </section>
+                );
+              })}
+
+              <p className="pt-1 text-center text-xs text-muted">
+                {isFetching ? "Refreshing…" : "Live waits refresh every 60s · park-local time"}
+              </p>
+            </>
+          )}
         </>
       )}
     </div>

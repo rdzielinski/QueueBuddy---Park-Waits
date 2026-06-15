@@ -53,8 +53,10 @@ function FlapCell({ char, delay }: { char: string; delay: number }) {
 
 export interface SplitFlapProps {
   value: string;
-  /** Pad/clip to this many cells so the board stays aligned. */
+  /** Minimum cell count — pad short values so the board stays aligned. */
   width?: number;
+  /** Pad character for numeric values: " " (default) or "0" (board style). */
+  pad?: " " | "0";
   /** Per-cell stagger in ms. */
   stagger?: number;
   /** Color the digits (e.g. a wait tone); defaults to warm white. */
@@ -67,14 +69,17 @@ export interface SplitFlapProps {
 export function SplitFlap({
   value,
   width,
+  pad = " ",
   stagger = 45,
   color,
   className,
   style,
 }: SplitFlapProps) {
   // `width` is a minimum: pad short values so the board stays aligned, but
-  // never clip — triple-digit (100+ min) waits show in full.
-  const text = width && value.length < width ? value.padStart(width, " ") : value;
+  // never clip — triple-digit (100+ min) waits show in full. Zero-pad only
+  // genuine numbers, so placeholders like "—" stay space-padded.
+  const padChar = pad === "0" && /^\d+$/.test(value) ? "0" : " ";
+  const text = width && value.length < width ? value.padStart(width, padChar) : value;
   return (
     <span
       className={`splitflap${className ? ` ${className}` : ""}`}

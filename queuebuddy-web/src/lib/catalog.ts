@@ -26,6 +26,19 @@ export function imageFor(uuid: string): string | null {
   return BY_UUID.get(uuid)?.image ? `/attractions/${uuid}.png` : null;
 }
 
+/** Substring search over attraction names, prefix matches ranked first. */
+export function searchAttractions(query: string, limit = 16): CatalogEntry[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return [];
+  const hits: { entry: CatalogEntry; rank: number }[] = [];
+  for (const e of CATALOG) {
+    const idx = e.name.toLowerCase().indexOf(q);
+    if (idx !== -1) hits.push({ entry: e, rank: idx === 0 ? 0 : 1 });
+  }
+  hits.sort((a, b) => a.rank - b.rank || a.entry.name.localeCompare(b.entry.name));
+  return hits.slice(0, limit).map((h) => h.entry);
+}
+
 /** Land name for an attraction, or a generic bucket when we don't have it. */
 export function landFor(uuid: string): string {
   return BY_UUID.get(uuid)?.land ?? "More";

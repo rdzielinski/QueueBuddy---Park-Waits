@@ -45,6 +45,8 @@
   align-items: center;
   justify-content: center;
   color: inherit;
+  /* LED-style glow in the digit's own tone, like the app's flap numerals. */
+  text-shadow: 0 0 0.45em color-mix(in srgb, currentColor 40%, transparent);
 }
 .flap__top .flap__char {
   top: 0;

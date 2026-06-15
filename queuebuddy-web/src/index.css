@@ -1,20 +1,23 @@
 @import "tailwindcss";
 @import "./styles/theme.css";
 
-/* Design tokens — exposed both as Tailwind utilities (bg-board-surface,
-   text-wait-low, font-mono, …) and as CSS variables (--color-board-bg, …). */
+/* Design tokens — match the iOS app's Departure-Board palette (DB.*).
+   Exposed as Tailwind utilities (bg-board-surface, text-wait-low, …) and as
+   CSS variables (--color-board-bg, …). */
 @theme {
-  --color-board-bg: #0b0e11;
-  --color-board-surface: #14181d;
-  --color-board-line: #232a32;
-  --color-flap-bg: #1c2128;
-  --color-flap-fg: #f2f4f3;
-  --color-flap-hinge: #070a0c;
-  --color-wait-low: #36c46a;
-  --color-wait-med: #e8b53d;
-  --color-wait-high: #e5484d;
+  --color-board-bg: #0a0b0d;
+  --color-board-surface: #141519;
+  --color-card2: #1b1d22;
+  --color-board-line: #26282d;
+  --color-flap-bg: #121317;
+  --color-flap-fg: #f4f3ee;
+  --color-flap-hinge: #07080a;
+  --color-wait-low: #7fd4a0;
+  --color-wait-med: #ffb547;
+  --color-wait-high: #ff6b6b;
   --color-status-down: #6b7280;
-  --color-muted: #8b96a3;
+  --color-muted: #8b8c87;
+  --color-dim: #5a5b56;
 
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
