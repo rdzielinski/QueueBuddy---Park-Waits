@@ -1,0 +1,3 @@
+# SPA fallback — client-side routes (/park/*, /attraction/*) serve index.html.
+# /api/* is handled by the Pages Functions and takes precedence over this.
+/*    /index.html    200

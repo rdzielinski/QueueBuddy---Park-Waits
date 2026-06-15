@@ -1,0 +1,28 @@
+/* Short-name aliases for the design tokens, so the signature SplitFlap.css and
+   the wait-color helpers can read the palette by the names used in the build
+   brief. These mirror the @theme tokens defined in index.css. */
+:root {
+  --board-bg: var(--color-board-bg);
+  --board-surface: var(--color-board-surface);
+  --flap-bg: var(--color-flap-bg);
+  --flap-fg: var(--color-flap-fg);
+  --flap-hinge: var(--color-flap-hinge);
+  --wait-low: var(--color-wait-low);
+  --wait-med: var(--color-wait-med);
+  --wait-high: var(--color-wait-high);
+  --status-down: var(--color-status-down);
+}
+
+/* wait-color helper: map minutes -> token in JS, applied via class. */
+.wait-low {
+  color: var(--wait-low);
+}
+.wait-med {
+  color: var(--wait-med);
+}
+.wait-high {
+  color: var(--wait-high);
+}
+.wait-down {
+  color: var(--status-down);
+}
