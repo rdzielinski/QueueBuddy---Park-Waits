@@ -13,6 +13,7 @@ import {
 } from "recharts";
 import { api } from "../lib/api";
 import { catalogEntry } from "../lib/catalog";
+import { iconForType } from "../lib/attractionIcon";
 import { parkBySlug } from "../lib/parks";
 import { SplitFlap } from "../components/SplitFlap";
 import { BoardMessage, LoadingFlaps } from "../components/States";
@@ -130,6 +131,7 @@ export function AttractionPage() {
         <div className="flex items-end justify-between gap-4">
           <div className="min-w-0">
             <h1 className="font-mono text-2xl font-bold leading-tight tracking-tight text-flap-fg sm:text-3xl">
+              <span className="mr-2" aria-hidden="true">{iconForType(meta?.type)}</span>
               {name || "Attraction"}
             </h1>
             <p className="mt-1 text-sm text-muted">

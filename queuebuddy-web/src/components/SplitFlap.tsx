@@ -28,14 +28,22 @@ function FlapCell({ char, delay }: { char: string; delay: number }) {
   return (
     <span className="flap">
       {/* static halves show the new value */}
-      <span className="flap__half flap__top">{shown}</span>
-      <span className="flap__half flap__bottom">{shown}</span>
+      <span className="flap__half flap__top">
+        <span className="flap__char">{shown}</span>
+      </span>
+      <span className="flap__half flap__bottom">
+        <span className="flap__char">{shown}</span>
+      </span>
       {flipping && (
         <>
           {/* old top folds down */}
-          <span className="flap__half flap__top flap__fold-down">{prev}</span>
+          <span className="flap__half flap__top flap__fold-down">
+            <span className="flap__char">{prev}</span>
+          </span>
           {/* new bottom folds in */}
-          <span className="flap__half flap__bottom flap__fold-in">{shown}</span>
+          <span className="flap__half flap__bottom flap__fold-in">
+            <span className="flap__char">{shown}</span>
+          </span>
         </>
       )}
       <span className="flap__hinge" />
@@ -64,7 +72,9 @@ export function SplitFlap({
   className,
   style,
 }: SplitFlapProps) {
-  const text = width ? value.padStart(width, " ").slice(-width) : value;
+  // `width` is a minimum: pad short values so the board stays aligned, but
+  // never clip — triple-digit (100+ min) waits show in full.
+  const text = width && value.length < width ? value.padStart(width, " ") : value;
   return (
     <span
       className={`splitflap${className ? ` ${className}` : ""}`}

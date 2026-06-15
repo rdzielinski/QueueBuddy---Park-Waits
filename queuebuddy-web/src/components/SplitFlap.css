@@ -12,31 +12,45 @@
   font-family: var(--font-mono, "JetBrains Mono", ui-monospace, monospace);
   font-variant-numeric: tabular-nums;
   font-weight: 600;
-  perspective: 200px;
+  perspective: 220px;
 }
 
 .flap__half {
   position: absolute;
   left: 0;
   right: 0;
+  height: 50%;
   overflow: hidden;
-  display: flex;
-  justify-content: center;
   background: var(--flap-bg);
-  color: inherit;
   backface-visibility: hidden;
 }
 .flap__top {
   top: 0;
-  height: 50%;
-  align-items: flex-end;
   border-radius: 4px 4px 0 0;
 }
 .flap__bottom {
   bottom: 0;
-  height: 50%;
-  align-items: flex-start;
   border-radius: 0 0 4px 4px;
+}
+
+/* The glyph is rendered at the full cell height inside each half and clipped:
+   the top half reveals its upper half, the bottom half its lower half — so the
+   two halves compose ONE character split across the hinge (not the digit twice). */
+.flap__char {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5em; /* == .flap height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+.flap__top .flap__char {
+  top: 0;
+}
+.flap__bottom .flap__char {
+  bottom: 0;
 }
 
 .flap__hinge {
