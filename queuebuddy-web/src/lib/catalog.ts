@@ -10,6 +10,8 @@ export interface CatalogEntry {
   land: string | null;
   type: string | null;
   singleRider: boolean;
+  /** True when a thumbnail exists at /attractions/<uuid>.png. */
+  image: boolean;
 }
 
 const CATALOG = catalogJson as CatalogEntry[];
@@ -17,6 +19,11 @@ const BY_UUID = new Map(CATALOG.map((e) => [e.uuid, e]));
 
 export function catalogEntry(uuid: string): CatalogEntry | undefined {
   return BY_UUID.get(uuid);
+}
+
+/** Public path to an attraction's thumbnail, or null when there isn't one. */
+export function imageFor(uuid: string): string | null {
+  return BY_UUID.get(uuid)?.image ? `/attractions/${uuid}.png` : null;
 }
 
 /** Land name for an attraction, or a generic bucket when we don't have it. */

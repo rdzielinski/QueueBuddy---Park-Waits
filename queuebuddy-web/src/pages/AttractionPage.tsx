@@ -13,7 +13,7 @@ import {
 } from "recharts";
 import { api } from "../lib/api";
 import { catalogEntry } from "../lib/catalog";
-import { iconForType } from "../lib/attractionIcon";
+import { AttractionIcon } from "../components/AttractionIcon";
 import { parkBySlug } from "../lib/parks";
 import { SplitFlap } from "../components/SplitFlap";
 import { BoardMessage, LoadingFlaps } from "../components/States";
@@ -129,14 +129,18 @@ export function AttractionPage() {
           ← {park ? park.shortName : "All parks"}
         </Link>
         <div className="flex items-end justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="font-mono text-2xl font-bold leading-tight tracking-tight text-flap-fg sm:text-3xl">
-              <span className="mr-2" aria-hidden="true">{iconForType(meta?.type)}</span>
-              {name || "Attraction"}
-            </h1>
-            <p className="mt-1 text-sm text-muted">
-              {[meta?.land, park?.name].filter(Boolean).join(" · ")}
-            </p>
+          <div className="flex min-w-0 items-center gap-3">
+            {attractionId && (
+              <AttractionIcon id={attractionId} className="h-14 w-20" rounded="rounded-lg" />
+            )}
+            <div className="min-w-0">
+              <h1 className="font-mono text-2xl font-bold leading-tight tracking-tight text-flap-fg sm:text-3xl">
+                {name || "Attraction"}
+              </h1>
+              <p className="mt-1 text-sm text-muted">
+                {[meta?.land, park?.name].filter(Boolean).join(" · ")}
+              </p>
+            </div>
           </div>
           <div className="shrink-0 text-right">
             <div className="text-[10px] uppercase tracking-[0.12em] text-muted">Now</div>

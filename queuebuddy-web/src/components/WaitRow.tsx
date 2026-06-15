@@ -1,18 +1,18 @@
 import { Link } from "react-router-dom";
 import { SplitFlap } from "./SplitFlap";
 import { StatusDot } from "./StatusDot";
+import { AttractionIcon } from "./AttractionIcon";
 import { attractionTone, statusLabel, waitGlyph, TONE_VAR } from "../lib/wait";
 import { catalogEntry } from "../lib/catalog";
-import { iconForType } from "../lib/attractionIcon";
 import type { Attraction } from "../lib/types";
 
 export function WaitRow({ a }: { a: Attraction }) {
   const tone = attractionTone(a);
   const operating = a.status === "OPERATING";
-  const icon = iconForType(catalogEntry(a.id)?.type);
-  const displayName = a.singleRider
-    ? a.name.replace(/\s*single rider$/i, "")
-    : a.name;
+  // The live feed returns the parent entity, so single-rider availability comes
+  // from the static catalog (a separate "X Single Rider" row would too).
+  const singleRider = catalogEntry(a.id)?.singleRider ?? a.singleRider;
+  const displayName = a.name.replace(/\s*single rider$/i, "");
   const to =
     `/attraction/${encodeURIComponent(a.id)}` +
     `?park=${encodeURIComponent(a.parkId)}&name=${encodeURIComponent(a.name)}`;
@@ -21,21 +21,16 @@ export function WaitRow({ a }: { a: Attraction }) {
     <Link
       to={to}
       state={{ attraction: a }}
-      className="group flex items-center gap-3 rounded-lg px-3 py-2.5 transition-colors hover:bg-white/[0.04]"
+      className="group flex items-center gap-3 rounded-lg px-3 py-2 transition-colors hover:bg-white/[0.04]"
     >
       <StatusDot tone={tone} title={statusLabel(a.status)} />
-      <span
-        className="shrink-0 text-base leading-none grayscale-[0.15]"
-        aria-hidden="true"
-      >
-        {icon}
-      </span>
+      <AttractionIcon id={a.id} />
 
       <span className="flex min-w-0 flex-1 items-center gap-2">
         <span className="truncate text-[15px] text-flap-fg/85 group-hover:text-flap-fg">
           {displayName}
         </span>
-        {a.singleRider && (
+        {singleRider && (
           <span className="shrink-0 rounded bg-white/10 px-1.5 py-0.5 font-mono text-[10px] font-semibold tracking-wider text-flap-fg/70">
             SOLO
           </span>
