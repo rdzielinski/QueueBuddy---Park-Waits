@@ -13,7 +13,10 @@ struct FlapDigits: View {
     private var digits: [Character] {
         let txt: String
         if let value {
-            txt = String(format: "%02d", max(0, min(99, value)))
+            // Keep the familiar two-digit pad for sub-100 waits; let triple-digit
+            // waits (100+ min) show in full rather than capping at 99.
+            let v = max(0, value)
+            txt = v >= 100 ? String(v) : String(format: "%02d", v)
         } else {
             txt = "--"
         }

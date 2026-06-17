@@ -1,0 +1,99 @@
+.splitflap {
+  display: inline-flex;
+  gap: 2px;
+  line-height: 1;
+  color: var(--flap-fg);
+}
+
+.flap {
+  position: relative;
+  width: 0.92ch;
+  height: 1.5em;
+  font-family: var(--font-mono, "JetBrains Mono", ui-monospace, monospace);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  perspective: 220px;
+}
+
+.flap__half {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  background: var(--flap-bg);
+  backface-visibility: hidden;
+}
+.flap__top {
+  top: 0;
+  border-radius: 4px 4px 0 0;
+}
+.flap__bottom {
+  bottom: 0;
+  border-radius: 0 0 4px 4px;
+}
+
+/* The glyph is rendered at the full cell height inside each half and clipped:
+   the top half reveals its upper half, the bottom half its lower half — so the
+   two halves compose ONE character split across the hinge (not the digit twice). */
+.flap__char {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1.5em; /* == .flap height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+  /* LED-style glow in the digit's own tone, like the app's flap numerals. */
+  text-shadow: 0 0 0.45em color-mix(in srgb, currentColor 40%, transparent);
+}
+.flap__top .flap__char {
+  top: 0;
+}
+.flap__bottom .flap__char {
+  bottom: 0;
+}
+
+.flap__hinge {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--flap-hinge);
+  transform: translateY(-50%);
+  z-index: 4;
+}
+
+/* the falling top half (old value) */
+.flap__fold-down {
+  z-index: 3;
+  transform-origin: bottom;
+  animation: foldDown 0.32s ease-in forwards;
+}
+/* the arriving bottom half (new value) */
+.flap__fold-in {
+  z-index: 3;
+  transform-origin: top;
+  transform: rotateX(90deg);
+  animation: foldIn 0.32s ease-out 0.16s forwards;
+}
+@keyframes foldDown {
+  to {
+    transform: rotateX(-90deg);
+  }
+}
+@keyframes foldIn {
+  to {
+    transform: rotateX(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flap__fold-down,
+  .flap__fold-in {
+    animation: none;
+    display: none;
+  }
+}

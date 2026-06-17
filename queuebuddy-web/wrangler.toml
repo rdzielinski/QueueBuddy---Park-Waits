@@ -1,0 +1,9 @@
+name = "queuebuddy-web"
+compatibility_date = "2024-11-01"
+pages_build_output_dir = "dist"
+
+# Origin of the existing QueueBuddy push/history Worker. The /api/history
+# Function proxies here for long-form wait history. Override per-environment
+# in the Cloudflare dashboard if you deploy your own Worker.
+[vars]
+WORKER_ORIGIN = "https://queuebuddy-push.robbydz-villages.workers.dev"
