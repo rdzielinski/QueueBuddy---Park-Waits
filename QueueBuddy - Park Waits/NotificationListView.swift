@@ -23,7 +23,11 @@ struct NotificationListView: View {
                         } else {
                             VStack(spacing: 0) {
                                 ForEach(Array(notificationPreferences.enumerated()), id: \.element.id) { idx, pref in
-                                    row(for: pref)
+                                    SwipeToDeleteRow {
+                                        viewModel.removeNotification(for: pref.id)
+                                    } content: {
+                                        row(for: pref)
+                                    }
                                     if idx < notificationPreferences.count - 1 {
                                         Rectangle().fill(DB.line).frame(height: 1)
                                     }
@@ -32,10 +36,13 @@ struct NotificationListView: View {
                             .background(
                                 RoundedRectangle(cornerRadius: 18, style: .continuous)
                                     .fill(DB.card)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: 18, style: .continuous)
-                                            .stroke(Color.white.opacity(0.05), lineWidth: 1)
-                                    )
+                            )
+                            // Clip so the revealed delete action stays inside
+                            // the rounded card; keep the hairline stroke on top.
+                            .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
                             )
                             .padding(.horizontal, 16)
                         }
@@ -106,15 +113,6 @@ struct NotificationListView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
-        #if !os(tvOS)
-        .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-            Button(role: .destructive) {
-                viewModel.removeNotification(for: preference.id)
-            } label: {
-                Label("Delete", systemImage: "trash")
-            }
-        }
-        #endif
     }
 
     private var emptyState: some View {
@@ -131,6 +129,90 @@ struct NotificationListView: View {
         }
         .padding(.vertical, 40)
         .frame(maxWidth: .infinity)
+    }
+}
+
+/// Wraps a row so it can be swiped left to reveal a red Delete action.
+/// Built by hand (rather than `swipeActions`, which only works inside a
+/// `List`) so the Alerts screen keeps its custom carded layout while still
+/// supporting swipe-to-delete down to the iOS 18 deployment target.
+private struct SwipeToDeleteRow<Content: View>: View {
+    let onDelete: () -> Void
+    @ViewBuilder var content: () -> Content
+
+    /// Committed resting offset: 0 when closed, -revealWidth when the
+    /// delete button is held open.
+    @State private var offset: CGFloat = 0
+    /// Live finger translation while a horizontal drag is in flight.
+    @GestureState private var drag: CGFloat = 0
+
+    private let revealWidth: CGFloat = 88
+    private let fullSwipeThreshold: CGFloat = 220
+
+    /// Only ever moves leftward (negative); clamps at 0 so the row can't be
+    /// dragged to the right past its resting position.
+    private var totalOffset: CGFloat {
+        min(0, offset + drag)
+    }
+
+    var body: some View {
+        ZStack(alignment: .trailing) {
+            Button(role: .destructive) {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
+                    onDelete()
+                }
+            } label: {
+                Image(systemName: "trash.fill")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: revealWidth)
+                    .frame(maxHeight: .infinity)
+                    .background(Color.red)
+            }
+            .buttonStyle(.plain)
+            .opacity(totalOffset < 0 ? 1 : 0)
+
+            content()
+                .background(DB.card)
+                // When open, swallow taps anywhere on the row to close it
+                // (so the user doesn't accidentally trigger the edit button).
+                .overlay {
+                    if offset < 0 {
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .onTapGesture {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
+                                    offset = 0
+                                }
+                            }
+                    }
+                }
+                .offset(x: totalOffset)
+        }
+        .contentShape(Rectangle())
+        .gesture(
+            DragGesture(minimumDistance: 12, coordinateSpace: .local)
+                .updating($drag) { value, state, _ in
+                    // Treat as a swipe only when motion is mostly horizontal,
+                    // so vertical scrolling still wins inside the ScrollView.
+                    guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                    state = value.translation.width
+                }
+                .onEnded { value in
+                    guard abs(value.translation.width) > abs(value.translation.height) else { return }
+                    let predicted = offset + value.translation.width
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.82)) {
+                        if -predicted > fullSwipeThreshold {
+                            offset = 0
+                            onDelete()
+                        } else if -predicted > revealWidth / 2 {
+                            offset = -revealWidth
+                        } else {
+                            offset = 0
+                        }
+                    }
+                }
+        )
     }
 }
 

@@ -102,7 +102,10 @@ struct AttractionDetailView: View {
 
                     reportWaitPrompt
                         .padding(.horizontal, 16)
-                        .padding(.bottom, 40)
+
+                    // Clear the floating ad banner + tab bar that overlay
+                    // the bottom of every tab (matches NotificationListView).
+                    Color.clear.frame(height: 120)
                 }
             }
         }
@@ -443,17 +446,21 @@ struct AttractionDetailView: View {
 
     @ViewBuilder
     private var trendingBlock: some View {
-        // Local 24h samples are always available (no network); use those
-        // as the floor regardless of the selected range, so the sparkline
-        // doesn't ever collapse to empty while a 7d/30d fetch is in flight.
         let local = WaitHistoryStore.shared.history(for: attraction.id)
-        let display = historyRange == .day ? local : rangeSamples
-        if display.count >= 2 || local.count >= 2 {
+        let isDay = historyRange == .day
+        // Show the block whenever there's something to render for the active
+        // range — or a long-range fetch is in flight, so switching to 7D/30D
+        // never makes the whole section vanish (which read as "nothing
+        // loaded"). The 24h tab is gated on local samples existing.
+        let showBlock = isDay
+            ? local.count >= 2
+            : (rangeSamples.count >= 2 || isLoadingExtendedHistory || local.count >= 2)
+        if showBlock {
             VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .center) {
                     MonoLabel(text: "→ TRENDING · LAST \(historyRange.label)", color: DB.muted)
                     Spacer()
-                    if historyRange == .day,
+                    if isDay,
                        let delta = WaitHistoryStore.shared.trendDelta(for: attraction.id) {
                         HStack(spacing: 4) {
                             Image(systemName: delta > 0 ? "arrow.up" : (delta < 0 ? "arrow.down" : "minus"))
@@ -462,13 +469,15 @@ struct AttractionDetailView: View {
                         .font(DB.mono(10, weight: .bold))
                         .tracking(1.5)
                         .foregroundStyle(delta > 0 ? DB.red : (delta < 0 ? DB.green : DB.muted))
-                    } else if isLoadingExtendedHistory {
-                        ProgressView().controlSize(.small)
                     }
                 }
                 historyRangePicker
-                Sparkline(samples: display.count >= 2 ? display : local, tone: waitTone)
+                // Fixed-height chart area for every state (data / loading /
+                // empty) so selecting a range never resizes the block and
+                // shifts the tap targets out from under the user's finger.
+                trendingChartArea(local: local, isDay: isDay)
                     .frame(height: 80)
+                    .frame(maxWidth: .infinity)
                     .padding(12)
                     .background(
                         RoundedRectangle(cornerRadius: 18, style: .continuous)
@@ -480,6 +489,33 @@ struct AttractionDetailView: View {
                     )
             }
             .task(id: historyRangeTaskID) { await loadHistoryForCurrentRange() }
+        }
+    }
+
+    /// Resolves the trending chart's content for the selected range:
+    /// the local sparkline on 24h, a spinner while a 7d/30d fetch runs,
+    /// the fetched sparkline once it lands, or an explicit empty-state
+    /// (rather than silently falling back to 24h, which looked broken).
+    @ViewBuilder
+    private func trendingChartArea(local: [WaitHistoryStore.Sample], isDay: Bool) -> some View {
+        if isDay {
+            Sparkline(samples: local, tone: waitTone)
+        } else if rangeSamples.count >= 2 {
+            Sparkline(samples: rangeSamples, tone: waitTone)
+        } else if isLoadingExtendedHistory {
+            HStack(spacing: 8) {
+                ProgressView().controlSize(.small)
+                Text("Loading \(historyRange.label) history…")
+                    .font(DB.mono(11))
+                    .foregroundStyle(DB.muted)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        } else {
+            Text("No \(historyRange.label) history for this ride yet")
+                .font(DB.mono(11))
+                .foregroundStyle(DB.muted)
+                .multilineTextAlignment(.center)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 
