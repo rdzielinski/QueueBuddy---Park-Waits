@@ -185,7 +185,7 @@ struct StaticData {
     /// surface as a different-looking attraction.
     static let singleRiderParentId: [Int: Int] = [
         10900: 160,    // Test Track
-        10901: 119,    // Rock 'n' Roller Coaster Starring The Muppets
+        16343: 16342,  // Rock 'n' Roller Coaster Starring The Muppets
         10902: 6368,   // Millennium Falcon: Smugglers Run
         10915: 10914,  // Remy's Ratatouille Adventure
         13110: 6000,   // Revenge of the Mummy
@@ -199,10 +199,11 @@ struct StaticData {
         14698: 14692,  // Curse of the Werewolf
         16644: 14694,  // Monsters Unchained: The Frankenstein Experiment
         16640: 14690,  // Stardust Racers
-        16642: 6038,   // Fast & Furious - Supercharged
         15384: 6004,   // The Incredible Hulk Coaster
-        15411: 5985,   // The Amazing Adventures of Spider-Man
+        17607: 5985,   // The Amazing Adventures of Spider-Man
         16643: 6014,   // Harry Potter and the Escape from Gringotts
+        16652: 6682,   // Hagrid's Magical Creatures Motorbike Adventure
+        16645: 5988,   // Doctor Doom's Fearfall
     ]
 
     static func getStaticAttractions(for parkId: Int) -> [Attraction] {
@@ -296,7 +297,7 @@ struct StaticData {
         10916: "World Discovery",  // Guardians of the Galaxy: Cosmic Rewind
         13774: "World Discovery",  // Advanced Training Lab
         // World Nature
-        151: "World Nature",  // Soarin' Around the World
+        16467: "World Nature",  // Soarin' Across America
         152: "World Nature",  // Turtle Talk With Crush
         153: "World Nature",  // The Seas with Nemo & Friends
         155: "World Nature",  // Journey Into Imagination With Figment
@@ -343,10 +344,10 @@ struct StaticData {
         10902: "Star Wars: Galaxy's Edge",  // Millennium Falcon: Smugglers Run Single Rider
         14531: "Star Wars: Galaxy's Edge",  // Star Wars: Rise of the Resistance Single Rider
         // Sunset Boulevard
-        119: "Sunset Boulevard",  // Rock 'n' Roller Coaster Starring The Muppets
+        16342: "Sunset Boulevard",  // Rock 'n' Roller Coaster Starring The Muppets
         123: "Sunset Boulevard",  // The Twilight Zone Tower of Terror
         1176: "Sunset Boulevard",  // Beauty and the Beast – Live on Stage
-        10901: "Sunset Boulevard",  // Rock 'n' Roller Coaster Starring The Muppets Single Rider
+        16343: "Sunset Boulevard",  // Rock 'n' Roller Coaster Starring The Muppets Single Rider
         // The Walt Disney Studios
         5145: "The Walt Disney Studios",  // Walt Disney Presents
         12430: "The Walt Disney Studios",  // Meet Ariel at Walt Disney Presents
@@ -379,9 +380,9 @@ struct StaticData {
         4439: "Pandora - The World of Avatar",  // Avatar Flight of Passage
         // Rafiki's Planet Watch
         13806: "Rafiki's Planet Watch",  // Animal Care at Conservation Station
-        13807: "Rafiki's Planet Watch",  // Affection Section
         // The Oasis
         13808: "The Oasis",  // Wilderness Explorers
+        99001: "Asia",  // Maharajah Jungle Trek
         13812: "The Oasis",  // The Oasis Exhibits
 
         // ─── ISLANDS OF ADVENTURE ───
@@ -398,7 +399,9 @@ struct StaticData {
         6003: "Marvel Super Hero Island",  // Storm Force Accelatron
         6004: "Marvel Super Hero Island",  // The Incredible Hulk Coaster
         15384: "Marvel Super Hero Island",  // The Incredible Hulk Coaster Single Rider
-        15411: "Marvel Super Hero Island",  // The Amazing Adventures of Spider-Man Single Rider
+        17607: "Marvel Super Hero Island",  // The Amazing Adventures of Spider-Man Single Rider
+        16645: "Marvel Super Hero Island",  // Doctor Doom's Fearfall Single Rider
+        16652: "The Wizarding World of Harry Potter - Hogsmeade",  // Hagrid's Magical Creatures Motorbike Adventure Single Rider
         // Seuss Landing
         5986: "Seuss Landing",  // Caro-Seuss-el
         5987: "Seuss Landing",  // The Cat in The Hat
@@ -425,17 +428,13 @@ struct StaticData {
         // Illumination's Minion Land
         5984: "Illumination's Minion Land",  // Despicable Me Minion Mayhem
         12107: "Illumination's Minion Land",  // Illumination's Villain-Con Minion Blast
-        12186: "Illumination's Minion Land",  // Illumination Theater
         // New York
         6000: "New York",  // Revenge of the Mummy
         6018: "New York",  // Race Through New York Starring Jimmy Fallon
         13110: "New York",  // Revenge of the Mummy Single Rider
         // Production Central
-        5993: "Production Central",  // Hollywood Rip Ride Rockit
         6006: "Production Central",  // TRANSFORMERS: The Ride-3D
         // San Francisco
-        6038: "San Francisco",  // Fast & Furious - Supercharged
-        16642: "San Francisco",  // Fast & Furious - Supercharged Single Rider
         // The Wizarding World of Harry Potter - Diagon Alley
         6014: "The Wizarding World of Harry Potter - Diagon Alley",  // Harry Potter and the Escape from Gringotts
         6016: "The Wizarding World of Harry Potter - Diagon Alley",  // Hogwarts Express - King's Cross Station
@@ -475,16 +474,16 @@ struct StaticData {
         14687: "The Wizarding World of Harry Potter - Ministry of Magic",  // Harry Potter and the Battle at the Ministry
         14696: "The Wizarding World of Harry Potter - Ministry of Magic",  // Harry Potter and the Battle at the Ministry Single Rider
         // ─── HALLOWEEN HORROR NIGHTS (Universal Studios Florida, seasonal) ───
-        14937: "Halloween Horror Nights",  // Terrifier
-        14938: "Halloween Horror Nights",  // WWE Presents: The Horrors of the Wyatt Sicks
-        14939: "Halloween Horror Nights",  // Dolls: Let's Play Dead
-        14945: "Halloween Horror Nights",  // JASON UN1V3RSE
-        14946: "Halloween Horror Nights",  // Five Nights At Freddy's
-        14947: "Halloween Horror Nights",  // Fallout
-        14948: "Halloween Horror Nights",  // El Artista: A Spanish Haunting
-        14949: "Halloween Horror Nights",  // Gálkn: Monsters of the North
-        14950: "Halloween Horror Nights",  // Grave of Flesh
-        14951: "Halloween Horror Nights",  // Hatchet and Chains: Demon Bounty Hunters
+        17576: "Halloween Horror Nights",  // Cybergoria
+        17577: "Halloween Horror Nights",  // MADLANDS: Caged Cannibals
+        17578: "Halloween Horror Nights",  // Evil Dead Burn
+        17579: "Halloween Horror Nights",  // H.R. Bloodengutz Presents: A Halloween Fright-Tacular!
+        17580: "Halloween Horror Nights",  // Ozzy Osbourne: Prince of Darkness
+        17581: "Halloween Horror Nights",  // Hellraiser
+        17582: "Halloween Horror Nights",  // INVASION: Alien Abduction
+        17583: "Halloween Horror Nights",  // Jack & Oddfellow: Chaos & Control
+        17584: "Halloween Horror Nights",  // Sinners
+        17585: "Halloween Horror Nights",  // Stranger Things 5
         // ─── OTHER NEW ADDITIONS ───
         16545: "Rafiki's Planet Watch",  // Bluey's Wild World at Conservation Station (Animal Kingdom)
         16641: "Animation Courtyard",  // Disney Jr. Mickey Mouse Clubhouse Live! (Hollywood Studios)
@@ -556,7 +555,7 @@ struct StaticData {
         13764: "drop.circle.fill",  // Casey Jr. Splash 'N' Soak Station
 
         // ─── EPCOT ───
-        151: "paperplane.fill",  // Soarin' Around the World
+        16467: "paperplane.fill",  // Soarin' Across America
         152: "tortoise.fill",  // Turtle Talk With Crush
         153: "fish.fill",  // The Seas with Nemo & Friends
         155: "lightbulb.fill",  // Journey Into Imagination With Figment
@@ -592,7 +591,7 @@ struct StaticData {
 
         // ─── HOLLYWOOD STUDIOS ───
         117: "scope",  // Toy Story Mania!
-        119: "music.note",  // Rock 'n' Roller Coaster Starring The Muppets
+        16342: "music.note",  // Rock 'n' Roller Coaster Starring The Muppets
         120: "airplane.departure",  // Star Tours – The Adventures Continue
         123: "building.2.fill",  // The Twilight Zone Tower of Terror
         1174: "snowflake",  // For the First Time in Forever: A Frozen Sing-Along Celebration
@@ -607,7 +606,7 @@ struct StaticData {
         6703: "snowflake",  // Meet Olaf at Celebrity Spotlight
         6704: "camera.fill",  // Meet Disney Stars at Red Carpet Dreams
         7333: "film.stack",  // Vacation Fun - An Original Animated Short with Mickey & Minnie
-        10901: "music.note",  // Rock 'n' Roller Coaster Starring The Muppets Single Rider
+        16343: "music.note",  // Rock 'n' Roller Coaster Starring The Muppets Single Rider
         10902: "airplane",  // Millennium Falcon: Smugglers Run Single Rider
         12425: "eyeglasses",  // Meet Edna Mode at the Edna Mode Experience
         12430: "fish",  // Meet Ariel at Walt Disney Presents
@@ -629,8 +628,8 @@ struct StaticData {
         12451: "sailboat.fill",  // Meet Moana at Character Landing
         13751: "tree.fill",  // Tree of Life
         13806: "pawprint.fill",  // Animal Care at Conservation Station
-        13807: "pawprint",  // Affection Section
         13808: "figure.hiking",  // Wilderness Explorers
+        99001: "pawprint.fill",  // Maharajah Jungle Trek
         13811: "figure.walk.motion",  // Discovery Island Trails
         13812: "tree.circle.fill",  // The Oasis Exhibits
         14533: "mountain.2.fill",  // Expedition Everest - Legend of the Forbidden Mountain Single Rider
@@ -662,12 +661,11 @@ struct StaticData {
         13098: "wand.and.stars",  // Ollivanders Experience in Hogsmeade
         13113: "book.closed.fill",  // Harry Potter and the Forbidden Journey Single Rider
         15384: "bolt.circle.fill",  // The Incredible Hulk Coaster Single Rider
-        15411: "circle.grid.cross.fill",  // The Amazing Adventures of Spider-Man Single Rider
+        17607: "circle.grid.cross.fill",  // The Amazing Adventures of Spider-Man Single Rider
 
         // ─── UNIVERSAL STUDIOS FLORIDA ───
         5984: "eye.circle.fill",  // Despicable Me Minion Mayhem
         5990: "bicycle",  // E.T. Adventure
-        5993: "music.note.list",  // Hollywood Rip Ride Rockit
         5995: "fork.knife.circle.fill",  // Kang & Kodos' Twirl 'n' Hurl
         5996: "scope",  // MEN IN BLACK Alien Attack!
         6000: "pyramid.fill",  // Revenge of the Mummy
@@ -676,15 +674,12 @@ struct StaticData {
         6014: "cart.fill",  // Harry Potter and the Escape from Gringotts
         6016: "tram.fill",  // Hogwarts Express - King's Cross Station
         6018: "building.2.crop.circle.fill",  // Race Through New York Starring Jimmy Fallon
-        6038: "car.2.fill",  // Fast & Furious - Supercharged
         12107: "scope",  // Illumination's Villain-Con Minion Blast
-        12186: "theatermasks",  // Illumination Theater
         13100: "wand.and.stars",  // Ollivanders Experience in Diagon Alley
         13110: "pyramid.fill",  // Revenge of the Mummy Single Rider
         13605: "music.quarternote.3",  // Trolls Trollercoaster
         13849: "tram.fill",  // Hogwarts Express - First Train
         14517: "scope",  // MEN IN BLACK Alien Attack! Single Rider
-        16642: "car.2.fill",  // Fast & Furious - Supercharged Single Rider
         16643: "cart.fill",  // Harry Potter and the Escape from Gringotts Single Rider
 
         // ─── EPIC UNIVERSE ───
@@ -708,16 +703,6 @@ struct StaticData {
         16644: "flame.fill",  // Monsters Unchained: The Frankenstein Experiment Single Rider
         16640: "sparkle.magnifyingglass",  // Stardust Racers Single Rider
         // ─── HALLOWEEN HORROR NIGHTS houses ───
-        14937: "theatermasks.fill",  // Terrifier
-        14938: "theatermasks.fill",  // WWE Presents: The Horrors of the Wyatt Sicks
-        14939: "theatermasks.fill",  // Dolls: Let's Play Dead
-        14945: "theatermasks.fill",  // JASON UN1V3RSE
-        14946: "theatermasks.fill",  // Five Nights At Freddy's
-        14947: "theatermasks.fill",  // Fallout
-        14948: "theatermasks.fill",  // El Artista: A Spanish Haunting
-        14949: "theatermasks.fill",  // Gálkn: Monsters of the North
-        14950: "theatermasks.fill",  // Grave of Flesh
-        14951: "theatermasks.fill",  // Hatchet and Chains: Demon Bounty Hunters
         // ─── OTHER NEW ADDITIONS ───
         16545: "pawprint.fill",  // Bluey's Wild World at Conservation Station
         16641: "music.mic",  // Disney Jr. Mickey Mouse Clubhouse Live!
@@ -821,7 +806,7 @@ struct StaticData {
     {"id": 10900, "parkId": 5, "name": "Test Track Single Rider", "type": "coaster", "description": "Single rider line for Test Track.", "minHeight": 40, "latitude": 28.373228, "longitude": -81.547489, "tpwUuid": "37ae57c5-feaf-4e47-8f27-4b385be200f0"},
     {"id": 10916, "parkId": 5, "name": "Guardians of the Galaxy: Cosmic Rewind", "type": "coaster", "description": "An indoor reverse-launch coaster with rotating cars and a Marvel storyline.", "minHeight": 42, "latitude": 28.3749021961781, "longitude": -81.5478397673417, "tpwUuid": "e3549451-b284-453d-9c31-e3b1207abd79"},
     {"id": 13774, "parkId": 5, "name": "Advanced Training Lab", "type": "experience", "description": "Interactive space-themed play area at Mission: SPACE.", "minHeight": null, "latitude": 28.374185, "longitude": -81.547072, "tpwUuid": "3d8f8f8f-f984-4d2e-8dea-5a79432bdf05"},
-    {"id": 151, "parkId": 5, "name": "Soarin' Around the World", "type": "simulator", "description": "Soar over global landmarks on a hang-gliding simulator.", "minHeight": 40, "latitude": 28.373592, "longitude": -81.552248, "tpwUuid": "81b15dfd-cf6a-466f-be59-3dd65d2a2807"},
+    {"id": 16467, "parkId": 5, "name": "Soarin' Across America", "type": "simulator", "description": "Hang-glide across America's landmarks in the all-new Soarin' film.", "minHeight": 40, "latitude": 28.373592, "longitude": -81.552248, "tpwUuid": "81b15dfd-cf6a-466f-be59-3dd65d2a2807"},
     {"id": 152, "parkId": 5, "name": "Turtle Talk With Crush", "type": "show", "description": "Interactive real-time conversation with Crush the sea turtle.", "minHeight": null, "latitude": 28.375255, "longitude": -81.551047, "tpwUuid": "57acb522-a6fc-4aa4-a80e-21f21f317250"},
     {"id": 153, "parkId": 5, "name": "The Seas with Nemo & Friends", "type": "darkride", "description": "Board a clammobile and journey under the sea with Nemo and Dory.", "minHeight": null, "latitude": 28.374904, "longitude": -81.550852, "tpwUuid": "fb076275-0570-4d62-b2a9-4d6515130fa3"},
     {"id": 155, "parkId": 5, "name": "Journey Into Imagination With Figment", "type": "darkride", "description": "A whimsical dark ride through your imagination with Figment.", "minHeight": null, "latitude": 28.372994, "longitude": -81.551401, "tpwUuid": "75449e85-c410-4cef-a368-9d2ea5d52b58"},
@@ -863,8 +848,8 @@ struct StaticData {
     {"id": 6369, "parkId": 7, "name": "Star Wars: Rise of the Resistance", "type": "darkride", "description": "Join the Resistance in an epic, multi-platform battle against the First Order.", "minHeight": 40, "latitude": 28.354884, "longitude": -81.560457, "tpwUuid": "1a2e70d9-50d5-4140-b69e-799e950f7d18"},
     {"id": 14531, "parkId": 7, "name": "Star Wars: Rise of the Resistance Single Rider", "type": "darkride", "description": "Single rider line for Rise of the Resistance.", "minHeight": 40, "latitude": 28.354884, "longitude": -81.560457, "tpwUuid": "1a2e70d9-50d5-4140-b69e-799e950f7d18"},
     {"id": 1176, "parkId": 7, "name": "Beauty and the Beast - Live on Stage", "type": "show", "description": "Broadway-style stage musical of Beauty and the Beast.", "minHeight": null, "latitude": 28.3589163, "longitude": -81.559599, "tpwUuid": "375197ac-27ac-41f7-bd93-f4e9b9fc4d5d"},
-    {"id": 119, "parkId": 7, "name": "Rock 'n' Roller Coaster Starring The Muppets", "type": "coaster", "description": "Reimagined as a Muppets-themed indoor launch coaster (opens May 26, 2026). Same hardware, new theme.", "minHeight": 48, "latitude": 28.359712, "longitude": -81.56059, "tpwUuid": "e516f303-e82d-4fd3-8fbf-8e6ab624cf89"},
-    {"id": 10901, "parkId": 7, "name": "Rock 'n' Roller Coaster Starring The Muppets Single Rider", "type": "coaster", "description": "Single rider line for Rock 'n' Roller Coaster Starring The Muppets.", "minHeight": 48, "latitude": 28.359712, "longitude": -81.56059, "tpwUuid": "e516f303-e82d-4fd3-8fbf-8e6ab624cf89"},
+    {"id": 16342, "parkId": 7, "name": "Rock 'n' Roller Coaster Starring The Muppets", "type": "coaster", "description": "Reimagined as a Muppets-themed indoor launch coaster (opens May 26, 2026). Same hardware, new theme.", "minHeight": 48, "latitude": 28.359712, "longitude": -81.56059, "tpwUuid": "e516f303-e82d-4fd3-8fbf-8e6ab624cf89"},
+    {"id": 16343, "parkId": 7, "name": "Rock 'n' Roller Coaster Starring The Muppets Single Rider", "type": "coaster", "description": "Single rider line for Rock 'n' Roller Coaster Starring The Muppets.", "minHeight": 48, "latitude": 28.359712, "longitude": -81.56059, "tpwUuid": "e516f303-e82d-4fd3-8fbf-8e6ab624cf89"},
     {"id": 123, "parkId": 7, "name": "The Twilight Zone Tower of Terror", "type": "drop", "description": "Plummet 13 stories in a haunted hotel elevator.", "minHeight": 40, "latitude": 28.359553, "longitude": -81.559772, "tpwUuid": "6f6998e8-a629-412c-b964-2cb06af8e26b"},
     {"id": 5477, "parkId": 7, "name": "Alien Swirling Saucers", "type": "spinner", "description": "Spin around in a toy saucer with the Little Green Aliens.", "minHeight": 32, "latitude": 28.355385, "longitude": -81.562379, "tpwUuid": "d56506e2-6ad3-443a-8065-fea37987248d"},
     {"id": 5476, "parkId": 7, "name": "Slinky Dog Dash", "type": "coaster", "description": "A family-friendly coaster that twists through Andy's backyard on Slinky's back.", "minHeight": 38, "latitude": 28.356245, "longitude": -81.562786, "tpwUuid": "399aa0a1-98e2-4d2b-b297-2b451e9665e1"},
@@ -884,12 +869,14 @@ struct StaticData {
     {"id": 14943, "parkId": 8, "name": "Zootopia: Better Zoogether!", "type": "show", "description": "A 4D theater show inside the Tree of Life with Judy Hopps and Nick Wilde (opened Nov 7, 2025).", "minHeight": null, "latitude": 28.357488, "longitude": -81.590118, "tpwUuid": "1b15c77b-0311-4171-8e59-7f38e6d60754"},
     {"id": 4439, "parkId": 8, "name": "Avatar Flight of Passage", "type": "simulator", "description": "Fly on the back of a banshee on a 3D ride over the world of Pandora.", "minHeight": 44, "latitude": 28.355554, "longitude": -81.592147, "tpwUuid": "24cf863c-b6ba-4826-a056-0b698989cbf7"},
     {"id": 4438, "parkId": 8, "name": "Na'vi River Journey", "type": "boat", "description": "A gentle, mystical boat ride through a bioluminescent rainforest.", "minHeight": null, "latitude": 28.355257, "longitude": -81.591641, "tpwUuid": "7a5af3b7-9bc1-4962-92d0-3ea9c9ce35f0"},
-    {"id": 13807, "parkId": 8, "name": "Affection Section", "type": "experience", "description": "Petting zoo at Rafiki's Planet Watch.", "minHeight": null, "latitude": 28.3653458262, "longitude": -81.5888520134, "tpwUuid": "a15ce7cf-342a-4c7a-9372-7a1fa1054747"},
     {"id": 13806, "parkId": 8, "name": "Animal Care at Conservation Station", "type": "experience", "description": "Watch real-time animal care, training, and veterinary procedures.", "minHeight": null, "latitude": 28.36533, "longitude": -81.58872, "tpwUuid": "6fbe6d02-4057-43bb-80a3-047b1e8a50ca"},
     {"id": 13812, "parkId": 8, "name": "The Oasis Exhibits", "type": "experience", "description": "Animal exhibits along the lush walking path at the park entrance.", "minHeight": null, "latitude": 28.355965, "longitude": -81.59014, "tpwUuid": "bc997600-fcc0-4f6f-b908-a1419b26cfd8"},
     {"id": 13808, "parkId": 8, "name": "Wilderness Explorers", "type": "experience", "description": "Park-wide interactive scavenger hunt earning badges with Russell from Up.", "minHeight": null, "latitude": 28.356682, "longitude": -81.590292, "tpwUuid": "6ef1b126-5b0b-46a1-8608-4fcf98ab92c8"},
+    {"id": 99001, "parkId": 8, "name": "Maharajah Jungle Trek", "type": "experience", "description": "Self-guided walking trail past tigers, Komodo dragons, and a bat enclosure.", "minHeight": null, "latitude": 28.3586, "longitude": -81.5872, "tpwUuid": "1a8ea967-229a-42a0-8290-59b036c84e14"},
     {"id": 5985, "parkId": 64, "name": "The Amazing Adventures of Spider-Man", "type": "darkride", "description": "A 3D dark ride battling Spider-Man villains across NYC.", "minHeight": 40, "latitude": 28.4705456, "longitude": -81.469852, "tpwUuid": "6be23178-7d00-4884-9e88-76787da1df86"},
-    {"id": 15411, "parkId": 64, "name": "The Amazing Adventures of Spider-Man Single Rider", "type": "darkride", "description": "Single rider line for The Amazing Adventures of Spider-Man.", "minHeight": 40, "latitude": 28.4705456, "longitude": -81.469852, "tpwUuid": "6be23178-7d00-4884-9e88-76787da1df86"},
+    {"id": 17607, "parkId": 64, "name": "The Amazing Adventures of Spider-Man Single Rider", "type": "darkride", "description": "Single rider line for The Amazing Adventures of Spider-Man.", "minHeight": 40, "latitude": 28.4705456, "longitude": -81.469852, "tpwUuid": "6be23178-7d00-4884-9e88-76787da1df86"},
+    {"id": 16652, "parkId": 64, "name": "Hagrid's Magical Creatures Motorbike Adventure Single Rider", "type": "coaster", "description": "Single rider lane for Hagrid's Magical Creatures Motorbike Adventure.", "minHeight": 48, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 16645, "parkId": 64, "name": "Doctor Doom's Fearfall Single Rider", "type": "drop", "description": "Single rider lane for Doctor Doom's Fearfall.", "minHeight": 52, "latitude": null, "longitude": null, "tpwUuid": null},
     {"id": 5988, "parkId": 64, "name": "Doctor Doom's Fearfall", "type": "drop", "description": "An intense vertical launch and drop tower.", "minHeight": 52, "latitude": 28.470678, "longitude": -81.469502, "tpwUuid": "2f95b213-daaa-4370-8349-c2cd57be470e"},
     {"id": 6003, "parkId": 64, "name": "Storm Force Accelatron", "type": "spinner", "description": "A spinning carnival ride themed to Storm of the X-Men.", "minHeight": null, "latitude": 28.471007, "longitude": -81.468794, "tpwUuid": "b694d5a5-155e-4796-af7e-5dbdcf3deba4"},
     {"id": 6004, "parkId": 64, "name": "The Incredible Hulk Coaster", "type": "coaster", "description": "Launch from 0 to 40 mph in two seconds and twist through inversions.", "minHeight": 54, "latitude": 28.471257, "longitude": -81.469121, "tpwUuid": "fa743143-281b-4b5b-b87b-d49fcb006772"},
@@ -917,15 +904,11 @@ struct StaticData {
     {"id": 13605, "parkId": 65, "name": "Trolls Trollercoaster", "type": "coaster", "description": "Family-friendly coaster themed to the Trolls franchise (replaced Woody Woodpecker's Nuthouse Coaster).", "minHeight": 36, "latitude": 28.47842, "longitude": -81.46611, "tpwUuid": "37989fb7-5576-4247-bd6e-e981bc70cca2"},
     {"id": 5990, "parkId": 65, "name": "E.T. Adventure", "type": "darkride", "description": "Fly on a bicycle to help E.T. save his home planet - original USF opening-day ride.", "minHeight": 34, "latitude": 28.478075, "longitude": -81.466783, "tpwUuid": "1e16afdd-15e3-4e4a-b3af-8aeebd7534f8"},
     {"id": 5984, "parkId": 65, "name": "Despicable Me Minion Mayhem", "type": "simulator", "description": "Join the Minions on a wild 3D simulator ride.", "minHeight": 40, "latitude": 28.4753199, "longitude": -81.4678895, "tpwUuid": "7288f24a-396e-4eeb-bb3b-4a90e65269f2"},
-    {"id": 12186, "parkId": 65, "name": "Illumination Theater", "type": "show", "description": "Live show featuring Illumination characters in Minion Land.", "minHeight": null, "latitude": 28.475880741324, "longitude": -81.4683399259803, "tpwUuid": "a8382eac-3a99-48fe-bb52-b90b72d074dc"},
     {"id": 12107, "parkId": 65, "name": "Illumination's Villain-Con Minion Blast", "type": "shooter", "description": "An interactive shooter ride competing for Vicious 6 status.", "minHeight": 40, "latitude": 28.475526, "longitude": -81.467882, "tpwUuid": "25d47d04-a917-405a-9904-9be2b499b2dd"},
     {"id": 6018, "parkId": 65, "name": "Race Through New York Starring Jimmy Fallon", "type": "simulator", "description": "A 3D motion-simulator race through NYC with Jimmy Fallon.", "minHeight": 40, "latitude": 28.475881, "longitude": -81.469363, "tpwUuid": "625a3cc3-7d7e-468b-96fe-1ec00df7b739"},
     {"id": 6000, "parkId": 65, "name": "Revenge of the Mummy", "type": "coaster", "description": "An indoor coaster with intense special effects and a backwards section.", "minHeight": 48, "latitude": 28.4766, "longitude": -81.46954, "tpwUuid": "ec25d9a7-b4d4-4ebf-a6c4-c18389351764"},
     {"id": 13110, "parkId": 65, "name": "Revenge of the Mummy Single Rider", "type": "coaster", "description": "Single rider line for Revenge of the Mummy.", "minHeight": 48, "latitude": 28.4766, "longitude": -81.46954, "tpwUuid": "ec25d9a7-b4d4-4ebf-a6c4-c18389351764"},
-    {"id": 5993, "parkId": 65, "name": "Hollywood Rip Ride Rockit", "type": "coaster", "description": "A high-speed musical coaster with a 167-foot vertical lift.", "minHeight": 51, "latitude": 28.47517, "longitude": -81.46856, "tpwUuid": "2c72d1d0-7106-439d-9672-5bf95795ccea"},
     {"id": 6006, "parkId": 65, "name": "TRANSFORMERS: The Ride-3D", "type": "darkride", "description": "An immersive 3D dark ride battling alongside the Autobots.", "minHeight": 40, "latitude": 28.47669, "longitude": -81.46856, "tpwUuid": "750939c5-a69e-408a-8d55-66c272fa265e"},
-    {"id": 6038, "parkId": 65, "name": "Fast & Furious - Supercharged", "type": "darkride", "description": "A high-octane dark ride with the Fast & Furious crew (announced to close in 2027).", "minHeight": 40, "latitude": 28.477888, "longitude": -81.469458, "tpwUuid": "6a3ffac7-bef4-4a22-8ba6-f2963aac7f70"},
-    {"id": 16642, "parkId": 65, "name": "Fast & Furious - Supercharged Single Rider", "type": "darkride", "description": "Single rider line for Fast & Furious - Supercharged.", "minHeight": 40, "latitude": 28.477888, "longitude": -81.469458, "tpwUuid": "6a3ffac7-bef4-4a22-8ba6-f2963aac7f70"},
     {"id": 6014, "parkId": 65, "name": "Harry Potter and the Escape from Gringotts", "type": "coaster", "description": "A 3D dark ride and roller coaster hybrid through the wizarding bank.", "minHeight": 42, "latitude": 28.479719, "longitude": -81.469922, "tpwUuid": "70ac72a3-9675-4c41-a1b1-e4801072927a"},
     {"id": 16643, "parkId": 65, "name": "Harry Potter and the Escape from Gringotts Single Rider", "type": "coaster", "description": "Single rider line for Harry Potter and the Escape from Gringotts.", "minHeight": 42, "latitude": 28.479719, "longitude": -81.469922, "tpwUuid": "70ac72a3-9675-4c41-a1b1-e4801072927a"},
     {"id": 6016, "parkId": 65, "name": "Hogwarts Express - King's Cross Station", "type": "train", "description": "Travel from London to Hogsmeade Station (park-to-park ticket required).", "minHeight": null, "latitude": 28.479079, "longitude": -81.46944, "tpwUuid": "f0750e5e-7629-4c53-99d2-e0924a8afeed"},
@@ -954,19 +937,19 @@ struct StaticData {
     {"id": 14697, "parkId": 334, "name": "Mine-Cart Madness Single Rider", "type": "coaster", "description": "Single rider line for Mine-Cart Madness.", "minHeight": 36, "latitude": 28.43825, "longitude": -81.44875, "tpwUuid": "dd8c015d-511f-47d4-b98b-18ce15735588"},
     {"id": 14687, "parkId": 334, "name": "Harry Potter and the Battle at the Ministry", "type": "darkride", "description": "A multi-vehicle dark ride through the Ministry of Magic during the Death Eater era.", "minHeight": 48, "latitude": 28.44284, "longitude": -81.4481, "tpwUuid": "dbc4f0d8-fdef-4dfc-a1c2-33917f742f40"},
     {"id": 14696, "parkId": 334, "name": "Harry Potter and the Battle at the Ministry Single Rider", "type": "darkride", "description": "Single rider line for Harry Potter and the Battle at the Ministry.", "minHeight": 48, "latitude": 28.44284, "longitude": -81.4481, "tpwUuid": "dbc4f0d8-fdef-4dfc-a1c2-33917f742f40"},
-    {"id": 14937, "parkId": 65, "name": "Terrifier", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
-    {"id": 14938, "parkId": 65, "name": "WWE Presents: The Horrors of the Wyatt Sicks", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
-    {"id": 14939, "parkId": 65, "name": "Dolls: Let’s Play Dead", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
-    {"id": 14945, "parkId": 65, "name": "JASON UN1V3RSE", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
-    {"id": 14946, "parkId": 65, "name": "Five Nights At Freddy’s", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
-    {"id": 14947, "parkId": 65, "name": "Fallout", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
-    {"id": 14948, "parkId": 65, "name": "El Artista: A Spanish Haunting", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
-    {"id": 14949, "parkId": 65, "name": "Gálkn: Monsters of the North", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
-    {"id": 14950, "parkId": 65, "name": "Grave of Flesh", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
-    {"id": 14951, "parkId": 65, "name": "Hatchet and Chains: Demon Bounty Hunters", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
     {"id": 16545, "parkId": 8, "name": "Bluey's Wild World at Conservation Station", "type": "experience", "description": "Meet Bluey and Bingo and play at Conservation Station.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
     {"id": 16641, "parkId": 7, "name": "Disney Jr. Mickey Mouse Clubhouse Live!", "type": "show", "description": "A live stage show starring Mickey Mouse and his friends.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
-    {"id": 13850, "parkId": 64, "name": "Hogwarts Express - Last Train", "type": "train", "description": "A Hogwarts Express experience at Hogsmeade Station (park-to-park ticket required).", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null}
+    {"id": 13850, "parkId": 64, "name": "Hogwarts Express - Last Train", "type": "train", "description": "A Hogwarts Express experience at Hogsmeade Station (park-to-park ticket required).", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 17576, "parkId": 65, "name": "Cybergoria", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights 2026.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": "41c4491c-f3d9-41e5-963c-21a10a255b39"},
+    {"id": 17577, "parkId": 65, "name": "MADLANDS: Caged Cannibals", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights 2026.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": "6b57dae1-a6e9-42ba-b59d-8ef4ee8ae11e"},
+    {"id": 17578, "parkId": 65, "name": "Evil Dead Burn", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights 2026.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": "be4bc36e-e2d8-474b-9ea7-74c0e3e6c82d"},
+    {"id": 17579, "parkId": 65, "name": "H.R. Bloodengutz Presents: A Halloween Fright-Tacular!", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights 2026.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": "99accf82-ca8d-425d-abc8-33e69aee75e9"},
+    {"id": 17580, "parkId": 65, "name": "Ozzy Osbourne: Prince of Darkness", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights 2026.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": "48f99577-cfc3-40b4-8161-844300c823d4"},
+    {"id": 17581, "parkId": 65, "name": "Hellraiser", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights 2026.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": "98ac6a78-0320-4949-8824-934d0e73e4e2"},
+    {"id": 17582, "parkId": 65, "name": "INVASION: Alien Abduction", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights 2026.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": "53ac1ddd-51b1-4b5b-a72b-3a7b3e25397a"},
+    {"id": 17583, "parkId": 65, "name": "Jack & Oddfellow: Chaos & Control", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights 2026.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": "709e0baf-dd74-4b4e-9d19-7092336c0846"},
+    {"id": 17584, "parkId": 65, "name": "Sinners", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights 2026.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": "24712410-a3a8-4ee0-b2f7-df889424ae76"},
+    {"id": 17585, "parkId": 65, "name": "Stranger Things 5", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights 2026.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": "12a4b7d4-3a27-48dd-b355-99fe9f8aab37"}
     ]
     """
 }
