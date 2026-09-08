@@ -263,6 +263,12 @@ struct ParkDetailView: View {
                 triggerHaptic()
             }
             .simultaneousGesture(backSwipeGesture)
+            // iPad: without a tap gesture registered at this level, taps on
+            // the attraction rows inside this ScrollView never reached the
+            // rows' NavigationLinks (verified with per-level tap logging on
+            // the iPad Pro 13" simulator, 2026-09-08). A no-op simultaneous
+            // TapGesture makes SwiftUI route the touch through as expected.
+            .simultaneousGesture(TapGesture())
         }
         .navigationBarBackButtonHidden(true)
             .toolbar(.hidden, for: .navigationBar)

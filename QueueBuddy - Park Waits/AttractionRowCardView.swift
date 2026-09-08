@@ -119,6 +119,10 @@ struct AttractionRowCardView: View {
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
         .opacity(isClosed ? 0.55 : 1)
+        // Make the whole row tappable. With `.buttonStyle(.plain)` a
+        // NavigationLink only hit-tests its opaque content, so a tap on the
+        // empty middle of a wide (iPad) row fell through to the ScrollView.
+        .contentShape(Rectangle())
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(rowAccessibilityLabel)
         .accessibilityIdentifier("attraction.\(attraction.id)")
