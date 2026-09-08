@@ -127,13 +127,23 @@ for spec in "${ALL_DEVICES[@]}"; do
   mv "$OUT"/*.png "$OUT/.prev/" 2>/dev/null || true
   rm -rf "$OUT/result.xcresult"
 
-  echo "▶ running ScreenshotTests → $OUT"
-  TEST_RUNNER_SCREENSHOT_DIR="$OUT" xcodebuild test-without-building \
-    -xctestrun "$XCTESTRUN" \
-    -destination "id=$UDID" \
-    -only-testing:QueueBuddyUITests/ScreenshotTests \
-    -resultBundlePath "$OUT/result.xcresult" \
-    -quiet 2>&1 | grep -E "error:|Test Case|passed|failed|Executed" || true
+  # XCTest's accessibility bridge can lag the screenshot service by a few
+  # minutes after a cold boot ("Timed out while loading Accessibility",
+  # "Timed out while evaluating UI query"). Retry once after a pause.
+  for attempt in 1 2; do
+    echo "▶ running ScreenshotTests (attempt $attempt) → $OUT"
+    rm -rf "$OUT/result.xcresult"
+    TEST_RUNNER_SCREENSHOT_DIR="$OUT" xcodebuild test-without-building \
+      -xctestrun "$XCTESTRUN" \
+      -destination "id=$UDID" \
+      -only-testing:QueueBuddyUITests/ScreenshotTests \
+      -resultBundlePath "$OUT/result.xcresult" \
+      -quiet 2>&1 | grep -E "error:|Test Case|passed|failed|Executed" || true
+    RESULT=$(xcrun xcresulttool get test-results summary --path "$OUT/result.xcresult" 2>/dev/null \
+      | python3 -c 'import json,sys; print(json.load(sys.stdin).get("result",""))' 2>/dev/null || echo "")
+    [ "$RESULT" = "Passed" ] && break
+    [ "$attempt" = "1" ] && { echo "▶ attempt 1 did not pass ($RESULT); waiting 180 s for the simulator to settle"; sleep 180; }
+  done
 
   xcrun simctl status_bar "$UDID" clear >/dev/null 2>&1 || true
   xcrun xcresulttool get test-results summary --path "$OUT/result.xcresult" 2>/dev/null | python3 -c '
