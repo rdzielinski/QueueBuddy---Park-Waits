@@ -69,8 +69,8 @@ enum ParkDayActivityController {
     }
 
     /// Rebuilds the live activity's content from the latest plan items +
-    /// wait times. No-op if no Park Day activity is running. If the plan
-    /// has emptied, ends the activity rather than showing a stale ride.
+    /// wait times. No-op if no Park Day activity is running. If nothing is
+    /// selected anymore, ends the activity rather than showing a stale ride.
     static func refresh(attractionsByPark: [Int: [Attraction]]) {
         guard let activity = current else { return }
         let prior = activity.content.state
@@ -105,13 +105,13 @@ enum ParkDayActivityController {
         parkAccentHex: UInt32,
         attractions: [Attraction]
     ) -> ParkDayAttributes.ContentState? {
-        let undone = ParkDayPlanStore.shared.items(for: parkId).filter { !$0.isDone }
-        guard let next = undone.first else { return nil }
+        let selected = ParkDayPlanStore.shared.items(for: parkId).filter { $0.isSelected }
+        guard let next = selected.first else { return nil }
 
         let byId = Dictionary(uniqueKeysWithValues: attractions.map { ($0.id, $0) })
         let nextLive = byId[next.attractionId]
 
-        let upcoming = undone.dropFirst().prefix(3).map { item -> String in
+        let upcoming = selected.dropFirst().prefix(3).map { item -> String in
             let live = byId[item.attractionId]
             let waitText: String
             if live?.is_open == false {

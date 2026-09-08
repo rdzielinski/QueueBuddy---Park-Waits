@@ -1,22 +1,12 @@
 import SwiftUI
 import BackgroundTasks
 import UIKit
-import FirebaseCore
 #if canImport(GoogleMobileAds)
 import GoogleMobileAds
 #endif
 
-class AppDelegate: NSObject, UIApplicationDelegate {
-    func application(_ application: UIApplication,
-                     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]? = nil) -> Bool {
-        FirebaseApp.configure()
-        return true
-    }
-}
-
 @main
 struct ThemeParkTimesApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
     @StateObject private var viewModel = WaitTimeViewModel()
 
     static func registerBackgroundTasks() {

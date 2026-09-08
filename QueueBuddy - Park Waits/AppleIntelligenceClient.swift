@@ -59,24 +59,31 @@ public struct AppleIntelligenceClient: AIChatProvider {
             throw AIProviderError.unavailableOnThisDevice
         }
 
-        // Compose the prompt: system + context + history + user message
-        // into a single text payload. Foundation Models' session API is
-        // single-shot here — we don't keep a long-lived session because
-        // routing eval and one-off chat turns don't benefit from it.
-        var prompt = systemPrompt
+        // Foundation Models splits durable guidance (instructions) from the
+        // turn text (prompt). Put the system prompt AND the park context in
+        // the instructions so the on-device model is grounded the same way
+        // the cloud providers are. Previously the context block and history
+        // were composed and then dropped — the session was built from the
+        // system prompt alone and answered the bare user message, so it had
+        // no idea which park it was in or what attractions actually exist
+        // there. We don't keep a long-lived session because routing eval and
+        // one-off chat turns don't benefit from it.
+        var instructions = systemPrompt
         if let contextBlock, !contextBlock.isEmpty {
-            prompt += "\n\n" + contextBlock
+            instructions += "\n\n" + contextBlock
         }
+
+        var prompt = ""
         for turn in history {
             let label = turn.role == .user ? "User" : "Assistant"
-            prompt += "\n\n\(label): \(turn.text)"
+            prompt += "\(label): \(turn.text)\n\n"
         }
-        prompt += "\n\nUser: \(userMessage)\n\nAssistant:"
+        prompt += "User: \(userMessage)"
 
-        let session = LanguageModelSession(instructions: systemPrompt)
+        let session = LanguageModelSession(instructions: instructions)
         let response: String
         do {
-            response = try await session.respond(to: userMessage).content
+            response = try await session.respond(to: prompt).content
         } catch {
             throw AIProviderError.network(error)
         }

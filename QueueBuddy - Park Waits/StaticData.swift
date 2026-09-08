@@ -179,19 +179,49 @@ struct StaticData {
         getAttractionDetails()[attractionId]?.tpwUuid
     }
 
+    /// Single-rider lanes that the data source returns as separate
+    /// attractions, mapped to their parent ride's id. Single-rider entries
+    /// inherit the parent's icon, description, and type/filter so they don't
+    /// surface as a different-looking attraction.
+    static let singleRiderParentId: [Int: Int] = [
+        10900: 160,    // Test Track
+        10901: 119,    // Rock 'n' Roller Coaster Starring The Muppets
+        10902: 6368,   // Millennium Falcon: Smugglers Run
+        10915: 10914,  // Remy's Ratatouille Adventure
+        13110: 6000,   // Revenge of the Mummy
+        13113: 5992,   // Harry Potter and the Forbidden Journey
+        14517: 5996,   // MEN IN BLACK Alien Attack!
+        14531: 6369,   // Star Wars: Rise of the Resistance
+        14533: 110,    // Expedition Everest - Legend of the Forbidden Mountain
+        14684: 14683,  // Mario Kart: Bowser's Challenge
+        14696: 14687,  // Harry Potter and the Battle at the Ministry
+        14697: 14686,  // Mine-Cart Madness
+        14698: 14692,  // Curse of the Werewolf
+        16644: 14694,  // Monsters Unchained: The Frankenstein Experiment
+        16640: 14690,  // Stardust Racers
+        16642: 6038,   // Fast & Furious - Supercharged
+        15384: 6004,   // The Incredible Hulk Coaster
+        15411: 5985,   // The Amazing Adventures of Spider-Man
+        16643: 6014,   // Harry Potter and the Escape from Gringotts
+    ]
+
     static func getStaticAttractions(for parkId: Int) -> [Attraction] {
         let allAttractionDetails = getAttractionDetails()
         let parkAttractions = allAttractionDetails.filter { $0.value.parkId == parkId }
         return parkAttractions.map { id, details in
-            Attraction(id: id,
+            // Single-rider lanes inherit the parent ride's type, description,
+            // and height so they share its icon, blurb, and filter category
+            // (the row keeps its own "… Single Rider" name and live wait).
+            let parent = singleRiderParentId[id].flatMap { allAttractionDetails[$0] }
+            return Attraction(id: id,
                        name: details.name,
                        wait_time: nil,
                        status: "N/A",
                        is_open: true,
                        last_updated: nil,
-                       type: details.type,
-                       description: details.description,
-                       min_height_inches: details.minHeight,
+                       type: parent?.type ?? details.type,
+                       description: parent?.description ?? details.description,
+                       min_height_inches: parent?.minHeight ?? details.minHeight,
                        latitude: details.lat,
                        longitude: details.lon)
         }
@@ -382,7 +412,6 @@ struct StaticData {
         6682: "The Wizarding World of Harry Potter - Hogsmeade",  // Hagrid's Magical Creatures Motorbike Adventure
         13098: "The Wizarding World of Harry Potter - Hogsmeade",  // Ollivanders Experience in Hogsmeade
         13113: "The Wizarding World of Harry Potter - Hogsmeade",  // Harry Potter and the Forbidden Journey Single Rider
-        15403: "The Wizarding World of Harry Potter - Hogsmeade",  // Hagrid's Magical Creatures Motorbike Adventure Single Rider
         // Toon Lagoon
         5989: "Toon Lagoon",  // Dudley Do-Right's Ripsaw Falls
         5998: "Toon Lagoon",  // Popeye & Bluto's Bilge-Rat Barges
@@ -406,13 +435,13 @@ struct StaticData {
         6006: "Production Central",  // TRANSFORMERS: The Ride-3D
         // San Francisco
         6038: "San Francisco",  // Fast & Furious - Supercharged
-        14866: "San Francisco",  // Fast & Furious - Supercharged Single Rider
+        16642: "San Francisco",  // Fast & Furious - Supercharged Single Rider
         // The Wizarding World of Harry Potter - Diagon Alley
         6014: "The Wizarding World of Harry Potter - Diagon Alley",  // Harry Potter and the Escape from Gringotts
         6016: "The Wizarding World of Harry Potter - Diagon Alley",  // Hogwarts Express - King's Cross Station
         13100: "The Wizarding World of Harry Potter - Diagon Alley",  // Ollivanders Experience in Diagon Alley
         13849: "The Wizarding World of Harry Potter - Diagon Alley",  // Hogwarts Express - First Train
-        15416: "The Wizarding World of Harry Potter - Diagon Alley",  // Harry Potter and the Escape from Gringotts Single Rider
+        16643: "The Wizarding World of Harry Potter - Diagon Alley",  // Harry Potter and the Escape from Gringotts Single Rider
         // World Expo
         5995: "World Expo",  // Kang & Kodos' Twirl 'n' Hurl
         5996: "World Expo",  // MEN IN BLACK Alien Attack!
@@ -423,12 +452,12 @@ struct StaticData {
         // Celestial Park
         14688: "Celestial Park",  // Constellation Carousel
         14690: "Celestial Park",  // Stardust Racers
-        14740: "Celestial Park",  // Stardust Racers Single Rider
+        16640: "Celestial Park",  // Stardust Racers Single Rider
         // Dark Universe
         14692: "Dark Universe",  // Curse of the Werewolf
         14694: "Dark Universe",  // Monsters Unchained: The Frankenstein Experiment
         14698: "Dark Universe",  // Curse of the Werewolf Single Rider
-        14699: "Dark Universe",  // Monsters Unchained: The Frankenstein Experiment Single Rider
+        16644: "Dark Universe",  // Monsters Unchained: The Frankenstein Experiment Single Rider
         // How to Train Your Dragon - Isle of Berk
         14685: "How to Train Your Dragon - Isle of Berk",  // Meet Toothless and Friends
         14691: "How to Train Your Dragon - Isle of Berk",  // Fyre Drill
@@ -445,6 +474,21 @@ struct StaticData {
         // The Wizarding World of Harry Potter - Ministry of Magic
         14687: "The Wizarding World of Harry Potter - Ministry of Magic",  // Harry Potter and the Battle at the Ministry
         14696: "The Wizarding World of Harry Potter - Ministry of Magic",  // Harry Potter and the Battle at the Ministry Single Rider
+        // ─── HALLOWEEN HORROR NIGHTS (Universal Studios Florida, seasonal) ───
+        14937: "Halloween Horror Nights",  // Terrifier
+        14938: "Halloween Horror Nights",  // WWE Presents: The Horrors of the Wyatt Sicks
+        14939: "Halloween Horror Nights",  // Dolls: Let's Play Dead
+        14945: "Halloween Horror Nights",  // JASON UN1V3RSE
+        14946: "Halloween Horror Nights",  // Five Nights At Freddy's
+        14947: "Halloween Horror Nights",  // Fallout
+        14948: "Halloween Horror Nights",  // El Artista: A Spanish Haunting
+        14949: "Halloween Horror Nights",  // Gálkn: Monsters of the North
+        14950: "Halloween Horror Nights",  // Grave of Flesh
+        14951: "Halloween Horror Nights",  // Hatchet and Chains: Demon Bounty Hunters
+        // ─── OTHER NEW ADDITIONS ───
+        16545: "Rafiki's Planet Watch",  // Bluey's Wild World at Conservation Station (Animal Kingdom)
+        16641: "Animation Courtyard",  // Disney Jr. Mickey Mouse Clubhouse Live! (Hollywood Studios)
+        13850: "The Wizarding World of Harry Potter - Hogsmeade",  // Hogwarts Express - Last Train (Islands of Adventure)
 
     ]
 
@@ -618,7 +662,6 @@ struct StaticData {
         13098: "wand.and.stars",  // Ollivanders Experience in Hogsmeade
         13113: "book.closed.fill",  // Harry Potter and the Forbidden Journey Single Rider
         15384: "bolt.circle.fill",  // The Incredible Hulk Coaster Single Rider
-        15403: "bicycle",  // Hagrid's Magical Creatures Motorbike Adventure Single Rider
         15411: "circle.grid.cross.fill",  // The Amazing Adventures of Spider-Man Single Rider
 
         // ─── UNIVERSAL STUDIOS FLORIDA ───
@@ -641,8 +684,8 @@ struct StaticData {
         13605: "music.quarternote.3",  // Trolls Trollercoaster
         13849: "tram.fill",  // Hogwarts Express - First Train
         14517: "scope",  // MEN IN BLACK Alien Attack! Single Rider
-        14866: "car.2.fill",  // Fast & Furious - Supercharged Single Rider
-        15416: "cart.fill",  // Harry Potter and the Escape from Gringotts Single Rider
+        16642: "car.2.fill",  // Fast & Furious - Supercharged Single Rider
+        16643: "cart.fill",  // Harry Potter and the Escape from Gringotts Single Rider
 
         // ─── EPIC UNIVERSE ───
         14682: "target",  // Bowser Jr. Challenge
@@ -662,8 +705,23 @@ struct StaticData {
         14696: "wand.and.stars.inverse",  // Harry Potter and the Battle at the Ministry Single Rider
         14697: "hammer.circle.fill",  // Mine-Cart Madness Single Rider
         14698: "moon.stars.fill",  // Curse of the Werewolf Single Rider
-        14699: "flame.fill",  // Monsters Unchained: The Frankenstein Experiment Single Rider
-        14740: "sparkle.magnifyingglass",  // Stardust Racers Single Rider
+        16644: "flame.fill",  // Monsters Unchained: The Frankenstein Experiment Single Rider
+        16640: "sparkle.magnifyingglass",  // Stardust Racers Single Rider
+        // ─── HALLOWEEN HORROR NIGHTS houses ───
+        14937: "theatermasks.fill",  // Terrifier
+        14938: "theatermasks.fill",  // WWE Presents: The Horrors of the Wyatt Sicks
+        14939: "theatermasks.fill",  // Dolls: Let's Play Dead
+        14945: "theatermasks.fill",  // JASON UN1V3RSE
+        14946: "theatermasks.fill",  // Five Nights At Freddy's
+        14947: "theatermasks.fill",  // Fallout
+        14948: "theatermasks.fill",  // El Artista: A Spanish Haunting
+        14949: "theatermasks.fill",  // Gálkn: Monsters of the North
+        14950: "theatermasks.fill",  // Grave of Flesh
+        14951: "theatermasks.fill",  // Hatchet and Chains: Demon Bounty Hunters
+        // ─── OTHER NEW ADDITIONS ───
+        16545: "pawprint.fill",  // Bluey's Wild World at Conservation Station
+        16641: "music.mic",  // Disney Jr. Mickey Mouse Clubhouse Live!
+        13850: "tram.fill",  // Hogwarts Express - Last Train
 
     ]
 
@@ -847,7 +905,6 @@ struct StaticData {
     {"id": 8721, "parkId": 64, "name": "Jurassic World VelociCoaster", "type": "coaster", "description": "A high-speed launch coaster with a near-vertical 80-degree drop.", "minHeight": 51, "latitude": 28.471429, "longitude": -81.472284, "tpwUuid": "61079a31-4165-4fb0-b36f-c01c5971f80a"},
     {"id": 5991, "parkId": 64, "name": "Flight of the Hippogriff", "type": "coaster", "description": "A family-friendly roller coaster around Hagrid's hut.", "minHeight": 36, "latitude": 28.472416, "longitude": -81.473636, "tpwUuid": "23b613e0-ae83-455b-9163-231bdbd5c427"},
     {"id": 6682, "parkId": 64, "name": "Hagrid's Magical Creatures Motorbike Adventure", "type": "coaster", "description": "Race through the Forbidden Forest on a motorbike or sidecar.", "minHeight": 48, "latitude": 28.47308, "longitude": -81.472862, "tpwUuid": "578bbd12-1975-4ec3-9879-ea641c780342"},
-    {"id": 15403, "parkId": 64, "name": "Hagrid's Magical Creatures Motorbike Adventure Single Rider", "type": "coaster", "description": "Single rider line for Hagrid's Magical Creatures Motorbike Adventure.", "minHeight": 48, "latitude": 28.47308, "longitude": -81.472862, "tpwUuid": "578bbd12-1975-4ec3-9879-ea641c780342"},
     {"id": 5992, "parkId": 64, "name": "Harry Potter and the Forbidden Journey", "type": "darkride", "description": "Soar above Hogwarts on the magical bench through Quidditch and Dementor scenes.", "minHeight": 48, "latitude": 28.472265, "longitude": -81.4735195, "tpwUuid": "6af80308-647d-4d8b-bcf6-37517a93bdbc"},
     {"id": 13113, "parkId": 64, "name": "Harry Potter and the Forbidden Journey Single Rider", "type": "darkride", "description": "Single rider line for Harry Potter and the Forbidden Journey.", "minHeight": 48, "latitude": 28.472265, "longitude": -81.4735195, "tpwUuid": "6af80308-647d-4d8b-bcf6-37517a93bdbc"},
     {"id": 6015, "parkId": 64, "name": "Hogwarts Express - Hogsmeade Station", "type": "train", "description": "Ride from Hogsmeade Station to King's Cross Station (park-to-park ticket required).", "minHeight": null, "latitude": 28.47348, "longitude": -81.472594, "tpwUuid": "144450b9-4574-46be-abdf-4b1ca8974d9d"},
@@ -868,9 +925,9 @@ struct StaticData {
     {"id": 5993, "parkId": 65, "name": "Hollywood Rip Ride Rockit", "type": "coaster", "description": "A high-speed musical coaster with a 167-foot vertical lift.", "minHeight": 51, "latitude": 28.47517, "longitude": -81.46856, "tpwUuid": "2c72d1d0-7106-439d-9672-5bf95795ccea"},
     {"id": 6006, "parkId": 65, "name": "TRANSFORMERS: The Ride-3D", "type": "darkride", "description": "An immersive 3D dark ride battling alongside the Autobots.", "minHeight": 40, "latitude": 28.47669, "longitude": -81.46856, "tpwUuid": "750939c5-a69e-408a-8d55-66c272fa265e"},
     {"id": 6038, "parkId": 65, "name": "Fast & Furious - Supercharged", "type": "darkride", "description": "A high-octane dark ride with the Fast & Furious crew (announced to close in 2027).", "minHeight": 40, "latitude": 28.477888, "longitude": -81.469458, "tpwUuid": "6a3ffac7-bef4-4a22-8ba6-f2963aac7f70"},
-    {"id": 14866, "parkId": 65, "name": "Fast & Furious - Supercharged Single Rider", "type": "darkride", "description": "Single rider line for Fast & Furious - Supercharged.", "minHeight": 40, "latitude": 28.477888, "longitude": -81.469458, "tpwUuid": "6a3ffac7-bef4-4a22-8ba6-f2963aac7f70"},
+    {"id": 16642, "parkId": 65, "name": "Fast & Furious - Supercharged Single Rider", "type": "darkride", "description": "Single rider line for Fast & Furious - Supercharged.", "minHeight": 40, "latitude": 28.477888, "longitude": -81.469458, "tpwUuid": "6a3ffac7-bef4-4a22-8ba6-f2963aac7f70"},
     {"id": 6014, "parkId": 65, "name": "Harry Potter and the Escape from Gringotts", "type": "coaster", "description": "A 3D dark ride and roller coaster hybrid through the wizarding bank.", "minHeight": 42, "latitude": 28.479719, "longitude": -81.469922, "tpwUuid": "70ac72a3-9675-4c41-a1b1-e4801072927a"},
-    {"id": 15416, "parkId": 65, "name": "Harry Potter and the Escape from Gringotts Single Rider", "type": "coaster", "description": "Single rider line for Harry Potter and the Escape from Gringotts.", "minHeight": 42, "latitude": 28.479719, "longitude": -81.469922, "tpwUuid": "70ac72a3-9675-4c41-a1b1-e4801072927a"},
+    {"id": 16643, "parkId": 65, "name": "Harry Potter and the Escape from Gringotts Single Rider", "type": "coaster", "description": "Single rider line for Harry Potter and the Escape from Gringotts.", "minHeight": 42, "latitude": 28.479719, "longitude": -81.469922, "tpwUuid": "70ac72a3-9675-4c41-a1b1-e4801072927a"},
     {"id": 6016, "parkId": 65, "name": "Hogwarts Express - King's Cross Station", "type": "train", "description": "Travel from London to Hogsmeade Station (park-to-park ticket required).", "minHeight": null, "latitude": 28.479079, "longitude": -81.46944, "tpwUuid": "f0750e5e-7629-4c53-99d2-e0924a8afeed"},
     {"id": 13849, "parkId": 65, "name": "Hogwarts Express - First Train", "type": "train", "description": "Earlier-departure Hogwarts Express experience from King's Cross.", "minHeight": null, "latitude": 28.479079, "longitude": -81.46944, "tpwUuid": "f44a531c-09cf-40c4-b2d4-236e8a9285dc"},
     {"id": 13100, "parkId": 65, "name": "Ollivanders Experience in Diagon Alley", "type": "experience", "description": "Interactive wand-selection ceremony in Diagon Alley.", "minHeight": null, "latitude": 28.47964, "longitude": -81.46973, "tpwUuid": "e99b72a6-37d0-46df-ab11-e9ff6603f259"},
@@ -880,11 +937,11 @@ struct StaticData {
     {"id": 6005, "parkId": 65, "name": "The Simpsons Ride", "type": "simulator", "description": "A motion simulator ride through Krustyland with The Simpsons.", "minHeight": 40, "latitude": 28.479604, "longitude": -81.467788, "tpwUuid": "7e70bc9e-7dce-4dd2-8823-57b8d6ec7570"},
     {"id": 14688, "parkId": 334, "name": "Constellation Carousel", "type": "carousel", "description": "A grand carousel at the heart of Celestial Park.", "minHeight": null, "latitude": 28.44033, "longitude": -81.44805, "tpwUuid": "07143999-bacd-475f-a00b-8cc476204aff"},
     {"id": 14690, "parkId": 334, "name": "Stardust Racers", "type": "coaster", "description": "A high-speed dual-launch racing coaster.", "minHeight": 48, "latitude": 28.44151, "longitude": -81.44753, "tpwUuid": "447033ce-ee1f-4cca-bb12-47d22583ac12"},
-    {"id": 14740, "parkId": 334, "name": "Stardust Racers Single Rider", "type": "coaster", "description": "Single rider line for Stardust Racers.", "minHeight": 48, "latitude": 28.44151, "longitude": -81.44753, "tpwUuid": "447033ce-ee1f-4cca-bb12-47d22583ac12"},
+    {"id": 16640, "parkId": 334, "name": "Stardust Racers Single Rider", "type": "coaster", "description": "Single rider line for Stardust Racers.", "minHeight": 48, "latitude": 28.44151, "longitude": -81.44753, "tpwUuid": "447033ce-ee1f-4cca-bb12-47d22583ac12"},
     {"id": 14692, "parkId": 334, "name": "Curse of the Werewolf", "type": "coaster", "description": "A spinning launch coaster through a haunted European village.", "minHeight": 40, "latitude": 28.43995, "longitude": -81.45002, "tpwUuid": "eaca831d-bcbb-4a1e-9bf0-6ea97ccc88e0"},
     {"id": 14698, "parkId": 334, "name": "Curse of the Werewolf Single Rider", "type": "coaster", "description": "Single rider line for Curse of the Werewolf.", "minHeight": 40, "latitude": 28.43995, "longitude": -81.45002, "tpwUuid": "eaca831d-bcbb-4a1e-9bf0-6ea97ccc88e0"},
     {"id": 14694, "parkId": 334, "name": "Monsters Unchained: The Frankenstein Experiment", "type": "darkride", "description": "A trackless multi-stage dark ride through Frankenstein's lab and the Universal Monsters.", "minHeight": 48, "latitude": 28.44035, "longitude": -81.45029, "tpwUuid": "1fda5e1f-8712-4165-a81d-ad74eef3e8ee"},
-    {"id": 14699, "parkId": 334, "name": "Monsters Unchained: The Frankenstein Experiment Single Rider", "type": "darkride", "description": "Single rider line for Monsters Unchained.", "minHeight": 48, "latitude": 28.44035, "longitude": -81.45029, "tpwUuid": "1fda5e1f-8712-4165-a81d-ad74eef3e8ee"},
+    {"id": 16644, "parkId": 334, "name": "Monsters Unchained: The Frankenstein Experiment Single Rider", "type": "darkride", "description": "Single rider line for Monsters Unchained.", "minHeight": 48, "latitude": 28.44035, "longitude": -81.45029, "tpwUuid": "1fda5e1f-8712-4165-a81d-ad74eef3e8ee"},
     {"id": 14685, "parkId": 334, "name": "Meet Toothless and Friends", "type": "meet", "description": "Meet Toothless, Light Fury, and other dragons from How to Train Your Dragon.", "minHeight": null, "latitude": 28.4408, "longitude": -81.44624, "tpwUuid": "9d47d7fe-ff0d-4a52-bf9d-1e07436aa22c"},
     {"id": 14691, "parkId": 334, "name": "Fyre Drill", "type": "experience", "description": "Interactive water cannon battle between two boats.", "minHeight": null, "latitude": 28.44061, "longitude": -81.44545, "tpwUuid": "281bc9e6-b208-4a70-85d2-0fb749c7658b"},
     {"id": 14693, "parkId": 334, "name": "Dragon Racer's Rally", "type": "spinner", "description": "A spinning aerial ride themed to the Dragon Racing championship.", "minHeight": null, "latitude": 28.44122, "longitude": -81.44549, "tpwUuid": "76caa8d0-f54b-4601-9d57-a7f1ddc02af4"},
@@ -896,7 +953,20 @@ struct StaticData {
     {"id": 14686, "parkId": 334, "name": "Mine-Cart Madness", "type": "coaster", "description": "A family coaster through Donkey Kong Country with simulated jumping mine carts.", "minHeight": 36, "latitude": 28.43825, "longitude": -81.44875, "tpwUuid": "dd8c015d-511f-47d4-b98b-18ce15735588"},
     {"id": 14697, "parkId": 334, "name": "Mine-Cart Madness Single Rider", "type": "coaster", "description": "Single rider line for Mine-Cart Madness.", "minHeight": 36, "latitude": 28.43825, "longitude": -81.44875, "tpwUuid": "dd8c015d-511f-47d4-b98b-18ce15735588"},
     {"id": 14687, "parkId": 334, "name": "Harry Potter and the Battle at the Ministry", "type": "darkride", "description": "A multi-vehicle dark ride through the Ministry of Magic during the Death Eater era.", "minHeight": 48, "latitude": 28.44284, "longitude": -81.4481, "tpwUuid": "dbc4f0d8-fdef-4dfc-a1c2-33917f742f40"},
-    {"id": 14696, "parkId": 334, "name": "Harry Potter and the Battle at the Ministry Single Rider", "type": "darkride", "description": "Single rider line for Harry Potter and the Battle at the Ministry.", "minHeight": 48, "latitude": 28.44284, "longitude": -81.4481, "tpwUuid": "dbc4f0d8-fdef-4dfc-a1c2-33917f742f40"}
+    {"id": 14696, "parkId": 334, "name": "Harry Potter and the Battle at the Ministry Single Rider", "type": "darkride", "description": "Single rider line for Harry Potter and the Battle at the Ministry.", "minHeight": 48, "latitude": 28.44284, "longitude": -81.4481, "tpwUuid": "dbc4f0d8-fdef-4dfc-a1c2-33917f742f40"},
+    {"id": 14937, "parkId": 65, "name": "Terrifier", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14938, "parkId": 65, "name": "WWE Presents: The Horrors of the Wyatt Sicks", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14939, "parkId": 65, "name": "Dolls: Let’s Play Dead", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14945, "parkId": 65, "name": "JASON UN1V3RSE", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14946, "parkId": 65, "name": "Five Nights At Freddy’s", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14947, "parkId": 65, "name": "Fallout", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14948, "parkId": 65, "name": "El Artista: A Spanish Haunting", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14949, "parkId": 65, "name": "Gálkn: Monsters of the North", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14950, "parkId": 65, "name": "Grave of Flesh", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 14951, "parkId": 65, "name": "Hatchet and Chains: Demon Bounty Hunters", "type": "experience", "description": "A haunted house at Universal's Halloween Horror Nights.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 16545, "parkId": 8, "name": "Bluey's Wild World at Conservation Station", "type": "experience", "description": "Meet Bluey and Bingo and play at Conservation Station.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 16641, "parkId": 7, "name": "Disney Jr. Mickey Mouse Clubhouse Live!", "type": "show", "description": "A live stage show starring Mickey Mouse and his friends.", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null},
+    {"id": 13850, "parkId": 64, "name": "Hogwarts Express - Last Train", "type": "train", "description": "A Hogwarts Express experience at Hogsmeade Station (park-to-park ticket required).", "minHeight": null, "latitude": null, "longitude": null, "tpwUuid": null}
     ]
     """
 }

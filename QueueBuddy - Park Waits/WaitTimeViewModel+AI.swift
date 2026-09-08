@@ -6,13 +6,17 @@ extension WaitTimeViewModel {
 
     private static var systemPrompt: String {
         """
-        You are QueueBuddy, a friendly and concise theme park guide for Walt Disney World and Universal Orlando (including Epic Universe).
-        Use the park context provided to answer with specifics: current wait times, weather, and any height or accessibility constraints you're told about.
-        The park context lists every ride under its correct land — treat that list as authoritative.
-        Do NOT infer a ride's land from its name. If the context says Mine-Cart Madness is in Super Nintendo World — Donkey Kong Country, that's where it is, even if the name sounds like something else.
-        Prefer bullet lists when recommending multiple rides. Keep answers under 180 words unless the question needs a step-by-step plan.
-        If a ride is closed or the park is likely closed today, say so and suggest alternatives.
-        If you don't know something, say so honestly instead of guessing.
+        You are QueueBuddy, a friendly, concise theme park guide for Walt Disney World and Universal Orlando (including Epic Universe). You help guests plan their day around live wait times.
+
+        PARK SCOPE — the most important rule:
+        - When the context names a park, the guest is at (or planning) THAT park only. Every ride, show, or restaurant you recommend MUST come from that park's attraction list in the context.
+        - Do NOT recommend, list, or build a plan around attractions from any other park or resort, and do NOT organize your answer by other parks. Only bring up another park if the guest explicitly asks you to compare parks or switch parks.
+        - The attraction list in the context is the COMPLETE and authoritative roster for that park. If something is not in that list, it is not in this park — never invent attractions or pull in ones you remember from training.
+        - Each attraction is listed under its land. Do NOT infer a ride's land from its name; use the land you are given. (If the context says Mine-Cart Madness is in Super Nintendo World — Donkey Kong Country, that's where it is, even if the name sounds like something else.)
+        - Use the live wait times provided; never fabricate a wait time. If a wait is unknown, say so.
+        - When no park is named in the context, you may discuss and compare the Orlando parks freely.
+
+        Prefer bullet lists when recommending multiple rides. For a day plan, sequence the rides sensibly (group nearby lands to cut walking, or hit the shortest waits first) using only rides from the list. Keep answers under ~200 words unless a step-by-step plan needs more. If a ride or the whole park is closed, say so and suggest open alternatives from the same park. If you don't know something, say so honestly instead of guessing.
         """
     }
 
@@ -82,14 +86,22 @@ extension WaitTimeViewModel {
         var parts: [String] = []
 
         if let park {
-            parts.append("Park: \(park.name)")
+            parts.append("Planning park: \(park.name). Help the guest with THIS park only — every attraction you recommend must come from the list below, and don't bring up any other park unless the guest explicitly asks to compare or switch parks.")
             if isParkLikelyClosed(parkId: park.id) {
                 parts.append("Note: this park appears to be closed or nearly closed right now.")
             }
             if let weather = weatherByPark[park.id] {
                 parts.append("Weather: \(UserPreferences.formatTemperature(weather.temperature)), \(weather.description).")
             }
-            if let attractions = attractionsByPark[park.id], !attractions.isEmpty {
+            // Ground on the live roster when we have it, otherwise fall back to
+            // the static roster so the model always sees the authoritative list
+            // of what's actually in this park. An empty list is what lets a
+            // weaker model wander into other parks and invent rides.
+            let liveAttractions = attractionsByPark[park.id] ?? []
+            let attractions = liveAttractions.isEmpty
+                ? StaticData.getStaticAttractions(for: park.id)
+                : liveAttractions
+            if !attractions.isEmpty {
                 // Group by land so the AI sees each ride under its correct
                 // location — prevents hallucinated lands (e.g. putting
                 // Mine-Cart Madness in the Wizarding World because the
@@ -98,7 +110,7 @@ extension WaitTimeViewModel {
                     StaticData.attractionToLandMapping[a.id] ?? "Other"
                 }
 
-                var block = "Live attraction status (grouped by land — use these land assignments as ground truth):"
+                var block = "These are the ONLY attractions at \(park.name), grouped by land. Treat this list, the land assignments, and the wait times as ground truth — do NOT recommend or mention any attraction that is not in this list:"
                 for landName in byLand.keys.sorted() {
                     block += "\n\n" + landName.uppercased()
                     let sorted = (byLand[landName] ?? []).sorted { $0.name < $1.name }
@@ -125,9 +137,7 @@ extension WaitTimeViewModel {
         if let childHeight { parts.append("Traveling child height: \(childHeight) inches.") }
         let planItems = ParkDayPlanStore.shared.items(for: park?.id)
         if !planItems.isEmpty {
-            let names = planItems.map { item in
-                item.isDone ? "\(item.attractionName) (done)" : item.attractionName
-            }
+            let names = planItems.map { $0.attractionName }
             parts.append("My Day plan: \(names.joined(separator: ", ")).")
         }
         if let likes, !likes.isEmpty { parts.append("User likes: \(likes.joined(separator: ", ")).") }

@@ -8,7 +8,10 @@ struct ParkDayPlanItem: Identifiable, Codable, Hashable {
     let parkName: String
     var plannedDate: Date
     var note: String
-    var isDone: Bool
+    /// Whether this ride is selected to track on the Park Day Live Activity.
+    /// New rides start selected, so adding to My Day immediately powers the
+    /// Live Activity; tap a ride to stop tracking it.
+    var isSelected: Bool
 
     init(
         id: UUID = UUID(),
@@ -18,7 +21,7 @@ struct ParkDayPlanItem: Identifiable, Codable, Hashable {
         parkName: String,
         plannedDate: Date = Date(),
         note: String = "",
-        isDone: Bool = false
+        isSelected: Bool = true
     ) {
         self.id = id
         self.attractionId = attractionId
@@ -27,7 +30,26 @@ struct ParkDayPlanItem: Identifiable, Codable, Hashable {
         self.parkName = parkName
         self.plannedDate = plannedDate
         self.note = note
-        self.isDone = isDone
+        self.isSelected = isSelected
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id, attractionId, attractionName, parkId, parkName, plannedDate, note, isSelected
+    }
+
+    init(from decoder: Decoder) throws {
+        let c = try decoder.container(keyedBy: CodingKeys.self)
+        id = try c.decode(UUID.self, forKey: .id)
+        attractionId = try c.decode(Int.self, forKey: .attractionId)
+        attractionName = try c.decode(String.self, forKey: .attractionName)
+        parkId = try c.decode(Int.self, forKey: .parkId)
+        parkName = try c.decode(String.self, forKey: .parkName)
+        plannedDate = try c.decode(Date.self, forKey: .plannedDate)
+        note = (try? c.decode(String.self, forKey: .note)) ?? ""
+        // Plans saved before selection semantics used an `isDone` flag with
+        // no `isSelected` key. Default missing values to selected so existing
+        // My Day rides keep driving the Live Activity after the update.
+        isSelected = (try? c.decode(Bool.self, forKey: .isSelected)) ?? true
     }
 }
 
@@ -44,12 +66,11 @@ final class ParkDayPlanStore: ObservableObject {
     }
 
     func items(for parkId: Int? = nil) -> [ParkDayPlanItem] {
+        // Stable chronological order so toggling a ride's selection doesn't
+        // make it jump around the list.
         items
             .filter { parkId == nil || $0.parkId == parkId }
-            .sorted {
-                if $0.isDone != $1.isDone { return !$0.isDone }
-                return $0.plannedDate < $1.plannedDate
-            }
+            .sorted { $0.plannedDate < $1.plannedDate }
     }
 
     func contains(attractionId: Int) -> Bool {
@@ -149,19 +170,14 @@ final class ParkDayPlanStore: ObservableObject {
         return score
     }
 
-    func toggleDone(_ item: ParkDayPlanItem) {
+    func toggleSelected(_ item: ParkDayPlanItem) {
         guard let index = items.firstIndex(where: { $0.id == item.id }) else { return }
-        items[index].isDone.toggle()
+        items[index].isSelected.toggle()
         save()
     }
 
     func remove(_ item: ParkDayPlanItem) {
         items.removeAll { $0.id == item.id }
-        save()
-    }
-
-    func clearDone() {
-        items.removeAll { $0.isDone }
         save()
     }
 

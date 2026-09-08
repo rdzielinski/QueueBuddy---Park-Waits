@@ -5,6 +5,7 @@ struct AIPlaygroundView: View {
     @StateObject private var planStore = ParkDayPlanStore.shared
     @AppStorage("preferredParkId") private var preferredParkId: Int = 0
     @AppStorage("childHeightInches") private var childHeightInches: Int = 0
+    @AppStorage(AIProviderRegistry.activeProviderKey) private var activeProviderRaw: String = AIProviderKind.claude.rawValue
     @State private var query: String = ""
     @State private var selectedParkID: Int = 0
     @State private var showSettings: Bool = false
@@ -26,6 +27,13 @@ struct AIPlaygroundView: View {
 
     private var selectedPark: Park? {
         parksForPicker.first { $0.id == selectedParkID && $0.id != 0 }
+    }
+
+    /// The AI provider the user picked in Settings. Read through @AppStorage
+    /// so the "Powered by" label and the chat byline track provider changes
+    /// live (e.g. switching from Claude to ChatGPT in Settings).
+    private var currentProvider: AIProviderKind {
+        AIProviderKind(rawValue: activeProviderRaw) ?? .claude
     }
 
     private var accent: Color {
@@ -107,7 +115,7 @@ struct AIPlaygroundView: View {
     private var header: some View {
         HStack(alignment: .top) {
             VStack(alignment: .leading, spacing: 6) {
-                MonoLabel(text: "POWERED BY CLAUDE", color: DB.muted)
+                MonoLabel(text: "Powered by \(currentProvider.shortName)", color: DB.muted)
                 HStack(alignment: .firstTextBaseline, spacing: 2) {
                     Text("Plan")
                         .font(DB.displayTitle(34))
@@ -239,30 +247,45 @@ struct AIPlaygroundView: View {
             }
 
             if visibleItems.isEmpty {
-                Text("Add rides from attraction details or auto-fill from the shortest waits.")
-                    .font(.system(size: 13))
-                    .foregroundStyle(DB.muted)
-                    .padding(14)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(DB.card))
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Add rides from attraction details or auto-fill from the shortest waits.")
+                        .font(.system(size: 13))
+                        .foregroundStyle(DB.muted)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    if #available(iOS 16.1, *) {
+                        HStack(alignment: .top, spacing: 6) {
+                            Image(systemName: "dot.radiowaves.left.and.right")
+                                .font(.system(size: 11))
+                                .foregroundStyle(accent)
+                                .padding(.top, 1)
+                            Text("Once your plan has a ride, you can start a Live Activity to track your next stop and its wait on the Lock Screen.")
+                                .font(.system(size: 12))
+                                .foregroundStyle(DB.muted)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                    }
+                }
+                .padding(14)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(RoundedRectangle(cornerRadius: 14, style: .continuous).fill(DB.card))
             } else {
                 VStack(spacing: 0) {
                     ForEach(Array(visibleItems.enumerated()), id: \.element.id) { index, item in
                         HStack(spacing: 10) {
                             Button {
-                                planStore.toggleDone(item)
+                                planStore.toggleSelected(item)
                             } label: {
-                                Image(systemName: item.isDone ? "checkmark.circle.fill" : "circle")
-                                    .foregroundStyle(item.isDone ? DB.green : DB.muted)
+                                Image(systemName: item.isSelected ? "checkmark.circle.fill" : "circle")
+                                    .foregroundStyle(item.isSelected ? accent : DB.muted)
                                     .frame(width: 28, height: 28)
                             }
                             .buttonStyle(.plain)
-                            .accessibilityLabel(item.isDone ? "Mark \(item.attractionName) incomplete" : "Mark \(item.attractionName) complete")
+                            .accessibilityLabel(item.isSelected ? "Stop tracking \(item.attractionName)" : "Track \(item.attractionName)")
 
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(item.attractionName)
                                     .font(DB.heading(14, weight: .medium))
-                                    .foregroundStyle(item.isDone ? DB.muted : DB.text)
+                                    .foregroundStyle(item.isSelected ? DB.text : DB.muted)
                                     .lineLimit(1)
                                 Text(item.parkName.uppercased())
                                     .font(DB.mono(9))
@@ -298,7 +321,7 @@ struct AIPlaygroundView: View {
                 )
 
                 if let park = selectedPark,
-                   visibleItems.contains(where: { !$0.isDone }) {
+                   visibleItems.contains(where: { $0.isSelected }) {
                     liveActivityToggle(park: park)
                 }
             }
@@ -477,7 +500,7 @@ struct AIPlaygroundView: View {
                     }
                     VStack(alignment: .leading, spacing: 4) {
                         MonoLabel(
-                            text: message.speaker == .user ? "YOU" : "CLAUDE",
+                            text: message.speaker == .user ? "YOU" : currentProvider.shortName,
                             color: message.speaker == .user ? DB.muted : accent,
                             tracking: 1.5, size: 9
                         )
@@ -503,7 +526,33 @@ struct AIPlaygroundView: View {
                     )
                 }
             }
+
+            if viewModel.isAILoading {
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .font(.system(size: 13))
+                        .foregroundStyle(accent)
+                        .padding(.top, 10)
+                    VStack(alignment: .leading, spacing: 6) {
+                        MonoLabel(text: currentProvider.shortName, color: accent, tracking: 1.5, size: 9)
+                        TypingDots(color: accent)
+                            .padding(.vertical, 2)
+                    }
+                    .padding(12)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .background(
+                        RoundedRectangle(cornerRadius: 14, style: .continuous)
+                            .fill(DB.card)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 14, style: .continuous)
+                                    .stroke(Color.white.opacity(0.05), lineWidth: 1)
+                            )
+                    )
+                }
+                .transition(.opacity)
+            }
         }
+        .animation(.easeInOut(duration: 0.2), value: viewModel.isAILoading)
     }
 
     @ViewBuilder
