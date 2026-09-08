@@ -189,6 +189,7 @@ struct DepartureTabBar: View {
                 }
                 .buttonStyle(.plain)
                 .accessibilityLabel(tab.label)
+                .accessibilityIdentifier("tab.\(tab.label.lowercased())")
             }
         }
         .padding(.horizontal, 6)

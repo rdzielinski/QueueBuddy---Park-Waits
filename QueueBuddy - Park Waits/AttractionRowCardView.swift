@@ -111,6 +111,7 @@ struct AttractionRowCardView: View {
         .opacity(isClosed ? 0.55 : 1)
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(rowAccessibilityLabel)
+        .accessibilityIdentifier("attraction.\(attraction.id)")
     }
 
     private var rowAccessibilityLabel: String {

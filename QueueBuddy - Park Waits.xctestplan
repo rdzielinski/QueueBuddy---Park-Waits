@@ -1,35 +1,41 @@
 {
-  "configurations" : [
+  "configurations": [
     {
-      "id" : "0E8A9E7A-D0A7-4AF8-83E9-94197A212BF7",
-      "name" : "Test Scheme Action",
-      "options" : {
-
-      }
+      "id": "0E8A9E7A-D0A7-4AF8-83E9-94197A212BF7",
+      "name": "Test Scheme Action",
+      "options": {}
     }
   ],
-  "defaultOptions" : {
-    "commandLineArgumentEntries" : [
+  "defaultOptions": {
+    "commandLineArgumentEntries": [
       {
-        "argument" : "-GoogleGenerativeAIDebugLogEnabled"
+        "argument": "-GoogleGenerativeAIDebugLogEnabled"
       }
     ],
-    "performanceAntipatternCheckerEnabled" : true,
-    "targetForVariableExpansion" : {
-      "containerPath" : "container:QueueBuddy - Park Waits.xcodeproj",
-      "identifier" : "21D04F222DF7652C00526ECA",
-      "name" : "QueueBuddy - Park Waits"
+    "performanceAntipatternCheckerEnabled": true,
+    "targetForVariableExpansion": {
+      "containerPath": "container:QueueBuddy - Park Waits.xcodeproj",
+      "identifier": "21D04F222DF7652C00526ECA",
+      "name": "QueueBuddy - Park Waits"
     }
   },
-  "testTargets" : [
+  "testTargets": [
     {
-      "parallelizable" : true,
-      "target" : {
-        "containerPath" : "container:QueueBuddy - Park Waits.xcodeproj",
-        "identifier" : "21C299C02E244380005B6ECA",
-        "name" : "QueueBuddyTests"
+      "parallelizable": true,
+      "target": {
+        "containerPath": "container:QueueBuddy - Park Waits.xcodeproj",
+        "identifier": "21C299C02E244380005B6ECA",
+        "name": "QueueBuddyTests"
+      }
+    },
+    {
+      "parallelizable": false,
+      "target": {
+        "containerPath": "container:QueueBuddy - Park Waits.xcodeproj",
+        "identifier": "21E5A0042FAF1000005B6ECA",
+        "name": "QueueBuddyUITests"
       }
     }
   ],
-  "version" : 1
+  "version": 1
 }

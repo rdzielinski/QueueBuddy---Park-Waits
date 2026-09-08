@@ -117,6 +117,7 @@ struct ParkCardView: View {
         )
         .accessibilityElement(children: .ignore)
         .accessibilityLabel(cardAccessibilityLabel)
+        .accessibilityIdentifier("parkCard.\(park.id)")
     }
 
     private var cardAccessibilityLabel: String {

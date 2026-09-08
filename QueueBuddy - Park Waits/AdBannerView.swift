@@ -17,8 +17,14 @@ import GoogleMobileAds
 /// and centers it horizontally. Mirrors the AdBannerContainerView
 /// pattern from VillagesRemake, which has been stable in production.
 struct BottomAdBanner: View {
+    /// Screenshot runs (`scripts/screenshots.sh`) launch with `-screenshots`
+    /// so App Store captures never show the test-mode ad slot.
+    private var isScreenshotRun: Bool {
+        ProcessInfo.processInfo.arguments.contains("-screenshots")
+    }
+
     var body: some View {
-        if AdConfig.adsEnabled {
+        if AdConfig.adsEnabled && !isScreenshotRun {
             AdBannerRepresentable(adUnitID: AdConfig.bannerUnitID)
                 .frame(width: 320, height: 50)
                 .frame(maxWidth: .infinity)

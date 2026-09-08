@@ -1,8 +1,40 @@
 .claude/
 
-# Xcode archive/export artifacts
+# macOS
+.DS_Store
+
+# Xcode user state
+*.xcuserstate
+*.xcscmblueprint
+xcuserdata/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# Xcode build/archive artifacts
+DerivedData/
+build/
 *.ipa
+*.dSYM.zip
+*.dSYM/
 *.xcarchive/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# CocoaPods / Carthage
+Pods/
+Carthage/Build/
+
+# Node
+node_modules/
+dist/
+.wrangler/
+
 DistributionSummary.plist
 ExportOptions.plist
 Packaging.log
+
+# App Store screenshot output (scripts/screenshots.sh)
+screenshots/

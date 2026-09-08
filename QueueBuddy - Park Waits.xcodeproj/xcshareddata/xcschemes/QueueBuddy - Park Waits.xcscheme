@@ -46,6 +46,17 @@
                ReferencedContainer = "container:QueueBuddy - Park Waits.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "21E5A0042FAF1000005B6ECA"
+               BuildableName = "QueueBuddyUITests.xctest"
+               BlueprintName = "QueueBuddyUITests"
+               ReferencedContainer = "container:QueueBuddy - Park Waits.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
