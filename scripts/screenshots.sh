@@ -16,7 +16,7 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-export DEVELOPER_DIR="${DEVELOPER_DIR:-/Users/robbydzielinski/Downloads/iOS & Coding/Xcode-beta.app/Contents/Developer}"
+export DEVELOPER_DIR="${DEVELOPER_DIR:-/Applications/Xcode.app/Contents/Developer}"
 
 OUT_ROOT="${1:-screenshots}"
 PROJECT="QueueBuddy - Park Waits.xcodeproj"
