@@ -229,14 +229,18 @@ struct RocketShape: Shape {
 /// Swirled portal — Epic Universe gateway.
 struct PortalShape: Shape {
     func path(in rect: CGRect) -> Path {
-        var p = Path()
         let c = CGPoint(x: rect.midX, y: rect.midY)
         let r = min(rect.width, rect.height) * 0.42
+        // Concentric rings. Stroke the circles into outlines first: filled
+        // as plain ellipses, the non-zero winding rule merges them into one
+        // solid disc.
+        var rings = Path()
         for i in 0..<4 {
             let inset = r * (1.0 - Double(i) * 0.22)
-            p.addEllipse(in: CGRect(x: c.x - inset, y: c.y - inset,
-                                    width: inset * 2, height: inset * 2))
+            rings.addEllipse(in: CGRect(x: c.x - inset, y: c.y - inset,
+                                        width: inset * 2, height: inset * 2))
         }
+        var p = rings.strokedPath(StrokeStyle(lineWidth: r * 0.09))
         // center dot
         p.addEllipse(in: CGRect(x: c.x - r * 0.08, y: c.y - r * 0.08,
                                 width: r * 0.16, height: r * 0.16))
@@ -445,7 +449,6 @@ struct ParkGlyph: View {
         case 8:   return "ParkIcon-AnimalKingdom"
         case 64:  return "ParkIcon-IOA"
         case 65:  return "ParkIcon-USF"
-        case 334: return "ParkIcon-EpicUniverse"
         default:  return nil
         }
     }
