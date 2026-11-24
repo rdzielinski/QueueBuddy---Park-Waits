@@ -10,6 +10,8 @@ struct HomeView: View {
     @StateObject private var location = LocationManager.shared
     @Binding var searchText: String
     @Binding var selectedTab: Int
+    @Binding var path: NavigationPath
+    @Environment(\.parksSelectedParkId) private var selectedParkId
     @AppStorage("userDisplayName") private var userDisplayName: String = ""
     @State private var showOnboarding = false
     @State private var showSettings = false
@@ -84,7 +86,7 @@ struct HomeView: View {
     }
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $path) {
             ZStack {
                 DB.bg.ignoresSafeArea()
 
@@ -175,7 +177,7 @@ struct HomeView: View {
     // MARK: - Sections
 
     private func youAreHereBanner(for park: Park) -> some View {
-        NavigationLink(value: park) {
+        ParksLink(park: park) {
             HStack(spacing: 10) {
                 Circle()
                     .fill(DB.accent(for: park.id))
@@ -284,7 +286,7 @@ struct HomeView: View {
                             label: "MIN"
                         )
                         Spacer()
-                        NavigationLink(value: hot.attraction) {
+                        ParksLink(attraction: hot.attraction) {
                             HStack(spacing: 4) {
                                 Text("VIEW").tracking(1.5)
                                 Text("→")
@@ -387,9 +389,10 @@ struct HomeView: View {
 
                         VStack(spacing: 10) {
                             ForEach(parks) { park in
-                                NavigationLink(value: park) {
+                                ParksLink(park: park) {
                                     ParkCardView(park: park)
                                         .environmentObject(viewModel)
+                                        .modifier(SelectedParkRing(isSelected: park.id == selectedParkId, parkId: park.id))
                                 }
                                 .buttonStyle(.plain)
                             }
@@ -409,7 +412,7 @@ struct HomeView: View {
 
                         VStack(spacing: 0) {
                             ForEach(Array(attractions.enumerated()), id: \.element.attraction.id) { idx, pair in
-                                NavigationLink(value: pair.attraction) {
+                                ParksLink(attraction: pair.attraction) {
                                     searchAttractionRow(attraction: pair.attraction, park: pair.park)
                                 }
                                 .buttonStyle(.plain)
@@ -497,9 +500,10 @@ struct HomeView: View {
 
             VStack(spacing: 10) {
                 ForEach(Array(group.parks.enumerated()), id: \.element.id) { idx, park in
-                    NavigationLink(value: park) {
+                    ParksLink(park: park) {
                         ParkCardView(park: park)
                             .environmentObject(viewModel)
+                            .modifier(SelectedParkRing(isSelected: park.id == selectedParkId, parkId: park.id))
                     }
                     .buttonStyle(.pressable)
                     .appearIn(idx)
@@ -537,5 +541,19 @@ struct HomeView: View {
         case 12..<18: return "afternoon"
         default: return "evening"
         }
+    }
+}
+
+/// Accent ring on the park card that's open in the two-pane detail.
+private struct SelectedParkRing: ViewModifier {
+    let isSelected: Bool
+    let parkId: Int
+
+    func body(content: Content) -> some View {
+        content.overlay(
+            RoundedRectangle(cornerRadius: 20, style: .continuous)
+                .stroke(DB.accent(for: parkId), lineWidth: isSelected ? 1.5 : 0)
+                .opacity(isSelected ? 0.9 : 0)
+        )
     }
 }

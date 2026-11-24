@@ -44,6 +44,16 @@ struct ParkCardView: View {
         }
     }
 
+    private var openCountLabel: some View {
+        HStack(spacing: 5) {
+            Circle().fill(DB.green).frame(width: 5, height: 5)
+                .shadow(color: DB.green, radius: 3)
+            Text("\(openCount) OPEN")
+                .foregroundStyle(DB.green)
+        }
+        .fixedSize()
+    }
+
     var body: some View {
         HStack(alignment: .center, spacing: 14) {
             // Route stripe
@@ -74,22 +84,23 @@ struct ParkCardView: View {
                             .foregroundStyle(DB.muted)
                     }
                 } else {
-                    HStack(spacing: 10) {
-                        HStack(spacing: 5) {
-                            Circle().fill(DB.green).frame(width: 5, height: 5)
-                                .shadow(color: DB.green, radius: 3)
-                            Text("\(openCount) OPEN")
-                                .foregroundStyle(DB.green)
+                    // Narrow cards (the two-pane parks list) drop the
+                    // average here; the flap digits already show it.
+                    ViewThatFits(in: .horizontal) {
+                        HStack(spacing: 10) {
+                            openCountLabel
+                            Text("·").foregroundStyle(DB.dim)
+                            if let avg = avgWaitValue {
+                                Text("AVG \(avg)M").foregroundStyle(DB.muted)
+                            } else {
+                                Text("AVG --").foregroundStyle(DB.muted)
+                            }
                         }
-                        Text("·").foregroundStyle(DB.dim)
-                        if let avg = avgWaitValue {
-                            Text("AVG \(avg)M").foregroundStyle(DB.muted)
-                        } else {
-                            Text("AVG --").foregroundStyle(DB.muted)
-                        }
+                        openCountLabel
                     }
                     .font(DB.mono(11))
                     .tracking(1.2)
+                    .lineLimit(1)
                 }
 
                 if let hoursLine, !isClosed {

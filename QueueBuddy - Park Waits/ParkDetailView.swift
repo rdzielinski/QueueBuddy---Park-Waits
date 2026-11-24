@@ -11,6 +11,8 @@ extension Park {
 struct ParkDetailView: View {
     @EnvironmentObject private var viewModel: WaitTimeViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.isParksDetailRoot) private var isParksDetailRoot
+    @Environment(\.parksShownReporter) private var reportShown
     @StateObject private var planStore = ParkDayPlanStore.shared
     let park: Park
 
@@ -283,6 +285,7 @@ struct ParkDetailView: View {
         .onAppear {
             loadLandOverrides()
             viewModel.activeParkId = park.id
+            reportShown?(.park(park))
         }
         .onDisappear {
             if viewModel.activeParkId == park.id {
@@ -313,6 +316,10 @@ struct ParkDetailView: View {
                 )
             }
             .buttonStyle(.plain)
+            // Two-pane root: the parks list is already beside this view.
+            .opacity(isParksDetailRoot ? 0 : 1)
+            .disabled(isParksDetailRoot)
+            .accessibilityHidden(isParksDetailRoot)
 
             Spacer()
 
@@ -707,6 +714,7 @@ struct ParkDetailView: View {
     private var backSwipeGesture: some Gesture {
         DragGesture(minimumDistance: 20, coordinateSpace: .local)
             .onEnded { value in
+                guard !isParksDetailRoot else { return }
                 guard value.startLocation.x < 32 else { return }
                 guard value.translation.width > 90 else { return }
                 guard abs(value.translation.height) < 80 else { return }

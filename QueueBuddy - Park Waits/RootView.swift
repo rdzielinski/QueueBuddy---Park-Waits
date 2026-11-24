@@ -72,7 +72,7 @@ struct MainTabView: View {
             Group {
                 switch selectedTab {
                 case .parks:
-                    HomeView(
+                    ParksTab(
                         searchText: $searchText,
                         selectedTab: Binding(
                             get: { selectedTab.rawValue },
@@ -83,10 +83,13 @@ struct MainTabView: View {
                     MapTabView()
                 case .favorites:
                     FavoritedAttractionsView(searchText: $searchText)
+                        .readableWidth()
                 case .alerts:
                     NotificationListView()
+                        .readableWidth()
                 case .plan:
                     AIPlaygroundView()
+                        .readableWidth()
                 }
             }
             .transition(.opacity)
@@ -95,6 +98,7 @@ struct MainTabView: View {
             VStack(spacing: 0) {
                 BottomAdBanner()
                 DepartureTabBar(selected: $selectedTab)
+                    .frame(maxWidth: 560)
                     .padding(.horizontal, 12)
                     .padding(.bottom, 10)
             }

@@ -16,6 +16,7 @@ private enum ActiveSheet: Identifiable {
 struct AttractionDetailView: View {
     @EnvironmentObject private var viewModel: WaitTimeViewModel
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.parksShownReporter) private var reportShown
     @StateObject private var planStore = ParkDayPlanStore.shared
     let attraction: Attraction
 
@@ -112,6 +113,7 @@ struct AttractionDetailView: View {
         .navigationBarBackButtonHidden(true)
         .toolbar(.hidden, for: .navigationBar)
         .swipeBackEnabled()
+        .onAppear { reportShown?(.attraction(attraction)) }
         .sheet(item: $activeSheet) { sheet in
             switch sheet {
             case .notification:
