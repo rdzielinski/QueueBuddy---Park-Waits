@@ -60,7 +60,11 @@ struct HomeView: View {
         let all = viewModel.attractionsByPark
         var best: (Attraction, Park)?
         var bestWait = -1
+        // App Store screenshot runs are set at Magic Kingdom; keep the hero
+        // there so it matches the rest of the set.
+        let onlyParkId = ProcessInfo.processInfo.arguments.contains("-screenshots") ? 6 : nil
         for (parkId, attractions) in all {
+            if let onlyParkId, parkId != onlyParkId { continue }
             guard let park = viewModel.resortGroups.flatMap({ $0.parks }).first(where: { $0.id == parkId }) else { continue }
             for a in attractions where a.is_open == true {
                 if let w = a.wait_time, w > bestWait {

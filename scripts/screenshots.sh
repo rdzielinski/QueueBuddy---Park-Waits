@@ -32,7 +32,10 @@ ALL_DEVICES=(
 )
 WANT="${DEVICES:-}"
 
-RUNTIME=$(xcrun simctl list runtimes | grep "^iOS" | tail -1 | sed -E 's/.*(com\.apple\.CoreSimulator\.SimRuntime\.iOS-[0-9-]+).*/\1/')
+# RUNTIME=com.apple.CoreSimulator.SimRuntime.iOS-27-0 overrides the newest runtime
+# (a beta runtime can refuse to create some device types: "Incompatible device").
+RUNTIME=${RUNTIME:-}
+[ -n "$RUNTIME" ] || RUNTIME=$(xcrun simctl list runtimes | grep "^iOS" | tail -1 | sed -E 's/.*(com\.apple\.CoreSimulator\.SimRuntime\.iOS-[0-9-]+).*/\1/')
 [ -n "$RUNTIME" ] || { echo "No iOS simulator runtime found"; exit 1; }
 echo "▶ runtime: $RUNTIME"
 
@@ -97,7 +100,8 @@ for spec in "${ALL_DEVICES[@]}"; do
   echo "════ $NAME ($SLUG) ════"
   UDID=$(device_udid "$NAME")
   if [ -z "$UDID" ]; then
-    UDID=$(xcrun simctl create "QB Shots — $NAME" "$TYPE" "$RUNTIME")
+    UDID=$(xcrun simctl create "QB Shots — $NAME" "$TYPE" "$RUNTIME") \
+      || { echo "✖ could not create $NAME on $RUNTIME (try RUNTIME=...)"; exit 1; }
     echo "▶ created $UDID"
   else
     echo "▶ reusing $UDID"

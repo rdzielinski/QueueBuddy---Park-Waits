@@ -25,7 +25,7 @@ final class ScreenshotTests: XCTestCase {
         app = XCUIApplication()
         app.launchArguments += [
             "-screenshots",
-            "-userDisplayName", "Robby",
+            "-userDisplayName", "Alex",
             "-qb.settings.defaultTab", "0",
         ]
         if let dir = ProcessInfo.processInfo.environment["SCREENSHOT_DIR"], !dir.isEmpty {

@@ -601,6 +601,16 @@ class WaitTimeViewModel: ObservableObject {
                 self.notificationPreferences = decoded
             }
         }
+        // App Store screenshot runs start from a clean install; show a few
+        // sample alerts instead of the empty state.
+        if notificationPreferences.isEmpty,
+           ProcessInfo.processInfo.arguments.contains("-screenshots") {
+            notificationPreferences = [
+                NotificationPreference(id: 138, attractionName: "Space Mountain", thresholdMinutes: 30),
+                NotificationPreference(id: 129, attractionName: "Seven Dwarfs Mine Train", thresholdMinutes: 45),
+                NotificationPreference(id: 140, attractionName: "Haunted Mansion", thresholdMinutes: 20),
+            ]
+        }
     }
 
     // MARK: - Crowd Level
