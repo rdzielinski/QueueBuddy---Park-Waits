@@ -137,9 +137,9 @@ final class ParkDayPlanStore: ObservableObject {
 
         while selected.count < limit, !remaining.isEmpty {
             let previousLand = selected.last?.land
-            let preferredIndex = remaining.firstIndex { candidate in
+            guard let preferredIndex = remaining.firstIndex(where: { candidate in
                 candidate.land != previousLand && landCounts[candidate.land, default: 0] < 2
-            } ?? remaining.indices.first!
+            }) ?? remaining.indices.first else { break }
 
             let candidate = remaining.remove(at: preferredIndex)
             selected.append(candidate)

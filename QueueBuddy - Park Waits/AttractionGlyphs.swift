@@ -229,14 +229,18 @@ struct RocketShape: Shape {
 /// Swirled portal — Epic Universe gateway.
 struct PortalShape: Shape {
     func path(in rect: CGRect) -> Path {
-        var p = Path()
         let c = CGPoint(x: rect.midX, y: rect.midY)
         let r = min(rect.width, rect.height) * 0.42
+        // Concentric rings. Stroke the circles into outlines first: filled
+        // as plain ellipses, the non-zero winding rule merges them into one
+        // solid disc.
+        var rings = Path()
         for i in 0..<4 {
             let inset = r * (1.0 - Double(i) * 0.22)
-            p.addEllipse(in: CGRect(x: c.x - inset, y: c.y - inset,
-                                    width: inset * 2, height: inset * 2))
+            rings.addEllipse(in: CGRect(x: c.x - inset, y: c.y - inset,
+                                        width: inset * 2, height: inset * 2))
         }
+        var p = rings.strokedPath(StrokeStyle(lineWidth: r * 0.09))
         // center dot
         p.addEllipse(in: CGRect(x: c.x - r * 0.08, y: c.y - r * 0.08,
                                 width: r * 0.16, height: r * 0.16))
@@ -373,18 +377,15 @@ struct AttractionGlyph: View {
         146, 147, 152, 153, 155, 156, 158, 159, 160, 161,
         171, 248, 334, 355, 356, 457, 466, 651, 652, 655,
         657, 829, 1174, 1176, 1181, 1184, 1187, 1188, 1189, 1214,
-        2495, 2574, 2577, 2679, 4438, 5145, 5476, 5477, 5984, 5985,
-        5986, 5987, 5988, 5989, 5990, 5991, 5992, 5994, 5995, 5996,
-        5997, 5998, 5999, 6000, 6001, 6003, 6004, 6005, 6006, 6008,
-        6012, 6013, 6014, 6015, 6016, 6017, 6018, 6021, 6022, 6025,
-        6026, 6039, 6361, 6680, 6682, 6699, 6700, 6701, 6702, 6703,
-        6704, 6705, 7323, 7333, 8721, 10914, 10915, 10916, 10920, 10921,
-        11527, 12107, 12387, 12425, 12430, 12451, 13098, 13100, 13109, 13110,
-        13111, 13605, 13627, 13630, 13751, 13764, 13767, 13770, 13772, 13773,
-        13774, 13775, 13776, 13777, 13778, 13779, 13780, 13781, 13782, 13808,
-        13809, 13811, 13812, 14533, 14682, 14683, 14684, 14685, 14686, 14687,
-        14688, 14689, 14690, 14691, 14692, 14693, 14694, 14695, 14696, 14697,
-        14698, 14740, 14859, 14943, 16342, 16343, 16467,
+        2495, 2574, 2577, 2679, 4438, 5145, 5476, 5477, 5984, 5986,
+        5991, 5995, 5996, 5997, 6000, 6003, 6004, 6005, 6015, 6016,
+        6025, 6026, 6361, 6680, 6699, 6700, 6701, 6702, 6703, 6704,
+        6705, 7323, 7333, 8721, 10914, 10915, 10916, 10920, 10921, 11527,
+        12107, 12387, 12425, 12430, 12451, 13098, 13109, 13110, 13111, 13605,
+        13627, 13630, 13751, 13764, 13767, 13770, 13772, 13773, 13774, 13775,
+        13776, 13777, 13778, 13779, 13780, 13781, 13782, 13808, 13809, 13811,
+        13812, 14533, 14685, 14686, 14688, 14690, 14691, 14693, 14695, 14740,
+        14859, 14943, 16342, 16343, 16467,
     ]
 
     static func customShape(for id: Int) -> AnyShape? {
@@ -448,7 +449,6 @@ struct ParkGlyph: View {
         case 8:   return "ParkIcon-AnimalKingdom"
         case 64:  return "ParkIcon-IOA"
         case 65:  return "ParkIcon-USF"
-        case 334: return "ParkIcon-EpicUniverse"
         default:  return nil
         }
     }
