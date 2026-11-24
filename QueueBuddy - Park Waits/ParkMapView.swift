@@ -387,18 +387,20 @@ struct ParkMapView: View {
     private var mapView: some View {
         Map(position: $cameraPosition, selection: $selectedAttractionId) {
             ForEach(filteredAttractions, id: \.id) { attraction in
-                Annotation(
-                    attraction.name,
-                    coordinate: CLLocationCoordinate2D(
-                        latitude: attraction.latitude!,
-                        longitude: attraction.longitude!
-                    ),
-                    anchor: .center
-                ) {
-                    AttractionPin(attraction: attraction)
-                        .onTapGesture { selectedAttraction = attraction }
+                if let latitude = attraction.latitude, let longitude = attraction.longitude {
+                    Annotation(
+                        attraction.name,
+                        coordinate: CLLocationCoordinate2D(
+                            latitude: latitude,
+                            longitude: longitude
+                        ),
+                        anchor: .center
+                    ) {
+                        AttractionPin(attraction: attraction)
+                            .onTapGesture { selectedAttraction = attraction }
+                    }
+                    .tag(attraction.id)
                 }
-                .tag(attraction.id)
             }
         }
         .mapStyle(currentMapStyle)

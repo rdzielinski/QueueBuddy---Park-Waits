@@ -160,7 +160,7 @@ EXPECTED JSON SCHEMA:
             case "REFURBISHMENT": statusFragment = " (Status: Refurbishment)"
             case "CLOSED":        statusFragment = " (Status: Closed)"
             case "OPERATING", "": statusFragment = ""
-            default:              statusFragment = " (Status: \(w.status!))"
+            default:              statusFragment = " (Status: \(w.status ?? "unknown"))"
             }
             lines.append("\(w.name): \(waitText)\(statusFragment)")
         }
@@ -210,4 +210,3 @@ EXPECTED JSON SCHEMA:
         }
     }
 }
-

@@ -24,14 +24,14 @@ public struct GeminiAIClient: AIChatProvider {
         else { throw AIProviderError.missingAPIKey }
 
         let model = AIProviderRegistry.currentModelID(for: .gemini)
-        // Gemini takes the key as a query parameter rather than a header.
-        guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent?key=\(apiKey)") else {
+        guard let url = URL(string: "https://generativelanguage.googleapis.com/v1beta/models/\(model):generateContent") else {
             throw AIProviderError.badResponse(status: -1, body: "Could not build Gemini URL for model \(model)")
         }
 
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(apiKey, forHTTPHeaderField: "x-goog-api-key")
         request.timeoutInterval = 30
 
         request.httpBody = try JSONSerialization.data(
