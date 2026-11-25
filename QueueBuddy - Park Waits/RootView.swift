@@ -17,6 +17,8 @@ struct RootView: View {
     @EnvironmentObject var viewModel: WaitTimeViewModel
     @StateObject private var notificationDelegate = NotificationDelegate()
     @State private var isSplashActive = true
+    @State private var hingeHalfOpen = false
+    @State private var placement: ScreenPlacement?
 
     var body: some View {
         ZStack {
@@ -27,6 +29,13 @@ struct RootView: View {
                     .environmentObject(viewModel)
             }
         }
+        .background {
+            ScreenPlacementReader { placement = $0 }
+                .ignoresSafeArea()
+                .accessibilityHidden(true)
+        }
+        .modifier(HingeReader(isHalfOpen: $hingeHalfOpen))
+        .environment(\.foldCrease, FoldCrease.current(halfOpen: hingeHalfOpen, placement: placement))
         .onAppear {
             UNUserNotificationCenter.current().delegate = notificationDelegate
         }
@@ -65,13 +74,19 @@ struct MainTabView: View {
     @State private var searchText: String = ""
     @EnvironmentObject var viewModel: WaitTimeViewModel
 
-    var body: some View {
-        ZStack(alignment: .bottom) {
-            DB.bg.ignoresSafeArea()
+    private var accent: Color {
+        if let id = viewModel.activeParkId { return DB.accent(for: id) }
+        return DB.amber
+    }
 
-            Group {
-                switch selectedTab {
-                case .parks:
+    var body: some View {
+        // Native adaptive tab bar: a bottom bar on regular iPhones and the
+        // Duo's unfolded portrait, the system's right-edge rail on the Duo
+        // cover screen, a sidebar/top bar on iPad. Each tab keeps its own
+        // state across switches.
+        TabView(selection: $selectedTab) {
+            Tab(QBTab.parks.label, systemImage: QBTab.parks.systemImage, value: QBTab.parks) {
+                page {
                     ParksTab(
                         searchText: $searchText,
                         selectedTab: Binding(
@@ -79,30 +94,25 @@ struct MainTabView: View {
                             set: { selectedTab = QBTab(rawValue: $0) ?? .parks }
                         )
                     )
-                case .map:
-                    MapTabView()
-                case .favorites:
-                    FavoritedAttractionsView(searchText: $searchText)
-                        .readableWidth()
-                case .alerts:
-                    NotificationListView()
-                        .readableWidth()
-                case .plan:
-                    AIPlaygroundView()
-                        .readableWidth()
                 }
             }
-            .transition(.opacity)
-            .environmentObject(viewModel)
-
-            VStack(spacing: 0) {
-                BottomAdBanner()
-                DepartureTabBar(selected: $selectedTab)
-                    .frame(maxWidth: 560)
-                    .padding(.horizontal, 12)
-                    .padding(.bottom, 10)
+            Tab(QBTab.map.label, systemImage: QBTab.map.systemImage, value: QBTab.map) {
+                page { MapTabView() }
             }
-
+            Tab(QBTab.favorites.label, systemImage: QBTab.favorites.systemImage, value: QBTab.favorites) {
+                page { FavoritedAttractionsView(searchText: $searchText).readableWidth() }
+            }
+            Tab(QBTab.alerts.label, systemImage: QBTab.alerts.systemImage, value: QBTab.alerts) {
+                page { NotificationListView().readableWidth() }
+            }
+            Tab(QBTab.plan.label, systemImage: QBTab.plan.systemImage, value: QBTab.plan) {
+                page { AIPlaygroundView().readableWidth() }
+            }
+        }
+        .tabViewStyle(.sidebarAdaptable)
+        .tint(accent)
+        .animation(.easeInOut(duration: 0.25), value: viewModel.activeParkId)
+        .overlay(alignment: .top) {
             // Reroute banner overlay — anchored at top, hidden when the
             // routing engine hasn't fired or the user has dismissed.
             VStack {
@@ -116,7 +126,6 @@ struct MainTabView: View {
                     )
                     .transition(.move(edge: .top).combined(with: .opacity))
                 }
-                Spacer(minLength: 0)
             }
             .animation(.easeInOut(duration: 0.25), value: viewModel.latestRouteDecision?.id)
         }
@@ -129,6 +138,15 @@ struct MainTabView: View {
         .onReceive(NotificationCenter.default.publisher(for: .openMapTab)) { notif in
             handleOpenMapTab(notif)
         }
+    }
+
+    /// Shared chrome for every tab: app background and the ad slot, which
+    /// sits above the tab bar and pushes scroll content up with it.
+    private func page<Content: View>(@ViewBuilder _ content: () -> Content) -> some View {
+        content()
+            .environmentObject(viewModel)
+            .safeAreaInset(edge: .bottom, spacing: 0) { BottomAdBanner() }
+            .background(DB.bg.ignoresSafeArea())
     }
 
     private func parkName(for parkId: Int) -> String {
@@ -156,60 +174,6 @@ struct MainTabView: View {
             defaults.set(gen &+ 1, forKey: "mapTabFocusGeneration")
         }
         selectedTab = .map
-    }
-}
-
-struct DepartureTabBar: View {
-    @Binding var selected: QBTab
-    @EnvironmentObject var viewModel: WaitTimeViewModel
-
-    private var accent: Color {
-        if let id = viewModel.activeParkId { return DB.accent(for: id) }
-        return DB.amber
-    }
-
-    var body: some View {
-        HStack(spacing: 4) {
-            ForEach(QBTab.allCases) { tab in
-                Button {
-                    if selected != tab {
-                        #if os(iOS)
-                        UIImpactFeedbackGenerator(style: .light).impactOccurred()
-                        #endif
-                        selected = tab
-                    }
-                } label: {
-                    VStack(spacing: 4) {
-                        Image(systemName: tab.systemImage)
-                            .font(.system(size: 15, weight: .semibold))
-                        Text(tab.label.uppercased())
-                            .font(DB.mono(10, weight: .semibold))
-                            .tracking(1.5)
-                    }
-                    .foregroundStyle(selected == tab ? accent : DB.muted)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
-                .accessibilityLabel(tab.label)
-                .accessibilityIdentifier("tab.\(tab.label.lowercased())")
-            }
-        }
-        .padding(.horizontal, 6)
-        .padding(.vertical, 4)
-        .background(
-            ZStack {
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(.ultraThinMaterial)
-                    .opacity(0.6)
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .fill(DB.card.opacity(0.72))
-                RoundedRectangle(cornerRadius: 28, style: .continuous)
-                    .stroke(accent.opacity(0.25), lineWidth: 1)
-            }
-        )
-        .animation(.easeInOut(duration: 0.25), value: viewModel.activeParkId)
     }
 }
 

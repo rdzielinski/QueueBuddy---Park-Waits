@@ -71,9 +71,8 @@ struct MapTabView: View {
                     }
                 }
                 .padding(.top, 8)
-                // Leave room for the BottomAdBanner (~50pt) and the
-                // floating DepartureTabBar (~50pt incl. padding).
-                .padding(.bottom, 100)
+                // The ad slot and tab bar inset the safe area themselves.
+                .padding(.bottom, 8)
             }
             .onAppear { ensureSelectedParkIsValid() }
             .onChange(of: allParks.map(\.id)) { _, _ in

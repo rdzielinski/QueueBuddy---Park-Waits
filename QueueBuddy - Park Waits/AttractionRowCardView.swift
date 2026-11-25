@@ -58,6 +58,10 @@ struct AttractionRowCardView: View {
         return DB.waitTone(for: attraction.wait_time)
     }
 
+    /// Row width, for dropping the sparkline in narrow panes (Duo
+    /// two-pane, cover screen) so the ride name gets the room.
+    @State private var rowWidth: CGFloat = .infinity
+
     var body: some View {
         HStack(alignment: .center, spacing: 12) {
             if let routeColor {
@@ -105,7 +109,7 @@ struct AttractionRowCardView: View {
                     .accessibilityLabel(trend.symbol.contains("up") ? "Wait rising" : "Wait dropping")
             }
 
-            if sparklineSamples.count >= 3 {
+            if sparklineSamples.count >= 3, rowWidth >= 360 {
                 MiniSparkline(samples: sparklineSamples, tone: sparklineTone)
                     .frame(width: 44, height: 18)
             }
@@ -118,6 +122,7 @@ struct AttractionRowCardView: View {
         }
         .padding(.horizontal, 14)
         .padding(.vertical, 12)
+        .onGeometryChange(for: CGFloat.self, of: { $0.size.width }) { rowWidth = $0 }
         .opacity(isClosed ? 0.55 : 1)
         // Make the whole row tappable. With `.buttonStyle(.plain)` a
         // NavigationLink only hit-tests its opaque content, so a tap on the

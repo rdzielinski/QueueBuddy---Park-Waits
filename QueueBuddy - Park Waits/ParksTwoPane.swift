@@ -130,20 +130,23 @@ struct ParksTab: View {
     @State private var lastPark: Park?
     @State private var lastAttraction: Attraction?
 
+    @Environment(\.foldCrease) private var crease
+
     var body: some View {
         GeometryReader { geo in
             let wide = ParksLayout.isWide(geo.size)
-            HStack(spacing: 0) {
+            let split = splitMode(in: geo)
+            ParksSplitLayout(mode: split.mode, gutter: split.gutter) {
                 HomeView(searchText: $searchText, selectedTab: $selectedTab, path: $path)
                     .environment(\.parksSelect, wide ? { select($0) } : nil)
                     .environment(\.parksSelectedParkId, wide ? selectedPark?.id : nil)
-                    .frame(width: wide ? ParksLayout.sidebarWidth(for: geo.size.width) : geo.size.width)
 
                 if wide {
-                    Rectangle().fill(DB.line).frame(width: 1).ignoresSafeArea()
+                    ParksSeam(axis: split.axis)
                     detailPane
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: split.mode)
             .environment(\.parksShownReporter, { report($0) })
             .onChange(of: wide, initial: true) { _, isWide in
                 isWide ? moveToTwoPane() : moveToSingleColumn()
@@ -194,6 +197,31 @@ struct ParksTab: View {
                 MonoLabel(text: "SELECT A PARK", color: DB.muted, tracking: 2, size: 11)
             }
         }
+    }
+
+    // MARK: Posture
+
+    /// Columns when flat (or held like a book, with the seam on the
+    /// crease); rows when held like a laptop.
+    private func splitMode(in geo: GeometryProxy) -> (mode: ParksSplitLayout.Mode, gutter: CGFloat, axis: FoldCrease.Axis) {
+        let size = geo.size
+        let frame = geo.frame(in: .global)
+        let gutter: CGFloat = 24
+        if let crease {
+            switch crease.axis {
+            case .vertical:
+                let lead = crease.position - frame.minX - gutter / 2
+                if lead > 280, size.width - lead - gutter > 320 {
+                    return (.columns(lead: lead), gutter, .vertical)
+                }
+            case .horizontal:
+                let top = crease.position - frame.minY - gutter / 2
+                if top > 220, size.height - top - gutter > 220 {
+                    return (.rows(top: top), gutter, .horizontal)
+                }
+            }
+        }
+        return (.columns(lead: ParksLayout.sidebarWidth(for: size.width)), 1, .vertical)
     }
 
     // MARK: Selection

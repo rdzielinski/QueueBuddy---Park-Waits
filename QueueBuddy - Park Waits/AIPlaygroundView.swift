@@ -77,7 +77,7 @@ struct AIPlaygroundView: View {
                             errorBanner(error)
                         }
                         conversationList
-                        Color.clear.frame(height: 120)
+                        Color.clear.frame(height: 24)
                     }
                     .padding(.horizontal, 16)
                 }

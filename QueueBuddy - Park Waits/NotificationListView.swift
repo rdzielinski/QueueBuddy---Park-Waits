@@ -47,7 +47,7 @@ struct NotificationListView: View {
                             .padding(.horizontal, 16)
                         }
 
-                        Color.clear.frame(height: 120)
+                        Color.clear.frame(height: 24)
                     }
                 }
             }

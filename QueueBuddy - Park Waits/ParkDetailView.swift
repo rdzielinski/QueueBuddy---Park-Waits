@@ -255,7 +255,7 @@ struct ParkDetailView: View {
                         }
                     }
 
-                    Color.clear.frame(height: 100)
+                    Color.clear.frame(height: 24)
                 }
             }
             .refreshable {
@@ -399,25 +399,19 @@ struct ParkDetailView: View {
                     statusStrip(horizontal: false)
                 }
 
-                HStack(spacing: 10) {
-                    if let hours = viewModel.parkHoursText(for: park.id) {
-                        HStack(spacing: 5) {
-                            Image(systemName: "clock")
-                                .font(.system(size: 10))
-                            Text(hours)
-                        }
-                        .font(DB.mono(10))
-                        .tracking(1.2)
-                        .foregroundStyle(DB.muted)
-                        .accessibilityLabel("Park hours \(hours)")
+                // One line when it fits; in a narrow pane (the Duo's
+                // half-open or portrait two-pane) the pills drop below
+                // the hours instead of wrapping mid-word.
+                ViewThatFits(in: .horizontal) {
+                    HStack(spacing: 10) {
+                        hoursLabel
+                        headerPills
+                        Spacer(minLength: 0)
                     }
-                    if let ee = viewModel.earlyEntryWindow(parkId: park.id) {
-                        earlyEntryPill(start: ee.0)
+                    VStack(alignment: .leading, spacing: 8) {
+                        hoursLabel
+                        HStack(spacing: 10) { headerPills }
                     }
-                    if let crowd = viewModel.crowdLevel(for: park.id) {
-                        crowdBadge(crowd)
-                    }
-                    Spacer()
                 }
                 .padding(.top, 4)
 
@@ -623,6 +617,33 @@ struct ParkDetailView: View {
         )
     }
 
+    @ViewBuilder
+    private var hoursLabel: some View {
+        if let hours = viewModel.parkHoursText(for: park.id) {
+            HStack(spacing: 5) {
+                Image(systemName: "clock")
+                    .font(.system(size: 10))
+                Text(hours)
+            }
+            .font(DB.mono(10))
+            .tracking(1.2)
+            .foregroundStyle(DB.muted)
+            .lineLimit(1)
+            .fixedSize()
+            .accessibilityLabel("Park hours \(hours)")
+        }
+    }
+
+    @ViewBuilder
+    private var headerPills: some View {
+        if let ee = viewModel.earlyEntryWindow(parkId: park.id) {
+            earlyEntryPill(start: ee.0)
+        }
+        if let crowd = viewModel.crowdLevel(for: park.id) {
+            crowdBadge(crowd)
+        }
+    }
+
     /// "EARLY ENTRY 8:30 AM" pill shown when the park has a live Early
     /// Entry ticketed event today. Resort-guest users use this to plan
     /// arrival; everyone else gets a heads-up to skip the queue.
@@ -633,6 +654,8 @@ struct ParkDetailView: View {
                 .font(.system(size: 10))
             Text("EARLY \(f.string(from: start).uppercased())")
         }
+        .lineLimit(1)
+        .fixedSize()
         .font(DB.mono(10, weight: .semibold))
         .tracking(1.2)
         .foregroundStyle(DB.amber)
@@ -699,6 +722,8 @@ struct ParkDetailView: View {
                 .font(.system(size: 10))
             Text(level.label)
         }
+        .lineLimit(1)
+        .fixedSize()
         .font(DB.mono(10, weight: .semibold))
         .tracking(1.2)
         .foregroundStyle(color)

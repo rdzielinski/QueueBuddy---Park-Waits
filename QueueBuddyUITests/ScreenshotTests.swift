@@ -109,7 +109,7 @@ final class ScreenshotTests: XCTestCase {
         //    element query risks "Timed out while evaluating UI query". Read
         //    the tab's frame now (still safe), then reach it by coordinate
         //    and take no further queries afterwards.
-        let mapTab = app.buttons["tab.map"]
+        let mapTab = tabButton("map")
         XCTAssertTrue(mapTab.waitForExistence(timeout: 10), "Map tab missing")
         let target = mapTab.frame
         let window = app.frame
@@ -155,8 +155,15 @@ final class ScreenshotTests: XCTestCase {
             ?? rows.firstMatch
     }
 
+    /// Native tab bar items are labelled with the tab's title ("Parks").
+    private func tabButton(_ name: String) -> XCUIElement {
+        let title = name.prefix(1).uppercased() + name.dropFirst()
+        let inBar = app.tabBars.buttons[title]
+        return inBar.exists ? inBar : app.buttons[title].firstMatch
+    }
+
     private func tapTab(_ name: String) {
-        let tab = app.buttons["tab.\(name)"]
+        let tab = tabButton(name)
         XCTAssertTrue(tab.waitForExistence(timeout: 10), "Tab \(name) missing")
         tab.tap()
     }

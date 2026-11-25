@@ -128,7 +128,7 @@ struct HomeView: View {
                             }
                         }
 
-                        Color.clear.frame(height: 120) // tab bar spacer
+                        Color.clear.frame(height: 24)
                     }
                 }
                 .refreshable {

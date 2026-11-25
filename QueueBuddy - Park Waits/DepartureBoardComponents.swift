@@ -38,6 +38,8 @@ struct FlapDigits: View {
                     .font(DB.mono(max(10, size * 0.18), weight: .regular))
                     .tracking(2)
                     .foregroundStyle(DB.muted)
+                    .lineLimit(1)
+                    .fixedSize()
                     .padding(.bottom, size * 0.08)
             }
         }

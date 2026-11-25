@@ -13,7 +13,7 @@ import SwiftUI
 #if canImport(GoogleMobileAds)
 import GoogleMobileAds
 
-/// SwiftUI container that pins a fixed 320×50 banner above the tab bar
+/// SwiftUI container that pins a fixed 320×50 banner above the tab bar (each tab's bottom safe-area inset)
 /// and centers it horizontally. Mirrors the AdBannerContainerView
 /// pattern from VillagesRemake, which has been stable in production.
 struct BottomAdBanner: View {

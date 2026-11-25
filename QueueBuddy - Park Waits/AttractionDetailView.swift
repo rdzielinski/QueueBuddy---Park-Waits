@@ -104,9 +104,9 @@ struct AttractionDetailView: View {
                     reportWaitPrompt
                         .padding(.horizontal, 16)
 
-                    // Clear the floating ad banner + tab bar that overlay
-                    // the bottom of every tab (matches NotificationListView).
-                    Color.clear.frame(height: 120)
+                    // Breathing room above the tab bar, which insets the
+                    // scroll content itself.
+                    Color.clear.frame(height: 24)
                 }
             }
         }

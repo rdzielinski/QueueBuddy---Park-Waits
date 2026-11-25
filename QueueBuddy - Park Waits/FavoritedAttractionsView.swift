@@ -55,7 +55,7 @@ struct FavoritedAttractionsView: View {
                             }
                         }
 
-                        Color.clear.frame(height: 120)
+                        Color.clear.frame(height: 24)
                     }
                 }
                 .refreshable {
