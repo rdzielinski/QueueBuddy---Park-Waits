@@ -396,7 +396,7 @@ struct ParkMapView: View {
                         ),
                         anchor: .center
                     ) {
-                        AttractionPin(attraction: attraction)
+                        AttractionPin(attraction: attraction, parkId: parkId)
                             .onTapGesture { selectedAttraction = attraction }
                     }
                     .tag(attraction.id)
@@ -475,8 +475,12 @@ private struct FilterChip: View {
 // monospace numerals. Reads cleanly against the standard map at the
 // current zoom levels.
 
+/// Map pin: the ride's own icon (same `AttractionGlyph` as the ride list
+/// and detail screen) next to its wait, or a status mark when it isn't
+/// running. The ring is coloured by wait/status.
 private struct AttractionPin: View {
     let attraction: Attraction
+    let parkId: Int
 
     private var bucket: WaitBucket {
         WaitBucket(minutes: attraction.wait_time)
@@ -487,30 +491,55 @@ private struct AttractionPin: View {
                             isOpen: attraction.is_open ?? false)
     }
 
+    private var wait: Int? {
+        statusFilter == .open ? attraction.wait_time : nil
+    }
+
+    private var ringColor: Color {
+        wait != nil ? bucket.color : statusFilter.color
+    }
+
     var body: some View {
-        if statusFilter == .open, let wait = attraction.wait_time {
-            Text("\(wait)")
-                .font(DB.mono(11, weight: .bold))
-                .foregroundStyle(bucket.color)
-                .frame(minWidth: 22, minHeight: 22)
-                .padding(.horizontal, 5)
-                .background(
-                    Capsule()
-                        .fill(DB.bg.opacity(0.92))
-                        .overlay(Capsule().stroke(bucket.color.opacity(0.75), lineWidth: 1.5))
-                )
-                .shadow(color: bucket.color.opacity(0.5), radius: 4)
-        } else {
-            ZStack {
-                Circle()
-                    .fill(DB.bg.opacity(0.92))
-                    .overlay(Circle().stroke(statusFilter.color.opacity(0.75), lineWidth: 1.5))
+        HStack(spacing: 4) {
+            AttractionGlyph(
+                attractionId: attraction.id,
+                attractionType: attraction.type,
+                tint: DB.accent(for: parkId),
+                size: 18
+            )
+            .opacity(statusFilter == .open ? 1 : 0.55)
+
+            if let wait {
+                Text("\(wait)")
+                    .font(DB.mono(11, weight: .bold))
+                    .foregroundStyle(bucket.color)
+                    .fixedSize()
+            } else if statusFilter != .open {
                 Image(systemName: iconForStatus)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.system(size: 9, weight: .bold))
                     .foregroundStyle(statusFilter.color)
             }
-            .frame(width: 26, height: 26)
-            .shadow(color: statusFilter.color.opacity(0.5), radius: 4)
+        }
+        .padding(.leading, 4)
+        .padding(.trailing, wait != nil || statusFilter != .open ? 7 : 4)
+        .frame(minHeight: 26)
+        .background(
+            Capsule()
+                .fill(DB.bg.opacity(0.92))
+                .overlay(Capsule().stroke(ringColor.opacity(0.75), lineWidth: 1.5))
+        )
+        .shadow(color: ringColor.opacity(0.5), radius: 4)
+        .accessibilityElement(children: .ignore)
+        .accessibilityLabel(accessibilityText)
+    }
+
+    private var accessibilityText: String {
+        if let wait { return "\(attraction.name), \(wait == 0 ? "walk-on" : "\(wait) minute wait")" }
+        switch statusFilter {
+        case .down:   return "\(attraction.name), temporarily down"
+        case .closed: return "\(attraction.name), closed"
+        case .refurb: return "\(attraction.name), refurbishment"
+        case .open:   return attraction.name
         }
     }
 
@@ -531,7 +560,6 @@ private struct AttractionDetailSheet: View {
     let attraction: Attraction
 
     private var accent: Color { DB.accent(for: parkId) }
-    private var glyph: String { StaticData.symbol(for: attraction.id, type: attraction.type) }
 
     private var statusFilter: StatusFilter {
         StatusFilter.bucket(for: attraction.status,
@@ -566,9 +594,12 @@ private struct AttractionDetailSheet: View {
                           color: accent, tracking: 2, size: 11)
             }
             HStack(spacing: 12) {
-                Image(systemName: glyph)
-                    .font(.system(size: 22, weight: .semibold))
-                    .foregroundStyle(accent)
+                AttractionGlyph(
+                    attractionId: attraction.id,
+                    attractionType: attraction.type,
+                    tint: accent,
+                    size: 26
+                )
                     .frame(width: 36, height: 36)
                     .background(
                         RoundedRectangle(cornerRadius: 10, style: .continuous)
