@@ -4,7 +4,7 @@ extension WaitTimeViewModel {
 
     // MARK: - AI Conversation (Claude API)
 
-    private static var systemPrompt: String {
+    nonisolated static var systemPrompt: String {
         """
         You are QueueBuddy, a friendly, concise theme park guide for Walt Disney World and Universal Orlando (including Epic Universe). You help guests plan their day around live wait times.
 
@@ -14,6 +14,8 @@ extension WaitTimeViewModel {
         - The attraction list in the context is the COMPLETE and authoritative roster for that park. If something is not in that list, it is not in this park — never invent attractions or pull in ones you remember from training.
         - Each attraction is listed under its land. Do NOT infer a ride's land from its name; use the land you are given. (If the context says Mine-Cart Madness is in Super Nintendo World — Donkey Kong Country, that's where it is, even if the name sounds like something else.)
         - Use the live wait times provided; never fabricate a wait time. If a wait is unknown, say so.
+        - When the context lists SEVERAL parks, the guest wants answers across all of them: compare freely between those parks, always name the park next to each ride, and stay within the listed parks.
+        - For "longest", "shortest", "which park is busiest" and similar questions, use the LIVE WAIT FACTS block — it is already sorted and correct. Don't re-derive rankings yourself.
         - When no park is named in the context, you may discuss and compare the Orlando parks freely.
 
         Prefer bullet lists when recommending multiple rides. For a day plan, sequence the rides sensibly (group nearby lands to cut walking, or hit the shortest waits first) using only rides from the list. Keep answers under ~200 words unless a step-by-step plan needs more. If a ride or the whole park is closed, say so and suggest open alternatives from the same park. If you don't know something, say so honestly instead of guessing.
@@ -27,18 +29,33 @@ extension WaitTimeViewModel {
         likes: [String]? = nil,
         dislikes: [String]? = nil
     ) async {
+        await fetchAIResponse(for: query, parks: parkContext.map { [$0] } ?? [],
+                              childHeight: childHeight, likes: likes, dislikes: dislikes)
+    }
+
+    /// One park: that park's full roster by land. Several parks: live
+    /// leaderboards across them plus each park's roster.
+    func fetchAIResponse(
+        for query: String,
+        parks: [Park],
+        childHeight: Int? = nil,
+        likes: [String]? = nil,
+        dislikes: [String]? = nil
+    ) async {
         let trimmedQuery = query.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmedQuery.isEmpty else { return }
 
         isAILoading = true
         aiError = nil
 
-        if let park = parkContext, weatherByPark[park.id] == nil {
+        if parks.count == 1, let park = parks.first, weatherByPark[park.id] == nil {
             await fetchWeather(for: park)
         }
 
-        let contextBlock = buildContextBlock(
-            park: parkContext,
+        let contextBlock = parks.count > 1
+            ? buildMultiParkContextBlock(parks: parks, childHeight: childHeight, likes: likes, dislikes: dislikes)
+            : buildContextBlock(
+            park: parks.first,
             childHeight: childHeight,
             likes: likes,
             dislikes: dislikes
@@ -144,6 +161,32 @@ extension WaitTimeViewModel {
         if let dislikes, !dislikes.isEmpty { parts.append("User dislikes: \(dislikes.joined(separator: ", ")).") }
 
         guard !parts.isEmpty else { return nil }
+        return "[Current Context]\n" + parts.joined(separator: "\n\n")
+    }
+
+    func buildMultiParkContextBlock(
+        parks: [Park],
+        childHeight: Int?,
+        likes: [String]?,
+        dislikes: [String]?
+    ) -> String {
+        let names = parks.map(\.name).joined(separator: ", ")
+        var parts = ["Parks in scope: \(names). The guest wants answers across ALL of these parks. Only mention attractions from these parks, and name the park beside each one."]
+        let closed = parks.filter { isParkLikelyClosed(parkId: $0.id) }.map(\.name)
+        if !closed.isEmpty {
+            parts.append("Note: these parks appear closed or nearly closed right now: \(closed.joined(separator: ", ")).")
+        }
+        let digest = WaitDigest.from(parks: parks, attractionsByPark: attractionsByPark)
+        parts.append(digest.factsBlock())
+        // The on-device model has a ~4k-token window; the facts block alone
+        // answers the cross-park questions it can handle. Cloud models also
+        // get every ride so they can plan and filter.
+        if AIProviderRegistry.currentKind() != .apple {
+            parts.append(digest.rosterBlock())
+        }
+        if let childHeight { parts.append("Traveling child height: \(childHeight) inches.") }
+        if let likes, !likes.isEmpty { parts.append("User likes: \(likes.joined(separator: ", ")).") }
+        if let dislikes, !dislikes.isEmpty { parts.append("User dislikes: \(dislikes.joined(separator: ", ")).") }
         return "[Current Context]\n" + parts.joined(separator: "\n\n")
     }
 

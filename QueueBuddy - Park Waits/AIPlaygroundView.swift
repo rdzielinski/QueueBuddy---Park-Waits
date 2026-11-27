@@ -7,15 +7,44 @@ struct AIPlaygroundView: View {
     @AppStorage("childHeightInches") private var childHeightInches: Int = 0
     @AppStorage(AIProviderRegistry.activeProviderKey) private var activeProviderRaw: String = AIProviderKind.claude.rawValue
     @State private var query: String = ""
-    @State private var selectedParkID: Int = 0
+    /// Parks the chat answers about: "" = not chosen yet (defaults to the
+    /// guest's park on first appear), "all", or comma-separated park ids.
+    @AppStorage("planParkScope") private var parkScopeRaw: String = ""
     @State private var showSettings: Bool = false
     @State private var addedMessageIDs: Set<UUID> = []
     @State private var parkDayActivityRunning: Bool = false
     @FocusState private var isTextFieldFocused: Bool
 
-    private var parksForPicker: [Park] {
-        let nonePark = Park(id: 0, name: "No Park Context")
-        return [nonePark] + (viewModel.resortGroups.flatMap { $0.parks })
+    private var allParks: [Park] { viewModel.resortGroups.flatMap { $0.parks } }
+
+    /// nil means every park.
+    private var scopeIds: Set<Int>? {
+        guard !parkScopeRaw.isEmpty, parkScopeRaw != "all" else { return nil }
+        let ids = Set(parkScopeRaw.split(separator: ",").compactMap { Int($0) })
+        return ids.isEmpty ? nil : ids
+    }
+
+    private var scopedParks: [Park] {
+        guard let ids = scopeIds else { return allParks }
+        let parks = allParks.filter { ids.contains($0.id) }
+        return parks.isEmpty ? allParks : parks
+    }
+
+    private var isAllParks: Bool { scopeIds == nil || scopedParks.count == allParks.count }
+
+    private func setScope(_ ids: Set<Int>?) {
+        if let ids, !ids.isEmpty, ids.count < allParks.count {
+            parkScopeRaw = ids.sorted().map(String.init).joined(separator: ",")
+        } else {
+            parkScopeRaw = "all"
+        }
+    }
+
+    private func toggleScope(_ park: Park) {
+        // From "all parks", picking a park narrows to just that park.
+        guard var ids = scopeIds else { setScope([park.id]); return }
+        if ids.contains(park.id) { ids.remove(park.id) } else { ids.insert(park.id) }
+        setScope(ids)
     }
 
     private var hasAPIKey: Bool {
@@ -25,8 +54,11 @@ struct AIPlaygroundView: View {
         AIProviderRegistry.currentIsConfigured()
     }
 
+    /// The park when exactly one is in scope (My Day, Live Activity and
+    /// per-park suggestions only make sense for one park).
     private var selectedPark: Park? {
-        parksForPicker.first { $0.id == selectedParkID && $0.id != 0 }
+        let parks = scopedParks
+        return parks.count == 1 ? parks.first : nil
     }
 
     /// The AI provider the user picked in Settings. Read through @AppStorage
@@ -51,10 +83,10 @@ struct AIPlaygroundView: View {
             ]
         }
         return [
-            "Which Orlando park has the shortest waits today?",
-            "Compare Epic Universe to Magic Kingdom for thrill seekers.",
-            "Rainy-day park plan?",
-            "Tips for a trip with kids under 6?"
+            "What's the longest wait right now?",
+            "Which park has the shortest waits?",
+            "Best thrill ride under 30 minutes?",
+            "Where should we go for a rainy afternoon?"
         ]
     }
 
@@ -89,15 +121,16 @@ struct AIPlaygroundView: View {
                 AIKeySettingsView()
             }
             .onAppear {
-                if selectedParkID == 0 {
-                    // Prefer the user's saved favorite, then active park, then first in the list.
-                    if preferredParkId != 0 { selectedParkID = preferredParkId }
-                    else if let id = viewModel.activeParkId { selectedParkID = id }
-                    else { selectedParkID = viewModel.resortGroups.first?.parks.first?.id ?? 0 }
+                if parkScopeRaw.isEmpty {
+                    // First visit: the user's saved favorite, then the park
+                    // they're in, else every park.
+                    if preferredParkId != 0 { parkScopeRaw = "\(preferredParkId)" }
+                    else if let id = viewModel.activeParkId { parkScopeRaw = "\(id)" }
+                    else { parkScopeRaw = "all" }
                 }
                 syncParkDayActivityState()
             }
-            .onChange(of: selectedParkID) { _, _ in
+            .onChange(of: parkScopeRaw) { _, _ in
                 syncParkDayActivityState()
             }
             .toolbar {
@@ -194,23 +227,30 @@ struct AIPlaygroundView: View {
 
     private var parkContextPicker: some View {
         HStack(spacing: 8) {
-            MonoLabel(text: "CONTEXT", color: DB.muted, tracking: 1.5, size: 10)
+            MonoLabel(text: "PARKS", color: DB.muted, tracking: 1.5, size: 10)
             Spacer()
             Menu {
-                Picker("Park", selection: $selectedParkID) {
-                    ForEach(parksForPicker) { park in
-                        Text(park.name).tag(park.id)
+                Button {
+                    setScope(nil)
+                } label: {
+                    menuRow("All Parks", checked: isAllParks)
+                }
+                ForEach(viewModel.resortGroups) { group in
+                    Section(group.name) {
+                        ForEach(group.parks) { park in
+                            Button {
+                                toggleScope(park)
+                            } label: {
+                                menuRow(park.name, checked: !isAllParks && scopeIds?.contains(park.id) == true)
+                            }
+                        }
                     }
                 }
             } label: {
                 HStack(spacing: 6) {
-                    if let park = selectedPark {
-                        Circle().fill(DB.accent(for: park.id))
-                            .frame(width: 6, height: 6)
-                        Text(park.name)
-                    } else {
-                        Text("No park")
-                    }
+                    scopeDots
+                    Text(scopeTitle)
+                        .lineLimit(1)
                     Image(systemName: "chevron.down")
                         .font(.caption2)
                 }
@@ -222,6 +262,29 @@ struct AIPlaygroundView: View {
                     Capsule().fill(Color.white.opacity(0.05))
                         .overlay(Capsule().stroke(Color.white.opacity(0.08), lineWidth: 1))
                 )
+            }
+            .menuActionDismissBehavior(.disabled)
+            .accessibilityLabel("Parks: \(scopeTitle)")
+        }
+    }
+
+    @ViewBuilder
+    private func menuRow(_ title: String, checked: Bool) -> some View {
+        if checked { Label(title, systemImage: "checkmark") } else { Text(title) }
+    }
+
+    private var scopeTitle: String {
+        if isAllParks { return "All parks" }
+        let parks = scopedParks
+        if parks.count == 1 { return parks[0].name }
+        return "\(parks.count) parks"
+    }
+
+    private var scopeDots: some View {
+        HStack(spacing: -2) {
+            ForEach((isAllParks ? [] : scopedParks).prefix(4)) { park in
+                Circle().fill(DB.accent(for: park.id))
+                    .frame(width: 6, height: 6)
             }
         }
     }
@@ -381,7 +444,7 @@ struct AIPlaygroundView: View {
 
     private func syncParkDayActivityState() {
         if #available(iOS 16.1, *) {
-            parkDayActivityRunning = ParkDayActivityController.isRunning(forParkId: selectedParkID)
+            parkDayActivityRunning = ParkDayActivityController.isRunning(forParkId: selectedPark?.id ?? 0)
         } else {
             parkDayActivityRunning = false
         }
@@ -557,6 +620,8 @@ struct AIPlaygroundView: View {
 
     @ViewBuilder
     private func addToMyDayButton(for message: WaitTimeViewModel.AIMessage) -> some View {
+        // Only offer this when the answer is about one park; a cross-park
+        // answer isn't a plan for one day.
         if let park = selectedPark {
             let mentioned = viewModel.attractionsMentioned(in: message.text, parkId: park.id)
             let newOnes = mentioned.filter { !planStore.contains(attractionId: $0.id) }
@@ -621,10 +686,9 @@ struct AIPlaygroundView: View {
         query = ""
         let height: Int? = childHeightInches > 0 ? childHeightInches : nil
         Task {
-            let parkContext = parksForPicker.first { $0.id == selectedParkID && $0.id != 0 }
             await viewModel.fetchAIResponse(
                 for: sendText,
-                parkContext: parkContext,
+                parks: scopedParks,
                 childHeight: height
             )
         }
