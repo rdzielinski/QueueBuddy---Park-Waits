@@ -156,6 +156,11 @@ struct ParkMapView: View {
     @State private var selectedAttraction: Attraction?
     @State private var selectedAttractionId: Int?
     @State private var cameraPosition: MapCameraPosition
+    /// Map zoom in metres per screen point. Zoomed out, pins are just
+    /// the ride icon so crowded areas stay readable; zoomed in, they add
+    /// the wait. Nil until the map reports its first camera.
+    @State private var metresPerPoint: Double?
+    @State private var mapHeight: CGFloat = 400
 
     /// Map base layer: `.standard` flat street map vs `.hybrid` satellite
     /// imagery with park labels/roads. Persisted across launches and
@@ -396,7 +401,7 @@ struct ParkMapView: View {
                         ),
                         anchor: .center
                     ) {
-                        AttractionPin(attraction: attraction, parkId: parkId)
+                        AttractionPin(attraction: attraction, parkId: parkId, showsDetail: showsPinDetail)
                             .onTapGesture { selectedAttraction = attraction }
                     }
                     .tag(attraction.id)
@@ -404,6 +409,12 @@ struct ParkMapView: View {
             }
         }
         .mapStyle(currentMapStyle)
+        .onMapCameraChange(frequency: .onEnd) { context in
+            let metres = context.region.span.latitudeDelta * 111_000
+            metresPerPoint = metres / max(mapHeight, 1)
+        }
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { mapHeight = $0 }
+        .animation(.easeInOut(duration: 0.2), value: showsPinDetail)
         .frame(minHeight: 400, maxHeight: .infinity)
         .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
         .overlay(
@@ -411,6 +422,13 @@ struct ParkMapView: View {
                 .stroke(DB.line, lineWidth: 1)
         )
         .padding(.horizontal)
+    }
+
+    /// Below about 0.9 m/pt (one zoom step in from a whole park), pins are far
+    /// enough apart to carry the wait as well as the icon.
+    private var showsPinDetail: Bool {
+        guard let metresPerPoint else { return focusAttractionId != nil }
+        return metresPerPoint < 0.9
     }
 
     // MARK: - Toggle helpers
@@ -471,9 +489,8 @@ private struct FilterChip: View {
 
 // MARK: - Attraction Pin
 //
-// LED-style pin: dark capsule/circle on the map, tone-tinted stroke,
-// monospace numerals. Reads cleanly against the standard map at the
-// current zoom levels.
+// Dark capsule with a wait/status-coloured ring. Zoomed out it holds
+// just the ride icon; zoomed in it adds the wait in monospace numerals.
 
 /// Map pin: the ride's own icon (same `AttractionGlyph` as the ride list
 /// and detail screen) next to its wait, or a status mark when it isn't
@@ -481,6 +498,8 @@ private struct FilterChip: View {
 private struct AttractionPin: View {
     let attraction: Attraction
     let parkId: Int
+    /// Zoomed in: show the wait or status mark beside the icon.
+    var showsDetail = true
 
     private var bucket: WaitBucket {
         WaitBucket(minutes: attraction.wait_time)
@@ -509,7 +528,9 @@ private struct AttractionPin: View {
             )
             .opacity(statusFilter == .open ? 1 : 0.55)
 
-            if let wait {
+            if !showsDetail {
+                EmptyView()
+            } else if let wait {
                 Text("\(wait)")
                     .font(DB.mono(11, weight: .bold))
                     .foregroundStyle(bucket.color)
@@ -521,7 +542,7 @@ private struct AttractionPin: View {
             }
         }
         .padding(.leading, 4)
-        .padding(.trailing, wait != nil || statusFilter != .open ? 7 : 4)
+        .padding(.trailing, showsDetail && (wait != nil || statusFilter != .open) ? 7 : 4)
         .frame(minHeight: 26)
         .background(
             Capsule()
